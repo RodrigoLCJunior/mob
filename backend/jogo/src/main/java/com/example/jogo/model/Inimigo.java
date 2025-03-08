@@ -11,6 +11,8 @@ package com.example.jogo.model;
 import jakarta.persistence.*;
 import org.yaml.snakeyaml.events.Event;
 
+import java.util.List;
+
 @Entity
 @Table(name = "inimigos")
 public class Inimigo {
@@ -33,6 +35,9 @@ public class Inimigo {
 
     @Column(nullable = false)
     private int tipo;
+
+    @OneToMany(mappedBy = "inimigo", cascade = CascadeType.ALL)
+    private List<WaveInimigos> waveInimigos;
 
     public Inimigo(int id, float hp, int danoBase, float timeToHit, int recompensa, int tipo) {
         this.id = id;
@@ -85,5 +90,13 @@ public class Inimigo {
 
     public int getId() {
         return id;
+    }
+
+    public List<WaveInimigos> getWaveInimigos() {
+        return waveInimigos;
+    }
+
+    public void setWaveInimigos(List<WaveInimigos> waveInimigos) {
+        this.waveInimigos = waveInimigos;
     }
 }
