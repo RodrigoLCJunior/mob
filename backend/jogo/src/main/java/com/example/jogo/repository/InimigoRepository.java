@@ -7,9 +7,7 @@
  */
 
 package com.example.jogo.repository;
-
 import com.example.jogo.model.Inimigo;
 import org.springframework.data.jpa.repository.JpaRepository;
-
 public interface InimigoRepository extends JpaRepository<Inimigo, Integer> {
 }
