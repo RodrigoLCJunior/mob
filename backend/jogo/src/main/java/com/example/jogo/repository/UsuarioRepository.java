@@ -1,3 +1,11 @@
+/*
+ ** Task..: 13 - Sistema Inicial do Combate
+ ** Data..: 09/03/2024
+ ** Autor.: Rodrigo Luiz
+ ** Motivo: Criar classe Usuario
+ ** Obs...:
+ */
+
 package com.example.jogo.repository;
 
 import com.example.jogo.model.Usuarios;
