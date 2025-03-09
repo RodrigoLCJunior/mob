@@ -26,6 +26,10 @@ public class Wave {
     @OneToMany(mappedBy = "wave", cascade = CascadeType.ALL)
     private List<WaveInimigos> waveInimigos;
 
+    @ManyToOne
+    @JoinColumn(name = "dungeon_id", nullable = false)
+    private Dungeon dungeon;
+
     public Wave(){
     }
 
