@@ -27,8 +27,9 @@ public class Usuarios {
     @Column(nullable = false)
     private String senha;  // Armazenada de forma segura (hash)
 
-    @Column(nullable = false)
-    private double coin;
+    /* 07 - 12/03 - Filipe Augusto */
+    @OneToOne(cascade = CascadeType.ALL)
+    private MoedaPermanente moedaPermanente;
 
     @Column(nullable = false)
     private int Nivel;
@@ -59,5 +60,30 @@ public class Usuarios {
 
     public void setSenha(String senha) {
         this.senha = senha;
+    }
+
+    /* 07 - 12/03 - Filipe Augusto */
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public MoedaPermanente getMoedaPermanente() {
+        return moedaPermanente;
+    }
+
+    public void setMoedaPermanente(MoedaPermanente moedaPermanente) {
+        this.moedaPermanente = moedaPermanente;
+    }
+
+    public int getNivel() {
+        return Nivel;
+    }
+
+    public void setNivel(int nivel) {
+        Nivel = nivel;
     }
 }

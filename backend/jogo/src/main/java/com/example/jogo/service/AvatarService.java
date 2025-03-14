@@ -69,19 +69,19 @@ public class AvatarService {
     // Evolui um atributo do Avatar usando moedas permanentes
     public String evoluirAtributo(UUID avatarId, String atributo) {
         if (avatar == null || !avatar.getId().equals(avatarId)) {
-            return "Avatar não encontrado!";
+            return "Avatar não encontrado! (AvatarService.java)";
         }
 
         MoedaPermanente moedas = getMoedasPermanentes(avatar); // Obtém as moedas permanentes associadas ao avatar
 
         if (moedas == null) {
-            return "Moedas não encontradas para este avatar!";
+            return "Moedas não encontradas para este avatar! (AvatarService.java)";
         }
 
         // Verifica o custo do atributo a ser evoluído
         Integer custo = custoEvolucao.get(atributo.toLowerCase());
         if (custo == null) {
-            return "Atributo inválido!";
+            return "Atributo inválido! (AvatarService.java)";
         }
 
         // Verifica se o avatar tem moedas suficientes
@@ -100,9 +100,9 @@ public class AvatarService {
             atualizarAvatar(avatar);
             atualizarMoedasPermanentes(moedas);
 
-            return atributo + " evoluído com sucesso!";
+            return atributo + " evoluído com sucesso! (AvatarService.java)";
         } else {
-            return "Moedas insuficientes!";
+            return "Moedas insuficientes! (AvatarService.java)";
         }
     }
 

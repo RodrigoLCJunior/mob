@@ -23,13 +23,13 @@ public class EvoluirHabilidadesPermanentes {
         Avatar avatar = avatarService.getAvatar();  // Obtendo o avatar diretamente do AvatarService
 
         if (avatar == null || !avatar.getId().equals(avatarId)) {
-            return "Avatar não encontrado!";
+            return "Avatar não encontrado! (EvoluirHabilidadesPermanentes.java)";
         }
 
         MoedaPermanente moedas = avatarService.getMoedaPermanente(avatar);
 
         if (moedas == null) {
-            return "Moedas não encontradas para este avatar!";
+            return "Moedas não encontradas para este avatar! (EvoluirHabilidadesPermanentes.java)";
         }
 
         if (moedas.removerMoedas(custo)) {
@@ -41,15 +41,15 @@ public class EvoluirHabilidadesPermanentes {
                     avatar.setDanoBase(avatar.getDanoBase() + 2);  // Aumenta o dano base em 2
                     break;
                 default:
-                    return "Atributo inválido!";
+                    return "Atributo inválido! (EvoluirHabilidadesPermanentes.java)";
             }
 
             avatarService.atualizarAvatar(avatar); // Método para atualizar o avatar no AvatarService
             avatarService.atualizarMoedasPermanentes(moedas); // Atualizar as moedas no AvatarService
 
-            return atributo + " evoluído com sucesso!";
+            return atributo + " evoluído com sucesso! (EvoluirHabilidadesPermanentes.java)";
         } else {
-            return "Moedas insuficientes!";
+            return "Moedas insuficientes! (EvoluirHabilidadesPermanentes.java)";
         }
     }
 }

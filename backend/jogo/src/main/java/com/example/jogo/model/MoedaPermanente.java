@@ -8,7 +8,17 @@
 
 package com.example.jogo.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "Moeda_Permanente")
 public class MoedaPermanente {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    @Column(nullable = false)
     private int quantidade;
 
     public MoedaPermanente() {
