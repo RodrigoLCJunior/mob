@@ -33,6 +33,9 @@ public class Usuarios {
     private int nivel;
 
     /* Rodrigo Luiz - 15/03/2025 - mob_015 */
+    @Column(nullable = false)
+    private int experiencia;
+
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private Avatar avatar;
 
@@ -46,6 +49,7 @@ public class Usuarios {
         this.email = email;
         this.senha = senha;
         this.nivel = 1; // Nível inicial
+        this.experiencia = 0;
     }
 
     public UUID getId() {
@@ -99,5 +103,13 @@ public class Usuarios {
 
     public void setDungeons(List<Dungeon> dungeons) {
         this.dungeons = dungeons;
+    }
+
+    public int getExperiencia() {
+        return experiencia;
+    }
+
+    public void setExperiencia(int experiencia) {
+        this.experiencia = experiencia;
     }
 }

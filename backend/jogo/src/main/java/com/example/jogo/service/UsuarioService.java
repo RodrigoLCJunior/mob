@@ -13,6 +13,8 @@ import java.util.UUID;
 @Service
 public class UsuarioService {
 
+    private int nivelMaximo = 20;
+
     @Autowired
     private UsuarioRepository usuarioRepository;
 
@@ -24,7 +26,6 @@ public class UsuarioService {
     private AvatarService avatarService;
 
     public List<Usuarios> listarUsuarios() {
-
         return usuarioRepository.findAll();
     }
 
@@ -49,9 +50,31 @@ public class UsuarioService {
         return usuarioRepository.findByEmail(email).orElse(null);
     }
 
+    public Usuarios buscarUsuarioPorId(UUID id){
+        return usuarioRepository.findById(id).get();
+    }
+
     /* Rodrigo Luiz - 15/03/2025 - mob_015 */
     public void deletarUsuario(UUID id) {
         usuarioRepository.deleteById(id);
+    }
+
+    public Usuarios adicionarExperiencia(UUID usuarioId, int experiencia) {
+        Usuarios usuario = buscarUsuarioPorId(usuarioId);
+        if (usuario != null) {
+            usuario.setExperiencia(usuario.getExperiencia() + experiencia);
+            while (usuario.getExperiencia() >= experienciaParaProximoNivel(usuario) && usuario.getNivel() < nivelMaximo) {
+                usuario.setExperiencia(usuario.getExperiencia() - experienciaParaProximoNivel(usuario));
+                usuario.setNivel(usuario.getNivel() + 1);
+            }
+            usuarioRepository.save(usuario);
+        }
+        return usuario;
+    }
+
+    public int experienciaParaProximoNivel(Usuarios usuario) {
+        // Fórmula simples: 100 * nível atual
+        return usuario.getNivel() * 100;
     }
 }
 
