@@ -37,7 +37,9 @@ public class UsuarioService {
 
         // Criar avatar para o usuário
         Avatar avatar = avatarService.criarAvatar(usuario);
+        avatar = avatarRepository.save(avatar); // Salvar o avatar no banco de dados
         usuario.setAvatar(avatar);
+        usuario = usuarioRepository.save(usuario); // Salvar a associação do avatar com o usuário
 
         return usuario;
     }

@@ -44,6 +44,14 @@ public class AvatarService {
     /* Rodrigo Luiz - 15/03/2025 - mob_015 */
     // Criar avatar para usuário
     public Avatar criarAvatar(Usuarios usuario) {
+        Avatar avatar = new Avatar();
+        avatar.setUsuario(usuario);
+        avatar.setHp(5); // Definir valores iniciais para o avatar
+        avatar.setDanoBase(1); // Definir valores iniciais para o avatar
+        return avatar;
+    }
+
+    public Avatar criarAvatarController(Usuarios usuario) {
         Avatar avatar = new Avatar(5, 1, usuario); // Valores iniciais de HP e danoBase
         return avatarRepository.save(avatar);
     }

@@ -29,11 +29,11 @@ public class Usuarios {
     @Column(nullable = false)
     private String senha;  // Armazenada de forma segura (hash)
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "integer default 1")
     private int nivel;
 
     /* Rodrigo Luiz - 15/03/2025 - mob_015 */
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "integer default 0")
     private int experiencia;
 
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
