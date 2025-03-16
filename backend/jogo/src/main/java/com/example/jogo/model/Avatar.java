@@ -35,6 +35,8 @@ public class Avatar {
     //private List<SkillsAtivas> habilidadesAtivas;
 
     //Metodo de Criar o Avatar
+    public Avatar(){}
+
     public Avatar(int hp, int danoBase, Usuarios usuario) {
         this.hp = hp;
         this.danoBase = danoBase;

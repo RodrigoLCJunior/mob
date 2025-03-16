@@ -21,19 +21,19 @@ public class UsuarioController {
         return usuarioService.listarUsuarios();
     }
 
+    @GetMapping("/{id}")
+    private Usuarios acharPorId(@PathVariable UUID id){
+        return usuarioService.buscarUsuarioPorId(id);
+    }
+
     @GetMapping("/{email}")
     private Usuarios buscarUsuarioPorEmail(@PathVariable String email) {
         return usuarioService.buscarUsuarioPorEmail(email);
     }
 
     @GetMapping("/{id}/experiencia-para-proximo-nivel")
-    private Integer experienciaParaProximoNivel(@PathVariable UUID id) {
-        Usuarios usuario = usuarioService.buscarUsuarioPorId(id);
-        if (usuario != null) {
-            return usuarioService.experienciaParaProximoNivel(usuario);
-        } else {
-            return 0;
-        }
+    private void experienciaParaProximoNivel(Usuarios usuario) {
+        usuarioService.experienciaParaProximoNivel(usuario);
     }
 
     @PostMapping("/{id}/experiencia")
