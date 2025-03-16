@@ -20,8 +20,8 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public Usuarios salvarUsuario(@RequestBody Usuarios usuario) {
-        return usuarioService.salvarUsuario(usuario);
+    public Usuarios salvarUsuariocriarUsuario(@RequestParam String nome, @RequestParam String email, @RequestParam String senha) {
+        return usuarioService.criarUsuario(nome, email, senha);
     }
 
     @GetMapping("/{email}")

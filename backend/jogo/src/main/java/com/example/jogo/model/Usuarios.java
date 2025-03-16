@@ -8,6 +8,8 @@
 
 package com.example.jogo.model;
 import jakarta.persistence.*;
+
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -15,7 +17,7 @@ import java.util.UUID;
 public class Usuarios {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false)
@@ -28,10 +30,14 @@ public class Usuarios {
     private String senha;  // Armazenada de forma segura (hash)
 
     @Column(nullable = false)
-    private double coin;
+    private int nivel;
 
-    @Column(nullable = false)
-    private int Nivel;
+    /* Rodrigo Luiz - 15/03/2025 - mob_015 */
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Avatar avatar;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Dungeon> dungeons;
 
     public Usuarios() {}
 
@@ -39,6 +45,7 @@ public class Usuarios {
         this.nome = nome;
         this.email = email;
         this.senha = senha;
+        this.nivel = 1; // Nível inicial
     }
 
     public UUID getId() {
@@ -59,5 +66,38 @@ public class Usuarios {
 
     public void setSenha(String senha) {
         this.senha = senha;
+    }
+
+    /* Rodrigo Luiz - 15/03/2025 - mob_015 */
+    public Avatar getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(Avatar avatar) {
+        this.avatar = avatar;
+    }
+
+    public int getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(int nivel) {
+        this.nivel = nivel;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public List<Dungeon> getDungeons() {
+        return dungeons;
+    }
+
+    public void setDungeons(List<Dungeon> dungeons) {
+        this.dungeons = dungeons;
     }
 }
