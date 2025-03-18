@@ -42,7 +42,7 @@ public class Usuarios {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Dungeon> dungeons;
 
-    public Usuarios() {}
+    public Usuarios() {} 
 
     public Usuarios(String nome, String email, String senha) {
         this.nome = nome;
