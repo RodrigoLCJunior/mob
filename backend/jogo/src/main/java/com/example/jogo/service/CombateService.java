@@ -55,6 +55,6 @@ public class CombateService {
     private void finalizarCombateComDerrota(Combate combate){
         combate.setCombateEmAndamento(false);
         combate.setJogadorPerdeu(true);
-        combate.getMoedasTemporarias().removerMoedas(combate.getMoedasTemporarias().getQuantidade()); 
+        combate.getMoedasTemporarias().removerMoedas(combate.getMoedasTemporarias().getQuantidade());
     }
 }
