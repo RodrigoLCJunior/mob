@@ -1,3 +1,11 @@
+/*
+ ** Task..: 13 - Sistema Inicial do Combate
+ ** Data..: 15/03/2024
+ ** Autor.: Rodrigo Luiz
+ ** Motivo: Adaptar o maximo a dungeon para o Usuario
+ ** Obs...:
+ */
+
 package com.example.jogo.service;
 
 import com.example.jogo.model.Avatar;
@@ -15,6 +23,10 @@ public class CombateService {
     @Autowired
     private InimigoService inimigoService;
 
+    /* Rodrigo Luiz - 19/03/2025 - mob_018 */
+    @Autowired
+    private ProgressaoService progressaoService;
+
     public Combate iniciarCombate(Avatar avatar, Inimigo inimigo){
         return new Combate(avatar, inimigo);
     }
@@ -28,12 +40,17 @@ public class CombateService {
         if (inimigo.getHp() <= 0){
             combate.setCombateEmAndamento(false);
             combate.getMoedasTemporarias().adicionarMoedas(inimigo.getRecompensa());
+
+            /* Rodrigo Luiz - 19/03/2025 - mob_018 */
+            progressaoService.adicionarMoedasTemporarias(avatar, inimigo.getRecompensa());
+            progressaoService.adicionarInimigoDerrotado(avatar);
         }
 
         if (avatar.getHp() <= 0){
             finalizarCombateComDerrota(combate);
         }
 
+        progressaoService.adicionarClique(avatar);  /* Rodrigo Luiz - 19/03/2025 - mob_018 */
         avatarService.modificarAvatar(avatar.getId(), avatar.getHp(), avatar.getDanoBase());
         inimigoService.salvarInimigo(inimigo);
     }
