@@ -42,6 +42,10 @@ public class Usuarios {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Dungeon> dungeons;
 
+    /* Filipe Augusto - 20/03/2025 - mob_dev_26_MoedaPermanente */
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private MoedaPermanente moedaPermanente;
+
     public Usuarios() {} 
 
     public Usuarios(String nome, String email, String senha) {
@@ -112,4 +116,9 @@ public class Usuarios {
     public void setExperiencia(int experiencia) {
         this.experiencia = experiencia;
     }
+
+    /* Filipe Augusto - 20/03/2025 - mob_dev_26_MoedaPermanente */
+    public MoedaPermanente getMoedaPermanente() { return moedaPermanente; }
+
+    public void setMoedaPermanente(MoedaPermanente moedaPermanente) { this.moedaPermanente = moedaPermanente; }
 }

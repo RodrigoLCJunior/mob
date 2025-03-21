@@ -33,6 +33,11 @@ public class Progressao {
     @JoinColumn(name = "avatar_id", nullable = false)
     private Avatar avatar;
 
+    /* Filipe Augusto - 20/03/2025 - mob_dev_26_MoedaPermanente */
+    @OneToOne
+    @JoinColumn(name = "moeda_permanente_id", nullable = false)
+    private MoedaPermanente moedaPermanente;
+
     public Progressao(){}
 
     public Progressao(Avatar avatar) {
@@ -73,5 +78,14 @@ public class Progressao {
 
     public void setTotalMoedasTemporarias(int totalMoedasTemporarias) {
         this.totalMoedasTemporarias = totalMoedasTemporarias;
+    }
+
+    /* Filipe Augusto - 20/03/2025 - mob_dev_26_MoedaPermanente */
+    public MoedaPermanente getMoedaPermanente() {
+        return moedaPermanente;
+    }
+
+    public void setMoedaPermanente(MoedaPermanente moedaPermanente) {
+        this.moedaPermanente = moedaPermanente;
     }
 }
