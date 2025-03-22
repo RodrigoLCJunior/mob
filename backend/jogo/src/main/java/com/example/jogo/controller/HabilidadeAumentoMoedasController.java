@@ -34,7 +34,7 @@ public class HabilidadeAumentoMoedasController {
         HabilidadeAumentoMoedas novaHabilidade = habilidadeAumentoMoedasService.salvarHabilidade(habilidade);
         return ResponseEntity.ok(novaHabilidade);
     }
-    
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarHabilidade(@PathVariable int id) {
         habilidadeAumentoMoedasService.deletarHabilidade(id);
