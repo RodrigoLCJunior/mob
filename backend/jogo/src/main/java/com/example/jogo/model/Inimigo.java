@@ -39,6 +39,8 @@ public class Inimigo {
     @OneToMany(mappedBy = "inimigo", cascade = CascadeType.ALL)
     private List<WaveInimigos> waveInimigos;
 
+    public  Inimigo(){}
+
     public Inimigo(int id, float hp, int danoBase, float timeToHit, int recompensa, int tipo) {
         this.id = id;
         this.hp = hp;
