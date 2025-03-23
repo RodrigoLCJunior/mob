@@ -14,6 +14,9 @@ import com.example.jogo.model.Inimigo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class CombateService {
 
@@ -27,8 +30,21 @@ public class CombateService {
     @Autowired
     private ProgressaoService progressaoService;
 
+    /* Rodrigo Luiz - 23/03/2025 - mob_028 */
+    private List<Combate> combates = new ArrayList<>();
+
     public Combate iniciarCombate(Avatar avatar, Inimigo inimigo){
         return new Combate(avatar, inimigo);
+    }
+
+    /* Rodrigo Luiz - 23/03/2025 - mob_028 */
+    public Combate getCombate(Avatar avatar) {
+        for (Combate combate : combates) {
+            if (combate.getAvatar().equals(avatar)) {
+                return combate;
+            }
+        }
+        return null;
     }
 
     public void avatarAtacar(Combate combate){
