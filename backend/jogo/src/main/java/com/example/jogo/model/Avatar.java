@@ -1,10 +1,10 @@
 /*
-** Task..: 13 - Sistema Inicial do Combate
-** Data..: 08/03/2024
-** Autor.: Rodrigo Luiz
-** Motivo: Criar classe Avatar para usar no Combate
-** Obs...:
-*/
+ ** Task..: 13 - Sistema Inicial do Combate
+ ** Data..: 08/03/2024
+ ** Autor.: Rodrigo Luiz
+ ** Motivo: Criar classe Avatar para usar no Combate
+ ** Obs...:
+ */
 
 package com.example.jogo.model;
 import jakarta.persistence.*;
@@ -32,6 +32,11 @@ public class Avatar {
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuarios usuario;
 
+    /* Rodrigo Luiz - 18/03/2025 - mob_018 */
+    @OneToOne(mappedBy = "avatar", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Progressao progressao;
+
+    /* Rodrigo Luiz - 22/03/2025 - mob_028 */
     @OneToMany(mappedBy = "avatar", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AvatarHabilidadeTemporaria> avatarHabilidades;
 
@@ -73,6 +78,15 @@ public class Avatar {
         this.usuario = usuario;
     }
 
+    /* Rodrigo Luiz - 15/03/2025 - mob_015 */
+    public Progressao getProgressao() {
+        return progressao;
+    }
+
+    public void setProgressao(Progressao progressao) {
+        this.progressao = progressao;
+    }
+
     /* Rodrigo Luiz - 22/03/2025 - mob_028 */
     public List<AvatarHabilidadeTemporaria> getAvatarHabilidades() {
         return avatarHabilidades;
@@ -81,4 +95,5 @@ public class Avatar {
     public void setAvatarHabilidades(List<AvatarHabilidadeTemporaria> avatarHabilidades) {
         this.avatarHabilidades = avatarHabilidades;
     }
+
 }
