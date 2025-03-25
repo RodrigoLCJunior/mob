@@ -27,6 +27,13 @@ public class Avatar {
     @Column(nullable = false)
     private int danoBase;
 
+    /* Filipe Augusto - 24/03/2025 - mob_dev_07_AtributoAvatar */
+    @Column(nullable = false)
+    private double taxaGanhoMoedasTemporarias;
+
+    @Column(nullable = false)
+    private double taxaGanhoMoedasPermanentes;
+
     /* Rodrigo Luiz - 15/03/2025 - mob_015 */
     @OneToOne
     @JoinColumn(name = "usuario_id", nullable = false)
@@ -59,12 +66,28 @@ public class Avatar {
         return id;
     }
 
+    /* Filipe Augusto - 24/03/2025 - mob_dev_07_AtributoAvatar */
+    public double getTaxaGanhoMoedasTemporarias() {
+        return taxaGanhoMoedasTemporarias;
+    }
+    public double getTaxaGanhoMoedasPermanentes() {
+        return taxaGanhoMoedasPermanentes;
+    }
+
     public void setDanoBase(int danoBase) {
         this.danoBase = danoBase;
     }
 
     public void setHp(int hp) {
         this.hp = hp;
+    }
+
+    /* Filipe Augusto - 24/03/2025 - mob_dev_07_AtributoAvatar */
+    public void setTaxaGanhoMoedasTemporarias(double taxaGanhoMoedasTemporarias) {
+        this.taxaGanhoMoedasTemporarias = taxaGanhoMoedasTemporarias;
+    }
+    public void setTaxaGanhoMoedasPermanentes(double taxaGanhoMoedasPermanentes) {
+        this.taxaGanhoMoedasPermanentes = taxaGanhoMoedasPermanentes;
     }
 
     /* Rodrigo Luiz - 15/03/2025 - mob_015 */

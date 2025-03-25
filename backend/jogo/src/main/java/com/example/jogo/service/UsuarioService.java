@@ -78,5 +78,15 @@ public class UsuarioService {
         // Fórmula simples: 100 * nível atual
         return usuario.getNivel() * 100;
     }
+
+    /* Filipe Augusto - 24/03/2025 - mob_dev_07_AtributoAvatar */
+    public void adicionarMoedasPermanentes(UUID usuarioId, int quantidade) {
+        Usuarios usuario = buscarUsuarioPorId(usuarioId);
+        if (usuario != null) {
+            usuario.setMoedaPermanente(usuario.getMoedaPermanente() + quantidade);
+            usuarioRepository.save(usuario);
+        }
+    }
+
 }
 

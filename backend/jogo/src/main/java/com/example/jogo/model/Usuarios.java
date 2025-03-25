@@ -117,7 +117,7 @@ public class Usuarios {
         this.experiencia = experiencia;
     }
 
-    /* Filipe Augusto - 20/03/2025 - mob_dev_26_MoedaPermanente */
+    /* Filipe Augusto - 20/03/2025 - mob_dev_07_AtributoAvatar */
     public MoedaPermanente getMoedaPermanente() { return moedaPermanente; }
 
     public void setMoedaPermanente(MoedaPermanente moedaPermanente) { this.moedaPermanente = moedaPermanente; }
