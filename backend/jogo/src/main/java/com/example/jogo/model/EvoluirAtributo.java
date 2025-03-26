@@ -98,7 +98,7 @@ public class EvoluirAtributo {
     public void evoluir() {
         if (podeEvoluir()) {
             nivelAtual++;
-            custo += custo * 0.2; // Aumento de 20% no custo por nível
+            custo += custo * 0.2;
         }
     }
 
