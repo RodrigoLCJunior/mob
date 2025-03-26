@@ -2,14 +2,13 @@
  ** Task..: 26 - Habilidades Permanentes
  ** Data..: 24/03/2024
  ** Autor.: Filipe Augusto
- ** Motivo:Classe para Evoluir Habilidades Permanentes
+ ** Motivo: Classe para Evoluir Habilidades Permanentes
  ** Obs...:
  */
 
 package com.example.jogo.model;
 
 import jakarta.persistence.*;
-
 import java.util.UUID;
 
 @Entity
@@ -29,22 +28,22 @@ public class EvoluirAtributo {
     private TipoAtributo tipoAtributo;
 
     @Column(nullable = false)
-    private int valorAtual;
-
-    @Column(nullable = false)
-    private int valorEvoluido;
-
-    @Column(nullable = false)
     private int custo;
+
+    @Column(nullable = false)
+    private int nivelAtual;
+
+    @Column(nullable = false)
+    private int nivelMaximo;
 
     public EvoluirAtributo() {}
 
-    public EvoluirAtributo(Avatar avatar, TipoAtributo tipoAtributo, int valorAtual, int valorEvoluido, int custo) {
+    public EvoluirAtributo(Avatar avatar, TipoAtributo tipoAtributo, int custo, int nivelAtual, int nivelMaximo) {
         this.avatar = avatar;
         this.tipoAtributo = tipoAtributo;
-        this.valorAtual = valorAtual;
-        this.valorEvoluido = valorEvoluido;
         this.custo = custo;
+        this.nivelAtual = nivelAtual;
+        this.nivelMaximo = nivelMaximo;
     }
 
     // Getters e Setters
@@ -68,22 +67,6 @@ public class EvoluirAtributo {
         this.tipoAtributo = tipoAtributo;
     }
 
-    public int getValorAtual() {
-        return valorAtual;
-    }
-
-    public void setValorAtual(int valorAtual) {
-        this.valorAtual = valorAtual;
-    }
-
-    public int getValorEvoluido() {
-        return valorEvoluido;
-    }
-
-    public void setValorEvoluido(int valorEvoluido) {
-        this.valorEvoluido = valorEvoluido;
-    }
-
     public int getCusto() {
         return custo;
     }
@@ -92,8 +75,35 @@ public class EvoluirAtributo {
         this.custo = custo;
     }
 
+    public int getNivelAtual() {
+        return nivelAtual;
+    }
+
+    public void setNivelAtual(int nivelAtual) {
+        this.nivelAtual = nivelAtual;
+    }
+
+    public int getNivelMaximo() {
+        return nivelMaximo;
+    }
+
+    public void setNivelMaximo(int nivelMaximo) {
+        this.nivelMaximo = nivelMaximo;
+    }
+
+    public boolean podeEvoluir() {
+        return nivelAtual < nivelMaximo;
+    }
+
+    public void evoluir() {
+        if (podeEvoluir()) {
+            nivelAtual++;
+            custo += custo * 0.2; // Aumento de 20% no custo por nível
+        }
+    }
+
     // Enum
     public enum TipoAtributo {
-        HP, DANO_BASE, TAXA_MOEDAS_TEMPORARIAS,TAXA_MOEDAS_PERMANENTES;
+        HP, DANO_BASE, TAXA_MOEDAS_TEMPORARIAS, TAXA_MOEDAS_PERMANENTES;
     }
 }
