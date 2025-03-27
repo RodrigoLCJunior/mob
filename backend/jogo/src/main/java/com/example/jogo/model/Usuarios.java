@@ -46,7 +46,7 @@ public class Usuarios {
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private MoedaPermanente moedaPermanente;
 
-    public Usuarios() {} 
+    public Usuarios() {}
 
     public Usuarios(String nome, String email, String senha) {
         this.nome = nome;

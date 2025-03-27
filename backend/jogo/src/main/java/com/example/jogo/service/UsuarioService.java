@@ -3,6 +3,7 @@ package com.example.jogo.service;
 
 import com.example.jogo.model.Avatar;
 import com.example.jogo.model.Usuarios;
+import com.example.jogo.model.MoedaPermanente;
 import com.example.jogo.repository.AvatarRepository;
 import com.example.jogo.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,7 +84,8 @@ public class UsuarioService {
     public void adicionarMoedasPermanentes(UUID usuarioId, int quantidade) {
         Usuarios usuario = buscarUsuarioPorId(usuarioId);
         if (usuario != null) {
-            usuario.setMoedaPermanente(usuario.getMoedaPermanente() + quantidade);
+            MoedaPermanente moedaPermanente = usuario.getMoedaPermanente();
+            moedaPermanente.adicionarMoedas(quantidade);
             usuarioRepository.save(usuario);
         }
     }

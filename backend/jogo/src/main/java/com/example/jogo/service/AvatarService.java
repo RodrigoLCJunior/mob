@@ -65,4 +65,10 @@ public class AvatarService {
         }
         return avatar;
     }
+
+    public Avatar buscarAvatarPorId(UUID avatarId) {
+        return avatarRepository.findById(avatarId)
+                .orElse(null);
+    }
+
 }

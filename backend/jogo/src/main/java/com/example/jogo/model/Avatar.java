@@ -1,52 +1,57 @@
 /*
-** Task..: 13 - Sistema Inicial do Combate
-** Data..: 08/03/2024
-** Autor.: Rodrigo Luiz
-** Motivo: Criar classe Avatar para usar no Combate
-** Obs...:
-*/
+ ** Task..: 13 - Sistema Inicial do Combate
+ ** Data..: 08/03/2024
+ ** Autor.: Rodrigo Luiz
+ ** Motivo: Criar classe Avatar para usar no Combate
+ ** Obs...:
+ */
+
 
 package com.example.jogo.model;
 import jakarta.persistence.*;
 
+
 import java.util.UUID;
 import java.util.List;
+
 
 /* Rodrigo Luiz - 15/03/2025 - mob_015 */
 @Entity
 @Table(name = "avatar")
 public class Avatar {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+
     @Column(nullable = false)
     private int hp;
+
 
     @Column(nullable = false)
     private int danoBase;
 
-    /* Filipe Augusto - 24/03/2025 - mob_dev_07_AtributoAvatar */
-    @Column(nullable = false)
-    private double taxaGanhoMoedasTemporarias;
-
-    @Column(nullable = false)
-    private double taxaGanhoMoedasPermanentes;
 
     /* Rodrigo Luiz - 15/03/2025 - mob_015 */
     @OneToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuarios usuario;
 
+
     /* Rodrigo Luiz - 18/03/2025 - mob_018 */
     @OneToOne(mappedBy = "avatar", cascade = CascadeType.ALL, orphanRemoval = true)
     private Progressao progressao;
 
-    //private List<SkillsAtivas> habilidadesAtivas;
+
+    @OneToMany(mappedBy = "avatar", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EvoluirAtributo> evoluirAtributos;
+
 
     //Metodo de Criar o Avatar
     public Avatar(){}
+
 
     public Avatar(int hp, int danoBase, Usuarios usuario) {
         this.hp = hp;
@@ -54,55 +59,58 @@ public class Avatar {
         this.usuario = usuario;
     }
 
+
     public int getDanoBase() {
         return danoBase;
     }
+
 
     public int getHp() {
         return hp;
     }
 
+
     public UUID getId() {
         return id;
     }
 
-    /* Filipe Augusto - 24/03/2025 - mob_dev_07_AtributoAvatar */
-    public double getTaxaGanhoMoedasTemporarias() {
-        return taxaGanhoMoedasTemporarias;
-    }
-    public double getTaxaGanhoMoedasPermanentes() {
-        return taxaGanhoMoedasPermanentes;
-    }
 
     public void setDanoBase(int danoBase) {
         this.danoBase = danoBase;
     }
 
+
     public void setHp(int hp) {
         this.hp = hp;
     }
 
-    /* Filipe Augusto - 24/03/2025 - mob_dev_07_AtributoAvatar */
-    public void setTaxaGanhoMoedasTemporarias(double taxaGanhoMoedasTemporarias) {
-        this.taxaGanhoMoedasTemporarias = taxaGanhoMoedasTemporarias;
+
+    public List<EvoluirAtributo> getEvoluirAtributos() {
+        return evoluirAtributos;
     }
-    public void setTaxaGanhoMoedasPermanentes(double taxaGanhoMoedasPermanentes) {
-        this.taxaGanhoMoedasPermanentes = taxaGanhoMoedasPermanentes;
+
+
+    public void setEvoluirAtributos(List<EvoluirAtributo> evoluirAtributos) {
+        this.evoluirAtributos = evoluirAtributos;
     }
+
 
     /* Rodrigo Luiz - 15/03/2025 - mob_015 */
     public Usuarios getUsuario() {
         return usuario;
     }
 
+
     public void setUsuario(Usuarios usuario) {
         this.usuario = usuario;
     }
+
 
     /* Rodrigo Luiz - 15/03/2025 - mob_015 */
     public Progressao getProgressao() {
         return progressao;
     }
+
 
     public void setProgressao(Progressao progressao) {
         this.progressao = progressao;

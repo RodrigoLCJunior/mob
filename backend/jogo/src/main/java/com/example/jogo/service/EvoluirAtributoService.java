@@ -15,6 +15,8 @@ import com.example.jogo.repository.EvoluirAtributoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class EvoluirAtributoService {
 
@@ -27,7 +29,7 @@ public class EvoluirAtributoService {
     @Autowired
     private ProgressaoService progressaoService;
 
-    public void evoluirAtributo(UUID avatarId, TipoAtributo tipoAtributo, int quantidade) {
+    public Avatar evoluirAtributo(UUID avatarId, TipoAtributo tipoAtributo, int quantidade) {
         Avatar avatar = avatarService.buscarAvatarPorId(avatarId);
 
         EvoluirAtributo evoluirAtributo = evoluirAtributoRepository
@@ -35,20 +37,18 @@ public class EvoluirAtributoService {
                 .orElse(new EvoluirAtributo());
 
         evoluirAtributo.setAvatar(avatar);
-        evoluirAtributo.setTipoAtributo(tipoAtributo);
 
-        // Lógica para atualizar o atributo
         if (tipoAtributo == TipoAtributo.HP) {
-            evoluirAtributo.setQuantidadeHP(evoluirAtributo.getQuantidadeHP() + quantidade);
+            int hpBonus = evoluirAtributo.getNivelAtual() * 10;
+            avatar.setHp(avatar.getHp() + hpBonus + quantidade);
         } else if (tipoAtributo == TipoAtributo.DANO_BASE) {
-            evoluirAtributo.setQuantidadeDanoBase(evoluirAtributo.getQuantidadeDanoBase() + quantidade);
+            int danoBonus = evoluirAtributo.getNivelAtual() * 5;
+            avatar.setDanoBase(avatar.getDanoBase() + danoBonus + quantidade);
         }
-        else if (tipoAtributo == TipoAtributo.MOEDAS_TEMPORARIAS) {
-            progressaoService.adicionarMoedasTemporarias(avatar, quantidade);
-        } else if (tipoAtributo == TipoAtributo.MOEDAS_PERMANENTES) {
-            progressaoService.adicionarMoedasPermanentes(avatar, quantidade);
-        }
+
+        evoluirAtributo.evoluir();
 
         evoluirAtributoRepository.save(evoluirAtributo);
+        return avatar;
     }
 }
