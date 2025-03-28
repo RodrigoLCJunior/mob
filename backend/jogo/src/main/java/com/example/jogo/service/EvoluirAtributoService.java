@@ -15,6 +15,7 @@ import com.example.jogo.repository.EvoluirAtributoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -29,26 +30,34 @@ public class EvoluirAtributoService {
     @Autowired
     private ProgressaoService progressaoService;
 
-    public Avatar evoluirAtributo(UUID avatarId, TipoAtributo tipoAtributo, int quantidade) {
-        Avatar avatar = avatarService.buscarAvatarPorId(avatarId);
+    public Avatar evoluirAtributo(UUID avatarId, UUID idAtributo, int quantidade) {
+        Avatar avatar = avatarService.getAvatar(avatarId);
 
-        EvoluirAtributo evoluirAtributo = evoluirAtributoRepository
-                .findByAvatarAndTipoAtributo(avatar, tipoAtributo)
-                .orElse(new EvoluirAtributo());
+        Optional<EvoluirAtributo> atributoEncontrado = avatar.getEvoluirAtributos()
+                .stream()
+                .filter(atributo -> atributo.getId().equals(idAtributo))
+                .findFirst();
 
-        evoluirAtributo.setAvatar(avatar);
+        if (atributoEncontrado.isPresent()) {
+            EvoluirAtributo evoluirAtributo = atributoEncontrado.get();
 
-        if (tipoAtributo == TipoAtributo.HP) {
-            int hpBonus = evoluirAtributo.getNivelAtual() * 10;
-            avatar.setHp(avatar.getHp() + hpBonus + quantidade);
-        } else if (tipoAtributo == TipoAtributo.DANO_BASE) {
-            int danoBonus = evoluirAtributo.getNivelAtual() * 5;
-            avatar.setDanoBase(avatar.getDanoBase() + danoBonus + quantidade);
+            if (evoluirAtributo.podeEvoluir()) {
+                evoluirAtributo.setAvatar(avatar);
+
+                TipoAtributo tipoAtributo = evoluirAtributo.getTipoAtributo();
+
+                if (tipoAtributo == TipoAtributo.HP) {
+                    int hpBonus = evoluirAtributo.getNivelAtual() * 10;
+                    avatar.setHp(avatar.getHp() + hpBonus + quantidade);
+                } else if (tipoAtributo == TipoAtributo.DANO_BASE) {
+                    int danoBonus = evoluirAtributo.getNivelAtual() * 5;
+                    avatar.setDanoBase(avatar.getDanoBase() + danoBonus + quantidade);
+                }
+
+                evoluirAtributo.evoluir();
+                evoluirAtributoRepository.save(evoluirAtributo);
+            }
         }
-
-        evoluirAtributo.evoluir();
-
-        evoluirAtributoRepository.save(evoluirAtributo);
         return avatar;
     }
 }

@@ -102,8 +102,4 @@ public class EvoluirAtributo {
         }
     }
 
-    // Enum
-    public enum TipoAtributo {
-        HP, DANO_BASE, TAXA_MOEDAS_TEMPORARIAS, TAXA_MOEDAS_PERMANENTES;
-    }
 }

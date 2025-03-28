@@ -12,6 +12,7 @@ import com.example.jogo.model.Avatar;
 import com.example.jogo.model.EvoluirAtributo;
 import com.example.jogo.model.TipoAtributo;
 import com.example.jogo.model.Usuarios;
+import com.example.jogo.model.MoedaPermanente;
 import com.example.jogo.service.EvoluirAtributoService;
 import com.example.jogo.service.AvatarService;
 import com.example.jogo.service.UsuarioService;
@@ -33,33 +34,33 @@ public class EvoluirAtributoController {
 
     @PostMapping("/{usuarioId}")
     public ResponseEntity<String> evoluirAtributo(@PathVariable UUID usuarioId,
-                                                  @RequestParam String tipoAtributo,
+                                                  @RequestParam UUID idAtributo,
                                                   @RequestParam int quantidade) {
-        // Buscar usuário
+
+
         Usuarios usuario = usuarioService.buscarUsuarioPorId(usuarioId);
         if (usuario == null) {
-            return ResponseEntity.badRequest().body("Usuário não encontrado.");
+            return ResponseEntity.badRequest().body("Usuário não encontrado.(EvoluirAtributoController)");
         }
 
-        TipoAtributo tipo;
-        try {
-            tipo = TipoAtributo.valueOf(tipoAtributo.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Tipo de atributo inválido.");
-        }
-
-        if (!usuario.getMoedaPermanente().removerMoedas(quantidade)) {
-            return ResponseEntity.badRequest().body("Moedas permanentes insuficientes.");
-        }
-
-        Avatar avatar = evoluirAtributoService.evoluirAtributo(usuarioId, tipo, quantidade);
-
+        Avatar avatar = usuario.getAvatar();
         if (avatar == null) {
-            return ResponseEntity.badRequest().body("Avatar não encontrado ou não pode evoluir.");
+            return ResponseEntity.badRequest().body("Avatar não encontrado para este usuário.(EvoluirAtributoController)");
+        }
+
+        MoedaPermanente moedaPermanente = usuario.getMoedaPermanente();
+        if (moedaPermanente == null || !moedaPermanente.removerMoedas(quantidade)) {
+            return ResponseEntity.badRequest().body("Moedas permanentes insuficientes.(EvoluirAtributoController)");
+        }
+
+        Avatar avatarAtualizado = evoluirAtributoService.evoluirAtributo(avatar.getId(), idAtributo, quantidade);
+
+        if (avatarAtualizado == null) {
+            return ResponseEntity.badRequest().body("O atributo não pode ser evoluído.(EvoluirAtributoController)");
         }
 
         usuarioService.salvarUsuario(usuario);
 
-        return ResponseEntity.ok("Atributo evoluído com sucesso!");
+        return ResponseEntity.ok("Atributo evoluído com sucesso!(EvoluirAtributoController)");
     }
 }
