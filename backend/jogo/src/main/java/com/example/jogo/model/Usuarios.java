@@ -36,7 +36,7 @@ public class Usuarios {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Dungeon> dungeons;
 
-    public Usuarios() {}   
+    public Usuarios() {} 
 
     public Usuarios(String nome, String email, String senha) {
         this.nome = nome;
