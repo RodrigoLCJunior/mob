@@ -13,8 +13,6 @@ import java.util.UUID;
 @Service
 public class UsuarioService {
 
-    private int nivelMaximo = 20;
-
     @Autowired
     private UsuarioRepository usuarioRepository;
 
@@ -25,29 +23,6 @@ public class UsuarioService {
     @Autowired
     private AvatarService avatarService;
 
-    public List<Usuarios> listarUsuarios() {
-        return usuarioRepository.findAll();
-    }
-
-    /* Rodrigo Luiz - 15/03/2025 - mob_015 */
-    public Usuarios criarUsuario(String nome, String email, String senha) {
-        // Criar novo usuário
-        Usuarios usuario = new Usuarios(nome, email, senha);
-        usuario = usuarioRepository.save(usuario);
-
-        // Criar avatar para o usuário
-        Avatar avatar = avatarService.criarAvatar(usuario);
-        avatar = avatarRepository.save(avatar); // Salvar o avatar no banco de dados
-        usuario.setAvatar(avatar);
-        usuario = usuarioRepository.save(usuario); // Salvar a associação do avatar com o usuário
-
-        return usuario;
-    }
-
-    public Usuarios salvarUsuario(Usuarios usuario) {
-        return usuarioRepository.save(usuario);
-    }
-
     public Usuarios buscarUsuarioPorEmail(String email) {
         return usuarioRepository.findByEmail(email).orElse(null);
     }
@@ -56,27 +31,49 @@ public class UsuarioService {
         return usuarioRepository.findById(id).get();
     }
 
+    public List<Usuarios> listarUsuarios() {
+        return usuarioRepository.findAll();
+    }
+
+    /* Rodrigo Luiz - 15/03/2025 - mob_015 */
+    public Usuarios criarUsuario(String nome, String email, String senha) {
+        Usuarios usuario = new Usuarios();
+        usuario.setNome(nome);
+        usuario.setEmail(email);
+        usuario.setSenha(senha);
+
+        // Criar e associar um avatar ao usuário
+        Avatar avatar = new Avatar(5, 1); // Valores iniciais de HP e danoBase
+        avatar = avatarRepository.save(avatar);
+
+        // Associar o avatar ao usuário
+        usuario.setAvatar(avatar);
+
+        // Salvar o usuário
+        return usuarioRepository.save(usuario);
+    }
+
+    public Usuarios modificarUsuario(UUID id, Usuarios usuarios){
+        Usuarios usuarioVelho = usuarioRepository.findById(id).get();
+
+        if (usuarioVelho == null){
+            return null;
+        }
+
+        usuarioVelho.setNome(usuarios.getNome());
+        usuarioVelho.setEmail(usuarios.getEmail());
+        usuarioVelho.setSenha(usuarios.getSenha());
+
+        return usuarioRepository.save(usuarioVelho);
+    }
+
+    public Usuarios salvarUsuario(Usuarios usuario) {
+        return usuarioRepository.save(usuario);
+    }
+
     /* Rodrigo Luiz - 15/03/2025 - mob_015 */
     public void deletarUsuario(UUID id) {
         usuarioRepository.deleteById(id);
-    }
-
-    public Usuarios adicionarExperiencia(UUID usuarioId, int experiencia) {
-        Usuarios usuario = buscarUsuarioPorId(usuarioId);
-        if (usuario != null) {
-            usuario.setExperiencia(usuario.getExperiencia() + experiencia);
-            while (usuario.getExperiencia() >= experienciaParaProximoNivel(usuario) && usuario.getNivel() < nivelMaximo) {
-                usuario.setExperiencia(usuario.getExperiencia() - experienciaParaProximoNivel(usuario));
-                usuario.setNivel(usuario.getNivel() + 1);
-            }
-            usuarioRepository.save(usuario);
-        }
-        return usuario;
-    }
-
-    public int experienciaParaProximoNivel(Usuarios usuario) {
-        // Fórmula simples: 100 * nível atual
-        return usuario.getNivel() * 100;
     }
 }
 

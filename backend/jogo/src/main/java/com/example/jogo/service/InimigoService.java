@@ -29,6 +29,21 @@ public class InimigoService {
         return inimigoRepository.findById(id);
     }
 
+    public Inimigo modificarInimigo(int id, Inimigo inimigoNovo){
+        Inimigo inimigoExistente = inimigoRepository.findById(id).get();
+
+        if (inimigoExistente == null){
+            return null;
+        }
+        inimigoExistente.setHp(inimigoNovo.getHp());
+        inimigoExistente.setDanoBase(inimigoNovo.getDanoBase());
+        inimigoExistente.setTimeToHit(inimigoNovo.getTimeToHit());
+        inimigoExistente.setRecompensa(inimigoNovo.getRecompensa());
+        inimigoExistente.setTipo(inimigoNovo.getTipo());
+
+        return salvarInimigo(inimigoExistente);
+    }
+
     public Inimigo salvarInimigo(Inimigo inimigo){
         return inimigoRepository.save(inimigo);
     }

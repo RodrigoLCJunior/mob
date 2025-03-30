@@ -28,10 +28,6 @@ public class DungeonService {
         return dungeonRepository.findById(id).orElse(null);
     }
 
-    public List<Dungeon> getDungeonsByUsuario(UUID usuarioId) {
-        return dungeonRepository.findByUsuarioId(usuarioId);
-    }
-
     public void concluirDungeon(int dungeonId) {
         // Concluir a dungeon atual
         Dungeon dungeon = getDungeon(dungeonId);

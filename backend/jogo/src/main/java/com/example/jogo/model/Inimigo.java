@@ -21,6 +21,10 @@ public class Inimigo {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
+    /* Rodrigo Luiz - 30/03/2025 - mob_031 */
+    @Column(nullable = false)
+    private String nome;
+
     @Column(nullable = false)
     private float hp;
 
@@ -36,16 +40,21 @@ public class Inimigo {
     @Column(nullable = false)
     private int tipo;
 
-    @OneToMany(mappedBy = "inimigo", cascade = CascadeType.ALL)
-    private List<WaveInimigos> waveInimigos;
+    /* Rodrigo Luiz - 30/03/2025 - mob_031 */
+    @Column(nullable = false)
+    private int nivelDeLiberacao;
 
-    public Inimigo(int id, float hp, int danoBase, float timeToHit, int recompensa, int tipo) {
+    public Inimigo(){}
+
+    public Inimigo(int id, String nome, float hp, int danoBase, float timeToHit, int recompensa, int tipo, int nivelDeLiberacao) {
         this.id = id;
+        this.nome = nome; /* Rodrigo Luiz - 30/03/2025 - mob_031 */
         this.hp = hp;
         this.danoBase = danoBase;
         this.timeToHit = timeToHit;
         this.recompensa = recompensa;
         this.tipo = tipo;
+        this.nivelDeLiberacao = nivelDeLiberacao; /* Rodrigo Luiz - 30/03/2025 - mob_031 */
     }
 
     public void setHp(float hp) {
@@ -92,11 +101,20 @@ public class Inimigo {
         return id;
     }
 
-    public List<WaveInimigos> getWaveInimigos() {
-        return waveInimigos;
+    /* Rodrigo Luiz - 30/03/2025 - mob_031 */
+    public String getNome() {
+        return nome;
     }
 
-    public void setWaveInimigos(List<WaveInimigos> waveInimigos) {
-        this.waveInimigos = waveInimigos;
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public int getNivelDeLiberacao() {
+        return nivelDeLiberacao;
+    }
+
+    public void setNivelDeLiberacao(int nivelDeLiberacao) {
+        this.nivelDeLiberacao = nivelDeLiberacao;
     }
 }

@@ -16,33 +16,52 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
+    // Buscar Todos Usuarios
     @GetMapping
-    public List<Usuarios> listarUsuarios() {
-        return usuarioService.listarUsuarios();
+    public ResponseEntity<List<Usuarios>> listarUsuarios() {
+        List<Usuarios> usuariosList = usuarioService.listarUsuarios();
+        if (usuariosList.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(usuariosList);
     }
 
-    @GetMapping("/{id}")
-    private Usuarios acharPorId(@PathVariable UUID id){
-        return usuarioService.buscarUsuarioPorId(id);
+    // Buscar por ID
+    @GetMapping("/{id}/id")
+    private ResponseEntity<Usuarios> acharPorId(@PathVariable UUID id){
+        Usuarios usuario = usuarioService.buscarUsuarioPorId(id);
+        return ResponseEntity.ok(usuario);
     }
 
-    @GetMapping("/{email}")
-    private Usuarios buscarUsuarioPorEmail(@PathVariable String email) {
-        return usuarioService.buscarUsuarioPorEmail(email);
+    // Buscar por E-mail
+    @GetMapping("/{email}/email")
+    private ResponseEntity<Usuarios> buscarUsuarioPorEmail(@PathVariable String email) {
+        Usuarios usuario = usuarioService.buscarUsuarioPorEmail(email);
+        if (usuario == null){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(usuario);
     }
 
-    @GetMapping("/{id}/experiencia-para-proximo-nivel")
-    private void experienciaParaProximoNivel(Usuarios usuario) {
-        usuarioService.experienciaParaProximoNivel(usuario);
+    // Endpoint para criar um novo usuário
+    @PostMapping("/criar")
+    public ResponseEntity<Usuarios> criarUsuario(@RequestBody Usuarios usuario) {
+        Usuarios novoUsuario = usuarioService.criarUsuario(usuario.getNome(), usuario.getEmail(), usuario.getSenha());
+        return ResponseEntity.ok(novoUsuario);
     }
 
-    @PostMapping("/{id}/experiencia")
-    private Usuarios adicionarExperiencia(@PathVariable UUID id, @RequestParam int experiencia) {
-        return usuarioService.adicionarExperiencia(id, experiencia);
+    @PutMapping("/{id}/alterar")
+    public ResponseEntity<Usuarios> modificarUsuario(@PathVariable UUID id, @RequestBody Usuarios usuario){
+        Usuarios usuarioAlterado = usuarioService.modificarUsuario(id, usuario);
+        if (usuarioAlterado == null){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(usuarioAlterado);
     }
 
-    @PostMapping
-    private Usuarios salvarUsuariocriarUsuario(@RequestParam String nome, @RequestParam String email, @RequestParam String senha) {
-        return usuarioService.criarUsuario(nome, email, senha);
+    @DeleteMapping("/{id}/deletar")
+    public ResponseEntity<?> deletarUsuario(@PathVariable UUID id){
+        usuarioService.deletarUsuario(id);
+        return ResponseEntity.noContent().build();
     }
 }

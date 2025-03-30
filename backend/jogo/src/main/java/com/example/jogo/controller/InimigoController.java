@@ -25,39 +25,44 @@ public class InimigoController {
     private InimigoService inimigoService;
 
     @GetMapping
-    public List<Inimigo> buscaTodosInimigos(){
-        return inimigoService.findAll();
+    public ResponseEntity<List<Inimigo>> buscaTodosInimigos(){
+        List<Inimigo> inimigosList = inimigoService.findAll();
+        if (inimigosList.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(inimigosList);
     }
 
     @GetMapping("/{id}")
-    public Optional<Inimigo> buscarInimigoPorId(@PathVariable int id){
-        return inimigoService.findById(id);
+    public ResponseEntity<Inimigo> buscarInimigoPorId(@PathVariable int id){
+        Inimigo inimigo = inimigoService.findById(id).get();
+        if (inimigo == null){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(inimigo);
     }
 
-    @PostMapping
-    public Inimigo criarInimigo(@RequestBody Inimigo inimigo){
-        return inimigoService.salvarInimigo(inimigo);
+    @PostMapping("/criar-inimigo")
+    public ResponseEntity<Inimigo> criarInimigo(@RequestBody Inimigo inimigo){
+        Inimigo inimigoNovo = inimigoService.salvarInimigo(inimigo);
+        if (inimigoNovo == null){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(inimigoNovo);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/modificar")
     public ResponseEntity<Inimigo> updateInimigo(@PathVariable int id, @RequestBody Inimigo inimigoDetails) {
-        Optional<Inimigo> inimigo = inimigoService.findById(id);
-        if (inimigo.isPresent()) {
-            Inimigo existingInimigo = inimigo.get();
-            existingInimigo.setHp(inimigoDetails.getHp());
-            existingInimigo.setDanoBase(inimigoDetails.getDanoBase());
-            existingInimigo.setTimeToHit(inimigoDetails.getTimeToHit());
-            existingInimigo.setRecompensa(inimigoDetails.getRecompensa());
-            existingInimigo.setTipo(inimigoDetails.getTipo());
-            Inimigo updatedInimigo = inimigoService.salvarInimigo(existingInimigo);
-            return ResponseEntity.ok(updatedInimigo);
+        Inimigo inimigoExistente = inimigoService.modificarInimigo(id, inimigoDetails);
+        if (inimigoExistente != null) {
+            return ResponseEntity.ok(inimigoExistente);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteInimigo(@PathVariable int id) {
+    @DeleteMapping("/{id}/deletar-inimigo")
+    public ResponseEntity<?> deleteInimigo(@PathVariable int id) {
         Optional<Inimigo> inimigo = inimigoService.findById(id);
         if (inimigo.isPresent()) {
             inimigoService.deletarInimigoPorId(id);

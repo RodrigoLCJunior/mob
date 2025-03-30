@@ -11,8 +11,10 @@ package com.example.jogo.controller;
 import com.example.jogo.model.Avatar;
 import com.example.jogo.service.AvatarService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -22,19 +24,38 @@ public class AvatarController {
     @Autowired
     private AvatarService avatarService;
 
+    /* Rodrigo Luiz - 30/03/2025 - mob_031 */
+    @GetMapping
+    private  ResponseEntity<List<Avatar>> acharTodosAvatar(){
+        List<Avatar> avatarList = avatarService.todosAvatares();
+        if (avatarList.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(avatarList);
+    }
+
     @GetMapping("/{id}")
-    private Avatar acharAvatar(@PathVariable UUID id){
-        return avatarService.getAvatar(id);
+    private ResponseEntity<Avatar> acharAvatar(@PathVariable UUID id){
+        Avatar avatar = avatarService.getAvatar(id);
+        if (avatar == null){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(avatar);
     }
 
     @PostMapping("/{id}/dano")
-    private void aplicarDano(@PathVariable UUID id, @RequestParam int dano){
+    private ResponseEntity<?> aplicarDano(@PathVariable UUID id, @RequestBody int dano){
         avatarService.aplicarDano(id, dano);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
-    public Avatar modificarAvatar(@PathVariable UUID id, int hp, @RequestParam int danoBase){
-        return avatarService.modificarAvatar(id, hp, danoBase);
+    public ResponseEntity<Avatar> modificarAvatar(@PathVariable UUID id, @RequestBody int hp, @RequestBody int danoBase){
+        Avatar avatar =  avatarService.modificarAvatar(id, hp, danoBase);
+        if (avatar == null){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(avatar);
     }
 
 }

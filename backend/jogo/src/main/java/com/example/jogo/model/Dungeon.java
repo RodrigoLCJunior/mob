@@ -31,22 +31,20 @@ public class Dungeon {
     @Column(nullable = false)
     private boolean bloqueada;
 
-    @OneToMany(mappedBy = "dungeon", cascade = CascadeType.ALL)
-    private List<Wave> waves;
-
-    /* Rodrigo Luiz - 15/03/2025 - mob_015 */
-    @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuarios usuario;
-
     // Construtores, getters e setters
-
     public Dungeon() {
     }
 
-    public Dungeon(String nome, List<Wave> waves) {
+    public Dungeon(String nome, int numeroWaves, boolean concluida, boolean bloqueada) {
         this.nome = nome;
-        this.waves = waves;
+        this.numeroWaves = numeroWaves;
+        this.concluida = false;
+        if (id == 1){
+            this.bloqueada = false;
+        } else {
+            this.bloqueada = false;
+        }
+
     }
 
     public int getId() {
@@ -61,30 +59,12 @@ public class Dungeon {
         this.nome = nome;
     }
 
-    public List<Wave> getWaves() {
-        return waves;
-    }
-
-    public void setWaves(List<Wave> waves) {
-        this.waves = waves;
-    }
-
     public int getNumeroWaves() {
         return numeroWaves;
     }
 
     public void setNumeroWaves(int numeroWaves) {
         this.numeroWaves = numeroWaves;
-    }
-
-    /* Rodrigo Luiz - 15/03/2025 - mob_015 */
-
-    public Usuarios getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(Usuarios usuario) {
-        this.usuario = usuario;
     }
 
     public boolean isConcluida() {

@@ -17,5 +17,4 @@ import java.util.UUID;
 
 @Repository
 public interface DungeonRepository extends JpaRepository<Dungeon, Integer> {
-    List<Dungeon> findByUsuarioId(UUID usuarioId);
 }

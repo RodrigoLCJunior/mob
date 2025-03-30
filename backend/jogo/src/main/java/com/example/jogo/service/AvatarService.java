@@ -12,6 +12,8 @@ import com.example.jogo.model.Usuarios;
 import com.example.jogo.repository.AvatarRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -23,6 +25,11 @@ public class AvatarService {
 
     public Avatar getAvatar(UUID id) {
         return avatarRepository.findById(id).orElse(null);
+    }
+
+    /* Rodrigo Luiz - 30/03/2025 - mob_031 */
+    public List<Avatar> todosAvatares(){
+        return avatarRepository.findAll();
     }
 
     // Aplicar dano ao avatar
@@ -39,21 +46,6 @@ public class AvatarService {
     public boolean estaMorto(UUID id) {
         Avatar avatar = getAvatar(id);
         return avatar == null || avatar.getHp() == 0;
-    }
-
-    /* Rodrigo Luiz - 15/03/2025 - mob_015 */
-    // Criar avatar para usuário
-    public Avatar criarAvatar(Usuarios usuario) {
-        Avatar avatar = new Avatar();
-        avatar.setUsuario(usuario);
-        avatar.setHp(5); // Definir valores iniciais para o avatar
-        avatar.setDanoBase(1); // Definir valores iniciais para o avatar
-        return avatar;
-    }
-
-    public Avatar criarAvatarController(Usuarios usuario) {
-        Avatar avatar = new Avatar(5, 1, usuario); // Valores iniciais de HP e danoBase
-        return avatarRepository.save(avatar);
     }
 
     public Avatar modificarAvatar(UUID id, int hp, int danoBase) {

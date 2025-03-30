@@ -28,11 +28,6 @@ public class DungeonController {
         return dungeonService.getDungeon(id);
     }
 
-    @GetMapping("/usuario/{usuarioId}")
-    private List<Dungeon> getDungeonsByUsuario(@PathVariable UUID usuarioId){
-        return dungeonService.getDungeonsByUsuario(usuarioId);
-    }
-
     @PostMapping("/{id}/concluir")
     public void concluirDungeon(@PathVariable int id) {
         dungeonService.concluirDungeon(id);
