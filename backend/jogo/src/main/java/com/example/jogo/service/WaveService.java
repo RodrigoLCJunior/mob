@@ -1,3 +1,11 @@
+/*
+ ** Task..: 31 - Conexão Back e Front
+ ** Data..: 30/03/2024
+ ** Autor.: Rodrigo Luiz
+ ** Motivo: Criar classe Wave
+ ** Obs...:
+ */
+
 package com.example.jogo.service;
 
 import com.example.jogo.model.Inimigo;
@@ -18,11 +26,6 @@ public class WaveService {
 
     @Autowired
     private InimigoRepository inimigoRepository;
-
-    @Autowired
-    private RedisTemplate<String, List<Wave>> redisTemplate;
-
-    private static final long WAVE_CACHE_EXPIRATION = 3600; // Cache expiration time in seconds (1 hour)
 
     public List<Wave> gerarWaves(UUID userId, int dungeonId, int numeroDeWaves, int numeroDeInimigosPorWave) {
         List<Wave> waves = new ArrayList<>();
@@ -49,19 +52,6 @@ public class WaveService {
             waves.add(wave);
         }
 
-        // Armazena as waves no cache Redis
-        String cacheKey = getCacheKeyForUser(userId);
-        redisTemplate.opsForValue().set(cacheKey, waves, WAVE_CACHE_EXPIRATION, TimeUnit.SECONDS);
-
         return waves;
-    }
-
-    public List<Wave> getWavesForUser(UUID userId) {
-        String cacheKey = getCacheKeyForUser(userId);
-        return redisTemplate.opsForValue().get(cacheKey);
-    }
-
-    private String getCacheKeyForUser(UUID userId) {
-        return "WAVES_" + userId.toString();
     }
 }

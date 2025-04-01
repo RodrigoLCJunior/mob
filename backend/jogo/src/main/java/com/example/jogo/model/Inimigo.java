@@ -9,9 +9,6 @@
 package com.example.jogo.model;
 
 import jakarta.persistence.*;
-import org.yaml.snakeyaml.events.Event;
-
-import java.util.List;
 
 @Entity
 @Table(name = "inimigos")

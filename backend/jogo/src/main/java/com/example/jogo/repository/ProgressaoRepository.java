@@ -16,5 +16,5 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ProgressaoRepository extends JpaRepository<Progressao, UUID> {
-    Optional<Progressao> findByAvatar(Avatar avatar);
+    Progressao findByAvatarId(UUID avatarId);
 }

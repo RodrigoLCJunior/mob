@@ -38,7 +38,7 @@ public class AvatarController {
     private ResponseEntity<Avatar> acharAvatar(@PathVariable UUID id){
         Avatar avatar = avatarService.getAvatar(id);
         if (avatar == null){
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(avatar);
     }
@@ -53,7 +53,7 @@ public class AvatarController {
     public ResponseEntity<Avatar> modificarAvatar(@PathVariable UUID id, @RequestBody int hp, @RequestBody int danoBase){
         Avatar avatar =  avatarService.modificarAvatar(id, hp, danoBase);
         if (avatar == null){
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(avatar);
     }

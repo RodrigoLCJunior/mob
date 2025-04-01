@@ -9,14 +9,12 @@
 package com.example.jogo.service;
 
 import com.example.jogo.model.Dungeon;
-import com.example.jogo.model.Usuarios;
 import com.example.jogo.repository.DungeonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class DungeonService {
@@ -26,6 +24,23 @@ public class DungeonService {
 
     public Dungeon getDungeon(int id) {
         return dungeonRepository.findById(id).orElse(null);
+    }
+
+    public List<Dungeon> buscarTodasDungeons(){
+        return dungeonRepository.findAll();
+    }
+
+    public Dungeon criarDungeon(String nome, int numeroWaves) {
+        Dungeon dungeon = new Dungeon();
+        dungeon.setNome(nome);
+        dungeon.setNumeroWaves(numeroWaves);
+        dungeon.setConcluida(false);
+        dungeon.setBloqueada(true);
+        return dungeonRepository.save(dungeon);
+    }
+
+    public void deletarDungeon(int id) {
+        dungeonRepository.deleteById(id);
     }
 
     public void concluirDungeon(int dungeonId) {

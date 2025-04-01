@@ -7,8 +7,10 @@ import com.example.jogo.service.AvatarService;
 import com.example.jogo.service.CombateService;
 import com.example.jogo.service.InimigoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -25,20 +27,27 @@ public class CombateController {
     private InimigoService inimigoService;
 
     @PostMapping("/iniciar")
-    public Combate iniciarCombate(@RequestParam UUID avatarId, @RequestParam int inimigoId){
-        Avatar avatar = avatarService.getAvatar(avatarId);
-        Inimigo inimigo = inimigoService.findById(inimigoId).get();
+    public ResponseEntity<Combate> iniciarCombate(@RequestBody Map<String, Object> payload) {
+        UUID userId = UUID.fromString((String) payload.get("userId"));
+        int dungeonId = (int) payload.get("dungeonId");
+        int numeroDeInimigosPorWave = (int) payload.get("numeroDeInimigosPorWave");
 
-        return combateService.iniciarCombate(avatar, inimigo);
+        Combate combate = combateService.iniciarCombate(userId, dungeonId, numeroDeInimigosPorWave);
+        if (combate == null){
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(combate);
     }
 
     @PostMapping("/avatar-atacar")
-    public void avatarAtacar(@RequestBody Combate combate){
+    public ResponseEntity<?> avatarAtacar(@RequestBody Combate combate){
         combateService.avatarAtacar(combate);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/inimigo-atacar")
-    public void inimigoAtacar(@RequestBody Combate combate){
+    public ResponseEntity<?> inimigoAtacar(@RequestBody Combate combate){
         combateService.inimigoAtacar(combate);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -8,6 +8,7 @@
 
 package com.example.jogo.service;
 import com.example.jogo.model.Avatar;
+import com.example.jogo.model.Progressao;
 import com.example.jogo.model.Usuarios;
 import com.example.jogo.repository.AvatarRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ public class AvatarService {
     @Autowired
     private AvatarRepository avatarRepository;
 
+    @Autowired
+    private ProgressaoService progressaoService;
+
     public Avatar getAvatar(UUID id) {
         return avatarRepository.findById(id).orElse(null);
     }
@@ -30,6 +34,19 @@ public class AvatarService {
     /* Rodrigo Luiz - 30/03/2025 - mob_031 */
     public List<Avatar> todosAvatares(){
         return avatarRepository.findAll();
+    }
+
+    public Avatar criarAvatar(Avatar avatarNovo){
+        Avatar avatar = new Avatar(avatarNovo.getHp(), avatarNovo.getDanoBase());
+        avatar = avatarRepository.save(avatar);
+
+        Progressao progressao = new Progressao();
+        progressao.setAvatarId(avatar.getId());
+        progressaoService.salvarProgressao(progressao);
+
+        avatar.setProgressao(progressao);
+        avatar = avatarRepository.save(avatar);
+        return avatar;
     }
 
     // Aplicar dano ao avatar
@@ -56,5 +73,9 @@ public class AvatarService {
             avatarRepository.save(avatar);
         }
         return avatar;
+    }
+
+    public void deletarAvatarPorId(UUID avatarId){
+        avatarRepository.deleteById(avatarId);
     }
 }

@@ -21,7 +21,7 @@ public class UsuarioController {
     public ResponseEntity<List<Usuarios>> listarUsuarios() {
         List<Usuarios> usuariosList = usuarioService.listarUsuarios();
         if (usuariosList.isEmpty()){
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(usuariosList);
     }
@@ -30,6 +30,9 @@ public class UsuarioController {
     @GetMapping("/{id}/id")
     private ResponseEntity<Usuarios> acharPorId(@PathVariable UUID id){
         Usuarios usuario = usuarioService.buscarUsuarioPorId(id);
+        if(usuario == null){
+            return ResponseEntity.noContent().build();
+        }
         return ResponseEntity.ok(usuario);
     }
 
@@ -38,7 +41,7 @@ public class UsuarioController {
     private ResponseEntity<Usuarios> buscarUsuarioPorEmail(@PathVariable String email) {
         Usuarios usuario = usuarioService.buscarUsuarioPorEmail(email);
         if (usuario == null){
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(usuario);
     }
@@ -47,6 +50,9 @@ public class UsuarioController {
     @PostMapping("/criar")
     public ResponseEntity<Usuarios> criarUsuario(@RequestBody Usuarios usuario) {
         Usuarios novoUsuario = usuarioService.criarUsuario(usuario.getNome(), usuario.getEmail(), usuario.getSenha());
+        if (novoUsuario == null){
+            return ResponseEntity.noContent().build();
+        }
         return ResponseEntity.ok(novoUsuario);
     }
 
@@ -54,7 +60,7 @@ public class UsuarioController {
     public ResponseEntity<Usuarios> modificarUsuario(@PathVariable UUID id, @RequestBody Usuarios usuario){
         Usuarios usuarioAlterado = usuarioService.modificarUsuario(id, usuario);
         if (usuarioAlterado == null){
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(usuarioAlterado);
     }

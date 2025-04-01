@@ -1,7 +1,16 @@
+/*
+ ** Task..: 13 - Sistema Inicial do Combate
+ ** Data..: 09/03/2024
+ ** Autor.: Rodrigo Luiz
+ ** Motivo: Criar classe Usuario
+ ** Obs...:
+ */
+
 package com.example.jogo.service;
 
-
 import com.example.jogo.model.Avatar;
+import com.example.jogo.model.MoedaPermanente;
+import com.example.jogo.model.Progressao;
 import com.example.jogo.model.Usuarios;
 import com.example.jogo.repository.AvatarRepository;
 import com.example.jogo.repository.UsuarioRepository;
@@ -16,12 +25,11 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    /* Rodrigo Luiz - 15/03/2025 - mob_015 */
-    @Autowired
-    private AvatarRepository avatarRepository;
-
     @Autowired
     private AvatarService avatarService;
+
+    @Autowired
+    private MoedaPermanenteService moedaPermanenteService;
 
     public Usuarios buscarUsuarioPorEmail(String email) {
         return usuarioRepository.findByEmail(email).orElse(null);
@@ -44,10 +52,14 @@ public class UsuarioService {
 
         // Criar e associar um avatar ao usuário
         Avatar avatar = new Avatar(5, 1); // Valores iniciais de HP e danoBase
-        avatar = avatarRepository.save(avatar);
+        avatar = avatarService.criarAvatar(avatar);
 
-        // Associar o avatar ao usuário
+        //Criar e associar uma MoedaPermanente
+        MoedaPermanente moedaPermanente = moedaPermanenteService.criarMoedaPermanente();
+
+        // Associar o avatar e moeda ao usuário
         usuario.setAvatar(avatar);
+        usuario.setMoedaPermanente(moedaPermanente);
 
         // Salvar o usuário
         return usuarioRepository.save(usuario);

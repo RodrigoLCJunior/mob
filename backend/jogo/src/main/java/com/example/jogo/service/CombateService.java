@@ -8,14 +8,20 @@
 
 package com.example.jogo.service;
 
-import com.example.jogo.model.Avatar;
-import com.example.jogo.model.Combate;
-import com.example.jogo.model.Inimigo;
+import com.example.jogo.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class CombateService {
+
+    @Autowired
+    private UsuarioService usuarioService;
 
     @Autowired
     private AvatarService avatarService;
@@ -23,12 +29,35 @@ public class CombateService {
     @Autowired
     private InimigoService inimigoService;
 
-    /* Rodrigo Luiz - 19/03/2025 - mob_018 */
+    @Autowired
+    private WaveService waveService;
+
+    @Autowired
+    private DungeonService dungeonService;
+
     @Autowired
     private ProgressaoService progressaoService;
 
-    public Combate iniciarCombate(Avatar avatar, Inimigo inimigo){
-        return new Combate(avatar, inimigo);
+    public Combate iniciarCombate(UUID userId, int dungeonId, int numeroDeInimigosPorWave) {
+        Dungeon dungeon = dungeonService.getDungeon(dungeonId);
+        if (dungeon == null || dungeon.isBloqueada()) {
+            throw new IllegalStateException("Dungeon não encontrada ou está bloqueada.");
+        }
+
+        Usuarios usuario = usuarioService.buscarUsuarioPorId(userId);
+
+        Avatar avatar = usuario.getAvatar();
+        if (avatar == null) {
+            throw new IllegalStateException("Avatar não encontrado para o usuário.");
+        }
+
+        List<Wave> waves = waveService.gerarWaves(userId, dungeonId, dungeon.getNumeroWaves(), numeroDeInimigosPorWave);
+        Inimigo inimigoInicial = waves.get(0).getInimigos().get(0);
+
+        Combate combate = new Combate(avatar, inimigoInicial);
+        // Salvar o estado inicial do combate em algum armazenamento persistente ou cache
+
+        return combate;
     }
 
     public void avatarAtacar(Combate combate){
@@ -41,7 +70,6 @@ public class CombateService {
             combate.setCombateEmAndamento(false);
             combate.getMoedasTemporarias().adicionarMoedas(inimigo.getRecompensa());
 
-            /* Rodrigo Luiz - 19/03/2025 - mob_018 */
             progressaoService.adicionarMoedasTemporarias(avatar, inimigo.getRecompensa());
             progressaoService.adicionarInimigoDerrotado(avatar);
         }
@@ -50,7 +78,7 @@ public class CombateService {
             finalizarCombateComDerrota(combate);
         }
 
-        progressaoService.adicionarClique(avatar);  /* Rodrigo Luiz - 19/03/2025 - mob_018 */
+        progressaoService.adicionarClique(avatar);
         avatarService.modificarAvatar(avatar.getId(), avatar.getHp(), avatar.getDanoBase());
         inimigoService.salvarInimigo(inimigo);
     }

@@ -37,7 +37,7 @@ public class InimigoController {
     public ResponseEntity<Inimigo> buscarInimigoPorId(@PathVariable int id){
         Inimigo inimigo = inimigoService.findById(id).get();
         if (inimigo == null){
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(inimigo);
     }
@@ -46,7 +46,7 @@ public class InimigoController {
     public ResponseEntity<Inimigo> criarInimigo(@RequestBody Inimigo inimigo){
         Inimigo inimigoNovo = inimigoService.salvarInimigo(inimigo);
         if (inimigoNovo == null){
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(inimigoNovo);
     }
@@ -57,7 +57,7 @@ public class InimigoController {
         if (inimigoExistente != null) {
             return ResponseEntity.ok(inimigoExistente);
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
     }
 
@@ -68,7 +68,7 @@ public class InimigoController {
             inimigoService.deletarInimigoPorId(id);
             return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
     }
 

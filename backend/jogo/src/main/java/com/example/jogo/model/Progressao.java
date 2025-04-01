@@ -17,7 +17,7 @@ import java.util.UUID;
 public class Progressao {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @Column(nullable = false, columnDefinition = "integer default 0")
@@ -29,26 +29,19 @@ public class Progressao {
     @Column(nullable = false, columnDefinition = "integer default 0")
     private int totalInimigosDerrotados;
 
-    @OneToOne
-    @JoinColumn(name = "avatar_id", nullable = false)
-    private Avatar avatar;
+    @Column(nullable = false)
+    private UUID avatarId;
 
     public Progressao(){}
 
-    public Progressao(Avatar avatar) {
-        this.avatar = avatar;
+    public Progressao(int totalMoedasTemporarias, int totalCliques, int totalInimigosDerrotados){
+        this.totalMoedasTemporarias = totalMoedasTemporarias;
+        this.totalCliques = totalCliques;
+        this.totalInimigosDerrotados = totalInimigosDerrotados;
     }
 
     public UUID getId() {
         return id;
-    }
-
-    public Avatar getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(Avatar avatar) {
-        this.avatar = avatar;
     }
 
     public int getTotalInimigosDerrotados() {
@@ -73,5 +66,13 @@ public class Progressao {
 
     public void setTotalMoedasTemporarias(int totalMoedasTemporarias) {
         this.totalMoedasTemporarias = totalMoedasTemporarias;
+    }
+
+    public UUID getAvatarId() {
+        return avatarId;
+    }
+
+    public void setAvatarId(UUID avatarId) {
+        this.avatarId = avatarId;
     }
 }

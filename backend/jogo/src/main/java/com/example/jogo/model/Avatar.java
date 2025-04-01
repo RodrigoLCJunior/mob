@@ -27,6 +27,10 @@ public class Avatar {
     @Column(nullable = false)
     private int danoBase;
 
+    /* Rodrigo Luiz - 18/03/2025 - mob_018 */
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    private Progressao progressao;
+
     //private List<SkillsAtivas> habilidadesAtivas;
 
     //Metodo de Criar o Avatar
@@ -55,5 +59,14 @@ public class Avatar {
 
     public void setHp(int hp) {
         this.hp = hp;
+    }
+
+    /* Rodrigo Luiz - 18/03/2025 - mob_018 */
+    public Progressao getProgressao() {
+        return progressao;
+    }
+
+    public void setProgressao(Progressao progressao) {
+        this.progressao = progressao;
     }
 }

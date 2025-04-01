@@ -42,7 +42,7 @@ public class Dungeon {
         if (id == 1){
             this.bloqueada = false;
         } else {
-            this.bloqueada = false;
+            this.bloqueada = true;
         }
 
     }
