@@ -8,7 +8,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:midnight_never_end/models/user_entity.dart';
+import 'package:midnight_never_end/models/user/user_entity.dart';
 import 'package:midnight_never_end/controllers/user_controller.dart';
 
 void main() {

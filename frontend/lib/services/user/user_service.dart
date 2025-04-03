@@ -8,7 +8,7 @@
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:midnight_never_end/models/user_entity.dart';
+import 'package:midnight_never_end/models/user/user_entity.dart';
 import 'package:midnight_never_end/controllers/user_controller.dart';
 import 'package:midnight_never_end/services/moeda/moeda_permanente_service.dart';
 import '../auth_service.dart';

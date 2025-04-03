@@ -1,4 +1,3 @@
-
 /*
  ** Task..: 22 - Tela de Dungeon
  ** Data..: 19/03/2024
@@ -171,8 +170,9 @@ class _GameStartScreenState extends State<GameStartScreen> {
                     Row(
                       children: [
                         Text(
-                          '${UserManager.currentUser?.coins}', // QTD MOEDAS
+                          '${UserManager.currentUser?.coins} ', // QTD MOEDAS
                           style: const TextStyle(
+                            fontFamily: "Kirsty",
                             fontSize: 40,
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -312,9 +312,12 @@ class _GameStartScreenState extends State<GameStartScreen> {
                         isScrollControlled: true, // Permite ocupar tela cheia
                         backgroundColor: Colors.transparent, // Para bordas arredondadas ou fundo custom
                         builder: (context) {
-                          return const HabilidadesWidget(); // seu widget de habilidades
+                          return const HabilidadesWidget();
                         },
-                      );
+                      ).whenComplete(() {
+                        // 🔄 Atualiza as moedas ao fechar a tela de habilidades
+                        setState(() {});
+                      });
                     } else {
                       print("Aba selecionada: $index");
                     }
@@ -322,7 +325,7 @@ class _GameStartScreenState extends State<GameStartScreen> {
                   iconSize: 40, // Aumenta o tamanho dos ícones
                   items: const [
                     BottomNavigationBarItem(
-                      icon: Icon(Icons.star),
+                      icon: Icon(Icons.lock), // Alterado de Icons.star para Icons.lock
                       label: 'Coming Soon',
                     ),
                     BottomNavigationBarItem(

@@ -8,7 +8,7 @@
 
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:midnight_never_end/models/user_entity.dart';
+import 'package:midnight_never_end/models/user/user_entity.dart';
 
 class UserManager {
   static User? currentUser;
