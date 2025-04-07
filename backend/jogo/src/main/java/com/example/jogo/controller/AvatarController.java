@@ -1,6 +1,6 @@
 /*
  ** Task..: 13 - Sistema Inicial do Combate
- ** Data..: 08/03/2024
+ ** Data..: 08/03/2025
  ** Autor.: Rodrigo Luiz
  ** Motivo: Criar controller Avatar para usar no Combate
  ** Obs...:

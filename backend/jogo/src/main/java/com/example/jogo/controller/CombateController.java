@@ -1,3 +1,11 @@
+/*
+ ** Task..: 13 - Sistema Inicial do Combate
+ ** Data..: 18/03/2025
+ ** Autor.: Rodrigo Luiz
+ ** Motivo: Criar classe combate
+ ** Obs...:
+ */
+
 package com.example.jogo.controller;
 
 import com.example.jogo.model.Avatar;

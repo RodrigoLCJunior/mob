@@ -37,8 +37,10 @@ public class Usuarios {
     @JoinColumn(name = "moeda_permanente_id", referencedColumnName = "id")
     private MoedaPermanente moedaPermanente;
 
+    /*
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Dungeon> dungeons;
+    */
 
     public Usuarios() {} 
 
@@ -85,6 +87,7 @@ public class Usuarios {
         this.nome = nome;
     }
 
+    /*
     public List<Dungeon> getDungeons() {
         return dungeons;
     }
@@ -92,6 +95,7 @@ public class Usuarios {
     public void setDungeons(List<Dungeon> dungeons) {
         this.dungeons = dungeons;
     }
+    */
 
     public MoedaPermanente getMoedaPermanente() {
         return moedaPermanente;

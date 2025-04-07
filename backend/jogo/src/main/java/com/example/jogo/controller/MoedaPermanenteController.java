@@ -1,5 +1,12 @@
-package com.example.jogo.controller;
+/*
+ ** Task..: 26 - Criação da Classe HabilidadesPermanentes
+ ** Data..: 29/03/2025
+ ** Autor.: Rodrigo Luiz
+ ** Motivo: Criar classe para as habilidades
+ ** Obs...:
+ */
 
+package com.example.jogo.controller;
 import com.example.jogo.model.MoedaPermanente;
 import com.example.jogo.service.MoedaPermanenteService;
 import org.springframework.beans.factory.annotation.Autowired;

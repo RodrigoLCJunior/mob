@@ -1,22 +1,19 @@
 /*
  ** Task..: 13 - Sistema Inicial do Combate
- ** Data..: 09/03/2024
+ ** Data..: 09/03/2025
  ** Autor.: Rodrigo Luiz
  ** Motivo: Criar classe Usuario
  ** Obs...:
  */
 
 package com.example.jogo.service;
-
-import com.example.jogo.model.Avatar;
-import com.example.jogo.model.MoedaPermanente;
-import com.example.jogo.model.Progressao;
-import com.example.jogo.model.Usuarios;
-import com.example.jogo.repository.AvatarRepository;
+import com.example.jogo.model.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.example.jogo.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -31,6 +28,25 @@ public class UsuarioService {
     @Autowired
     private MoedaPermanenteService moedaPermanenteService;
 
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
+    public LoginResponse login(Usuarios loginRequest) {
+        Optional<Usuarios> usuarioOpt = usuarioRepository.findByEmail(loginRequest.getEmail());
+
+        if (usuarioOpt.isEmpty()) {
+            return new LoginResponse(false, "email", "Email não encontrado", null);
+        }
+
+        Usuarios usuario = usuarioOpt.get();
+
+        if (passwordEncoder.matches(loginRequest.getSenha(), usuario.getSenha())) {
+            return new LoginResponse(true, null, null, usuario);
+        } else {
+            return new LoginResponse(false, "senha", "Senha incorreta", null);
+        }
+    }
+
     public Usuarios buscarUsuarioPorEmail(String email) {
         return usuarioRepository.findByEmail(email).orElse(null);
     }
@@ -44,24 +60,41 @@ public class UsuarioService {
     }
 
     /* Rodrigo Luiz - 15/03/2025 - mob_015 */
-    public Usuarios criarUsuario(String nome, String email, String senha) {
+    public Usuarios criarUsuario(Usuarios usuarioRequest) throws IllegalArgumentException {
+        // Validação de campos obrigatórios
+        if (usuarioRequest.getNome() == null || usuarioRequest.getNome().trim().isEmpty() ||
+                usuarioRequest.getEmail() == null || usuarioRequest.getEmail().trim().isEmpty() ||
+                usuarioRequest.getSenha() == null || usuarioRequest.getSenha().trim().isEmpty()) {
+            throw new IllegalArgumentException("Campos obrigatórios estão vazios");
+        }
+
+        // Verifica se o email já existe
+        Optional<Usuarios> existingUser = usuarioRepository.findByEmail(usuarioRequest.getEmail());
+        if (existingUser.isPresent()) {
+            throw new IllegalArgumentException("Email já está em uso");
+        }
+
+        // Criptografa a senha
+        String senhaCriptografada = passwordEncoder.encode(usuarioRequest.getSenha());
         Usuarios usuario = new Usuarios();
-        usuario.setNome(nome);
-        usuario.setEmail(email);
-        usuario.setSenha(senha);
+        usuario.setNome(usuarioRequest.getNome());
+        usuario.setEmail(usuarioRequest.getEmail());
+        usuario.setSenha(senhaCriptografada);
 
-        // Criar e associar um avatar ao usuário
-        Avatar avatar = new Avatar(5, 1); // Valores iniciais de HP e danoBase
+        // Cria avatar e moeda permanente
+        Avatar avatar = new Avatar(5, 1);
         avatar = avatarService.criarAvatar(avatar);
+        if (avatar == null) {
+            throw new IllegalArgumentException("Falha ao criar avatar");
+        }
 
-        //Criar e associar uma MoedaPermanente
         MoedaPermanente moedaPermanente = moedaPermanenteService.criarMoedaPermanente();
+        if (moedaPermanente == null) {
+            throw new IllegalArgumentException("Falha ao criar moeda permanente");
+        }
 
-        // Associar o avatar e moeda ao usuário
         usuario.setAvatar(avatar);
         usuario.setMoedaPermanente(moedaPermanente);
-
-        // Salvar o usuário
         return usuarioRepository.save(usuario);
     }
 

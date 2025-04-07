@@ -1,6 +1,6 @@
 /*
  ** Task..: 13 - Sistema Inicial do Combate
- ** Data..: 08/03/2024
+ ** Data..: 08/03/2025
  ** Autor.: Rodrigo Luiz
  ** Motivo: Criar service Avatar para usar no Combate
  ** Obs...:
@@ -9,7 +9,6 @@
 package com.example.jogo.service;
 import com.example.jogo.model.Avatar;
 import com.example.jogo.model.Progressao;
-import com.example.jogo.model.Usuarios;
 import com.example.jogo.repository.AvatarRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,6 @@
 /*
  ** Task..: 18 - Criação e formulação da classe Progresso
- ** Data..: 18/03/2024
+ ** Data..: 18/03/2025
  ** Autor.: Rodrigo Luiz
  ** Motivo: Criar classe Progressão
  ** Obs...:

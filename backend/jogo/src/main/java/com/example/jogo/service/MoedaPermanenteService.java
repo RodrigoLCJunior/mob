@@ -1,3 +1,11 @@
+/*
+ ** Task..: 26 - Criação da Classe HabilidadesPermanentes
+ ** Data..: 29/03/2025
+ ** Autor.: Rodrigo Luiz
+ ** Motivo: Criar classe para as habilidades
+ ** Obs...:
+ */
+
 package com.example.jogo.service;
 
 import com.example.jogo.model.MoedaPermanente;
