@@ -1,6 +1,6 @@
 /*
  ** Task..: 13 - Sistema Inicial do Combate
- ** Data..: 15/03/2024
+ ** Data..: 15/03/2025
  ** Autor.: Rodrigo Luiz
  ** Motivo: Adaptar o maximo a dungeon para o Usuario
  ** Obs...:
@@ -17,5 +17,4 @@ import java.util.UUID;
 
 @Repository
 public interface DungeonRepository extends JpaRepository<Dungeon, Integer> {
-    List<Dungeon> findByUsuarioId(UUID usuarioId);
 }

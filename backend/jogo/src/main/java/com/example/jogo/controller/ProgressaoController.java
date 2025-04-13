@@ -1,6 +1,6 @@
 /*
  ** Task..: 18 - Criação e formulação da classe Progresso
- ** Data..: 18/03/2024
+ ** Data..: 18/03/2025
  ** Autor.: Rodrigo Luiz
  ** Motivo: Criar classe Progressão
  ** Obs...:
@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -28,11 +30,20 @@ public class ProgressaoController {
     @Autowired
     private AvatarService avatarService;
 
-    @GetMapping("/{avatarId}")
+    @GetMapping
+    private ResponseEntity<List<Progressao>> buscarTodasProgressao(){
+        List<Progressao> progressaoList = progressaoService.acharTodasProgressoes();
+        if(progressaoList.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(progressaoList);
+    }
+
+    @GetMapping("/{avatarId}/avatar-id")
     private ResponseEntity<Progressao> buscarProgressao(@PathVariable UUID avatarId){
         Avatar avatar = avatarService.getAvatar(avatarId);
         if (avatar == null){
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
         Progressao progressao = progressaoService.buscarProgressaoPorAvatar(avatar);
         return ResponseEntity.ok(progressao);
@@ -42,7 +53,7 @@ public class ProgressaoController {
     private ResponseEntity<Progressao> adicinarMoedasTemporarias(@PathVariable UUID avatarId, @RequestParam int quantidade){
         Avatar avatar = avatarService.getAvatar(avatarId);
         if (avatar == null){
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
         progressaoService.adicionarMoedasTemporarias(avatar, quantidade);
         Progressao progressao = progressaoService.buscarProgressaoPorAvatar(avatar);
@@ -53,7 +64,7 @@ public class ProgressaoController {
     private ResponseEntity<Progressao> adicinarClique(@PathVariable UUID avatarId){
         Avatar avatar = avatarService.getAvatar(avatarId);
         if (avatar == null){
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
         progressaoService.adicionarClique(avatar);
         Progressao progressao = progressaoService.buscarProgressaoPorAvatar(avatar);
@@ -64,7 +75,7 @@ public class ProgressaoController {
     private ResponseEntity<Progressao> adicionarInimigoDerrotado(@PathVariable UUID avatarId){
         Avatar avatar = avatarService.getAvatar(avatarId);
         if (avatar == null){
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
         progressaoService.adicionarInimigoDerrotado(avatar);
         Progressao progressao = progressaoService.buscarProgressaoPorAvatar(avatar);
