@@ -1,6 +1,6 @@
 /*
  ** Task..: 13 - Sistema Inicial do Combate
- ** Data..: 08/03/2024
+ ** Data..: 08/03/2025
  ** Autor.: Rodrigo Luiz
  ** Motivo: Criar classe Wave para usar no Combate
  ** Obs...:
@@ -12,49 +12,29 @@ import jakarta.persistence.*;
 
 import java.util.List;
 
-@Entity
-@Table(name = "waves")
 public class Wave {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
-
-    @Column(nullable = false)
     private int numero;
+    private List<Inimigo> inimigos;
 
-    @OneToMany(mappedBy = "wave", cascade = CascadeType.ALL)
-    private List<WaveInimigos> waveInimigos;
-
-    @ManyToOne
-    @JoinColumn(name = "dungeon_id", nullable = false)
-    private Dungeon dungeon;
-
-    public Wave(){
-    }
-
-    public Wave(int numero, List<WaveInimigos> waveInimigos){
+    public Wave(int numero, List<Inimigo> inimigos) {
         this.numero = numero;
-        this.waveInimigos = waveInimigos;
-    }
-
-    public void setNumero(int numero) {
-        this.numero = numero;
-    }
-
-    public void setInimigos(List<WaveInimigos> waveInimigos) {
-        this.waveInimigos = waveInimigos;
-    }
-
-    public int getId() {
-        return id;
+        this.inimigos = inimigos;
     }
 
     public int getNumero() {
         return numero;
     }
 
-    public List<WaveInimigos> getWaveInimigos() {
-        return waveInimigos;
+    public List<Inimigo> getInimigos() {
+        return inimigos;
+    }
+
+    public void setNumero(int numero) {
+        this.numero = numero;
+    }
+
+    public void setInimigos(List<Inimigo> inimigos) {
+        this.inimigos = inimigos;
     }
 }

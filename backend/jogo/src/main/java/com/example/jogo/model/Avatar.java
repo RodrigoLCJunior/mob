@@ -1,6 +1,6 @@
 /*
 ** Task..: 13 - Sistema Inicial do Combate
-** Data..: 08/03/2024
+** Data..: 08/03/2025
 ** Autor.: Rodrigo Luiz
 ** Motivo: Criar classe Avatar para usar no Combate
 ** Obs...:
@@ -18,7 +18,7 @@ import java.util.List;
 public class Avatar {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @Column(nullable = false)
@@ -27,13 +27,8 @@ public class Avatar {
     @Column(nullable = false)
     private int danoBase;
 
-    /* Rodrigo Luiz - 15/03/2025 - mob_015 */
-    @OneToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuarios usuario;
-
     /* Rodrigo Luiz - 18/03/2025 - mob_018 */
-    @OneToOne(mappedBy = "avatar", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Progressao progressao;
 
     //private List<SkillsAtivas> habilidadesAtivas;
@@ -41,10 +36,9 @@ public class Avatar {
     //Metodo de Criar o Avatar
     public Avatar(){}
 
-    public Avatar(int hp, int danoBase, Usuarios usuario) {
+    public Avatar(int hp, int danoBase) {
         this.hp = hp;
         this.danoBase = danoBase;
-        this.usuario = usuario;
     }
 
     public int getDanoBase() {
@@ -67,16 +61,7 @@ public class Avatar {
         this.hp = hp;
     }
 
-    /* Rodrigo Luiz - 15/03/2025 - mob_015 */
-    public Usuarios getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(Usuarios usuario) {
-        this.usuario = usuario;
-    }
-
-    /* Rodrigo Luiz - 15/03/2025 - mob_015 */
+    /* Rodrigo Luiz - 18/03/2025 - mob_018 */
     public Progressao getProgressao() {
         return progressao;
     }

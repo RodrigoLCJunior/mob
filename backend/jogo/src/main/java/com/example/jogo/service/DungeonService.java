@@ -1,6 +1,6 @@
 /*
  ** Task..: 13 - Sistema Inicial do Combate
- ** Data..: 15/03/2024
+ ** Data..: 15/03/2025
  ** Autor.: Rodrigo Luiz
  ** Motivo: Adaptar o maximo a dungeon para o Usuario
  ** Obs...:
@@ -9,14 +9,12 @@
 package com.example.jogo.service;
 
 import com.example.jogo.model.Dungeon;
-import com.example.jogo.model.Usuarios;
 import com.example.jogo.repository.DungeonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class DungeonService {
@@ -28,8 +26,21 @@ public class DungeonService {
         return dungeonRepository.findById(id).orElse(null);
     }
 
-    public List<Dungeon> getDungeonsByUsuario(UUID usuarioId) {
-        return dungeonRepository.findByUsuarioId(usuarioId);
+    public List<Dungeon> buscarTodasDungeons(){
+        return dungeonRepository.findAll();
+    }
+
+    public Dungeon criarDungeon(String nome, int numeroWaves) {
+        Dungeon dungeon = new Dungeon();
+        dungeon.setNome(nome);
+        dungeon.setNumeroWaves(numeroWaves);
+        dungeon.setConcluida(false);
+        dungeon.setBloqueada(true);
+        return dungeonRepository.save(dungeon);
+    }
+
+    public void deletarDungeon(int id) {
+        dungeonRepository.deleteById(id);
     }
 
     public void concluirDungeon(int dungeonId) {
