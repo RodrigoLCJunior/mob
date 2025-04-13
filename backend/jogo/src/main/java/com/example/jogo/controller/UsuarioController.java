@@ -23,7 +23,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/usuarios")
-@CrossOrigin(origins = {"http://localhost:8080", "http://localhost:9090", "http://10.0.2.2:9090"}) // Permite todas as portas locais
+@CrossOrigin(origins = {"http://localhost:8080", "http://localhost:9090", "http://10.0.2.2:9090", "*"}) // Permite todas as portas locais
 public class UsuarioController {
 
     @Autowired
