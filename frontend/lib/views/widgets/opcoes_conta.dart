@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:midnight_never_end/controllers/user_controller.dart';
 import 'package:midnight_never_end/views/pages/intro_screen.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> _logout(BuildContext context, VoidCallback updateState) async {
@@ -28,16 +29,24 @@ Future<void> _logout(BuildContext context, VoidCallback updateState) async {
   }
 }
 
-void _showSignOutConfirmation(BuildContext context, VoidCallback updateState) {
+void _showSignOutConfirmation(
+    BuildContext context, VoidCallback updateState, AudioPlayer Function() getPlayer) {
   showDialog(
     context: context,
     builder: (BuildContext dialogContext) {
       return SignOutConfirmationDialog(
         onConfirm: () async {
+          final player = getPlayer();
+          try {
+            await player.stop(); // Stop any ongoing sound
+            await player.play(AssetSource('audios/tec.wav')); // Play sound on confirm
+          } catch (e) {
+            print('Erro ao tocar som de logout: $e');
+          }
           await _logout(dialogContext, updateState);
           if (dialogContext.mounted) {
-            Navigator.pop(dialogContext); // Fecha o diálogo
-            Navigator.pop(dialogContext); // Fecha o modal de opções
+            Navigator.pop(dialogContext); // Close dialog
+            Navigator.pop(dialogContext); // Close modal
             Navigator.pushAndRemoveUntil(
               dialogContext,
               MaterialPageRoute(builder: (context) => const IntroScreen()),
@@ -45,9 +54,17 @@ void _showSignOutConfirmation(BuildContext context, VoidCallback updateState) {
             );
           }
         },
-        onCancel: () {
+        onCancel: () async {
+          final player = getPlayer();
+          try {
+            await player.stop(); // Stop any ongoing sound
+            await player.play(AssetSource('audios/tec.wav')); // Play sound on cancel
+          } catch (e) {
+            print('Erro ao tocar som de cancelar: $e');
+          }
           Navigator.pop(dialogContext);
         },
+        getPlayer: getPlayer,
       );
     },
   );
@@ -56,11 +73,13 @@ void _showSignOutConfirmation(BuildContext context, VoidCallback updateState) {
 class SignOutConfirmationDialog extends StatefulWidget {
   final VoidCallback onConfirm;
   final VoidCallback onCancel;
+  final AudioPlayer Function() getPlayer;
 
   const SignOutConfirmationDialog({
     super.key,
     required this.onConfirm,
     required this.onCancel,
+    required this.getPlayer,
   });
 
   @override
@@ -165,6 +184,7 @@ class _SignOutConfirmationDialogState extends State<SignOutConfirmationDialog>
                           offset: Offset(0, 0),
                         ),
                       ],
+
                     ),
                   ),
                 );
@@ -340,12 +360,20 @@ class __AccountOptionsModalState extends State<_AccountOptionsModal>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _glowAnimation;
-
   bool _isLogoutHovered = false;
+  final List<AudioPlayer> _audioPlayers = [];
+  int _currentPlayerIndex = 0;
 
   @override
   void initState() {
     super.initState();
+    // Initialize audio players
+    for (int i = 0; i < 2; i++) {
+      _audioPlayers.add(AudioPlayer());
+    }
+    _preloadSounds();
+
+    // Initialize animations
     _controller = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
@@ -370,9 +398,32 @@ class __AccountOptionsModalState extends State<_AccountOptionsModal>
     _controller.forward();
   }
 
+  // Preload sounds
+  Future<void> _preloadSounds() async {
+    try {
+      for (var player in _audioPlayers) {
+        await player.setSource(AssetSource('audios/tec.wav'));
+        await player.setVolume(0.5);
+      }
+      print("Sons pré-carregados com sucesso no modal");
+    } catch (e) {
+      print("Erro ao pré-carregar sons: $e");
+    }
+  }
+
+  // Get next available audio player
+  AudioPlayer _getNextPlayer() {
+    final player = _audioPlayers[_currentPlayerIndex];
+    _currentPlayerIndex = (_currentPlayerIndex + 1) % _audioPlayers.length;
+    return player;
+  }
+
   @override
   void dispose() {
     _controller.dispose();
+    for (var player in _audioPlayers) {
+      player.dispose();
+    }
     super.dispose();
   }
 
@@ -462,12 +513,19 @@ class __AccountOptionsModalState extends State<_AccountOptionsModal>
                     _isLogoutHovered = true;
                   });
                 },
-                onTapUp: (_) {
+                onTapUp: (_) async {
                   setState(() {
                     _isLogoutHovered = false;
                   });
                   print("Sair clicado no celular");
-                  _showSignOutConfirmation(context, widget.updateState);
+                  try {
+                    final player = _getNextPlayer();
+                    await player.stop(); // Stop any ongoing sound
+                    await player.play(AssetSource('audios/tec.wav')); // Play sound
+                  } catch (e) {
+                    print('Erro ao tocar som de sair: $e');
+                  }
+                  _showSignOutConfirmation(context, widget.updateState, _getNextPlayer);
                 },
                 onTapCancel: () {
                   setState(() {
@@ -529,7 +587,7 @@ class __AccountOptionsModalState extends State<_AccountOptionsModal>
   }
 }
 
-// Widget customizado pra ícones com efeito de brilho
+// Custom widget for glowing icons
 class GlowingIcon extends StatelessWidget {
   final IconData icon;
   final double size;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:midnight_never_end/controllers/user_controller.dart';
 import 'package:midnight_never_end/views/widgets/habilidades_modal.dart';
 import 'package:midnight_never_end/views/widgets/opcoes_conta.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class GameStartScreen extends StatefulWidget {
   const GameStartScreen({super.key});
@@ -17,10 +18,15 @@ class _GameStartScreenState extends State<GameStartScreen>
   late Animation<double> _glowAnimation;
   final PageController _pageController = PageController(viewportFraction: 0.85);
   int _currentPage = 0;
+  late AudioPlayer _audioPlayer;
 
   @override
   void initState() {
     super.initState();
+    // Inicializar o AudioPlayer
+    _audioPlayer = AudioPlayer();
+    _preloadSounds();
+
     // Inicializar o AnimationController pro efeito de brilho
     _glowController = AnimationController(
       duration: const Duration(seconds: 2),
@@ -32,9 +38,14 @@ class _GameStartScreenState extends State<GameStartScreen>
     );
 
     _pageController.addListener(() {
-      setState(() {
-        _currentPage = _pageController.page?.round() ?? 0;
-      });
+      final newPage = _pageController.page?.round() ?? 0;
+      if (newPage != _currentPage) {
+        // Tocar som quando a página muda
+        _playScrollSound();
+        setState(() {
+          _currentPage = newPage;
+        });
+      }
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -47,10 +58,54 @@ class _GameStartScreenState extends State<GameStartScreen>
     });
   }
 
+  // Pré-carregar os sons
+  Future<void> _preloadSounds() async {
+    try {
+      await _audioPlayer.setSource(AssetSource('audios/woosh.mp3'));
+      await _audioPlayer.setSource(AssetSource('audios/tec.wav'));
+      await _audioPlayer.setSource(AssetSource('audios/pop.wav'));
+      await _audioPlayer.setVolume(0.5);
+      print("Sons pré-carregados com sucesso");
+    } catch (e) {
+      print("Erro ao pré-carregar sons: $e");
+    }
+  }
+
+  // Função para tocar o som do carrossel
+  Future<void> _playScrollSound() async {
+    try {
+      await _audioPlayer.play(AssetSource('audios/woosh.mp3'));
+      await _audioPlayer.setVolume(0.5);
+    } catch (e) {
+      print("Erro ao tocar som de scroll: $e");
+    }
+  }
+
+  // Função para tocar o som de clique (voltar e habilidades)
+  Future<void> _playClickSound() async {
+    try {
+      await _audioPlayer.play(AssetSource('audios/tec.wav'));
+      await _audioPlayer.setVolume(0.5);
+    } catch (e) {
+      print("Erro ao tocar som de clique: $e");
+    }
+  }
+
+  // Função para tocar o som da dungeon
+  Future<void> _playDungeonSound() async {
+    try {
+      await _audioPlayer.play(AssetSource('audios/pop.wav'));
+      await _audioPlayer.setVolume(0.5);
+    } catch (e) {
+      print("Erro ao tocar som da dungeon: $e");
+    }
+  }
+
   @override
   void dispose() {
     _glowController.dispose();
     _pageController.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -62,6 +117,7 @@ class _GameStartScreenState extends State<GameStartScreen>
 
   void _startAdventure(int index) {
     if (_isLayoutReady && mounted) {
+      _playDungeonSound(); // Toca o som ao clicar na dungeon
       final adventures = [
         {
           "title": "A Floresta Sombria",
@@ -115,6 +171,7 @@ class _GameStartScreenState extends State<GameStartScreen>
 
   void _openAccountOptions() {
     if (mounted) {
+      _playClickSound(); // Toca o som ao clicar
       showAccountOptions(
         context,
         UserManager.currentUser?.nome ?? "Usuário",
@@ -240,8 +297,8 @@ class _GameStartScreenState extends State<GameStartScreen>
                         const SizedBox(width: 8),
                         Image.asset(
                           'assets/icons/permCoin.png',
-                          width: 40,
-                          height: 40,
+                          width: 80,
+                          height: 80,
                           fit: BoxFit.contain,
                         ),
                       ],
@@ -274,188 +331,210 @@ class _GameStartScreenState extends State<GameStartScreen>
                 ),
                 const SizedBox(height: 20),
                 Expanded(
-                  child:
-                      _isLayoutReady
-                          ? Column(
-                            children: [
-                              Expanded(
-                                child: PageView.builder(
-                                  controller: _pageController,
-                                  itemCount: adventures.length,
-                                  itemBuilder: (context, index) {
-                                    final adventure = adventures[index];
-                                    final bool isLocked =
-                                        adventure["locked"] as bool;
-                                    final double scale =
-                                        _currentPage == index
-                                            ? 1.0
-                                            : 0.9; // Escala maior pra dungeon atual
-                                    return Transform.scale(
-                                      scale: scale,
-                                      child: GestureDetector(
-                                        onTap: () => _startAdventure(index),
-                                        child: Container(
-                                          margin: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 20,
-                                          ),
-                                          padding: const EdgeInsets.all(12),
-                                          decoration: BoxDecoration(
-                                            color:
-                                                isLocked
-                                                    ? Colors.grey.withOpacity(
-                                                      0.5,
-                                                    )
-                                                    : Colors.white.withOpacity(
-                                                      0.9,
-                                                    ),
-                                            borderRadius: BorderRadius.circular(
-                                              12,
+                  child: _isLayoutReady
+                      ? Column(
+                          children: [
+                            Expanded(
+                              child: PageView.builder(
+                                controller: _pageController,
+                                itemCount: adventures.length,
+                                itemBuilder: (context, index) {
+                                  final adventure = adventures[index];
+                                  final bool isLocked =
+                                      adventure["locked"] as bool;
+                                  final double scale = _currentPage == index
+                                      ? 1.0
+                                      : 0.9; // Escala maior pra dungeon atual
+                                  return Transform.scale(
+                                    scale: scale,
+                                    child: GestureDetector(
+                                      onTap: () => _startAdventure(index),
+                                      child: Container(
+                                        margin: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 20,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.cyanAccent
+                                                  .withOpacity(
+                                                      _glowAnimation.value * 0.5),
+                                              blurRadius:
+                                                  10.0 * _glowAnimation.value,
+                                              spreadRadius: 2,
                                             ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withOpacity(
-                                                  0.3,
-                                                ),
-                                                blurRadius: 4,
-                                                offset: const Offset(1, 1),
-                                              ),
-                                            ],
-                                          ),
-                                          child: Row(
+                                          ],
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          child: Stack(
                                             children: [
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
+                                              // Imagem ocupando todo o card
+                                              Positioned.fill(
                                                 child: Image.asset(
                                                   "assets/images/mini_dungeons/dungeon_${index + 1}.png",
-                                                  width: 60,
-                                                  height: 60,
                                                   fit: BoxFit.cover,
-                                                  errorBuilder:
-                                                      (
-                                                        context,
-                                                        error,
-                                                        stackTrace,
-                                                      ) => const Icon(
-                                                        Icons
-                                                            .image_not_supported,
-                                                        size: 60,
-                                                        color: Colors.grey,
-                                                      ),
+                                                  color: isLocked
+                                                      ? Colors.grey
+                                                          .withOpacity(0.5)
+                                                      : null,
+                                                  colorBlendMode: isLocked
+                                                      ? BlendMode.saturation
+                                                      : null,
+                                                  errorBuilder: (context, error,
+                                                          stackTrace) =>
+                                                      Container(
+                                                    color: Colors.grey[300],
+                                                    child: const Icon(
+                                                      Icons.image_not_supported,
+                                                      size: 60,
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
-                                              const SizedBox(width: 12),
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Text(
-                                                      adventure["title"]
-                                                          as String,
-                                                      style: TextStyle(
-                                                        fontSize: 20,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color:
-                                                            isLocked
-                                                                ? Colors.grey
-                                                                : Colors
-                                                                    .black87,
-                                                        fontFamily: "Cinzel",
-                                                        shadows:
-                                                            isLocked
-                                                                ? []
-                                                                : [
-                                                                  const Shadow(
+                                              // Sombra para dungeons bloqueadas
+                                              if (isLocked)
+                                                Positioned.fill(
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      gradient: LinearGradient(
+                                                        begin:
+                                                            Alignment.topCenter,
+                                                        end: Alignment
+                                                            .bottomCenter,
+                                                        colors: [
+                                                          Colors.black
+                                                              .withOpacity(0.7),
+                                                          Colors.black
+                                                              .withOpacity(0.3),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              // Conteúdo do card
+                                              Align(
+                                                alignment: Alignment.bottomCenter,
+                                                child: Container(
+                                                  width: double.infinity,
+                                                  padding:
+                                                      const EdgeInsets.all(12),
+                                                  decoration: BoxDecoration(
+                                                    gradient: LinearGradient(
+                                                      begin: Alignment.topCenter,
+                                                      end: Alignment.bottomCenter,
+                                                      colors: [
+                                                        Colors.transparent,
+                                                        Colors.black
+                                                            .withOpacity(0.7),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  child: Column(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        adventure["title"]
+                                                            as String,
+                                                        style: TextStyle(
+                                                          fontSize: 20,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: isLocked
+                                                              ? Colors.grey
+                                                              : Colors.white,
+                                                          fontFamily: "Cinzel",
+                                                          shadows: isLocked
+                                                              ? []
+                                                              : [
+                                                                  Shadow(
                                                                     blurRadius:
-                                                                        10.0,
-                                                                    color:
-                                                                        Colors
-                                                                            .cyanAccent,
+                                                                        10.0 *
+                                                                            _glowAnimation
+                                                                                .value,
+                                                                    color: Colors
+                                                                        .cyanAccent,
                                                                     offset:
-                                                                        Offset(
-                                                                          0,
-                                                                          0,
-                                                                        ),
-                                                                  ),
-                                                                  const Shadow(
-                                                                    blurRadius:
-                                                                        5.0,
-                                                                    color:
-                                                                        Colors
-                                                                            .white,
-                                                                    offset:
-                                                                        Offset(
-                                                                          0,
-                                                                          0,
-                                                                        ),
+                                                                        const Offset(
+                                                                            0, 0),
                                                                   ),
                                                                 ],
+                                                        ),
                                                       ),
-                                                    ),
-                                                    const SizedBox(height: 4),
-                                                    Text(
-                                                      adventure["desc"]
-                                                          as String,
-                                                      style: TextStyle(
-                                                        fontSize: 14,
-                                                        color:
-                                                            isLocked
-                                                                ? Colors.grey
-                                                                : Colors
-                                                                    .black54,
+                                                      const SizedBox(height: 4),
+                                                      Text(
+                                                        adventure["desc"]
+                                                            as String,
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: isLocked
+                                                              ? Colors.grey
+                                                              : Colors.white70,
+                                                        ),
                                                       ),
-                                                    ),
-                                                  ],
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
+                                              // Ícone de cadeado no centro se estiver bloqueado
                                               if (isLocked)
-                                                const Icon(
-                                                  Icons.lock,
-                                                  color: Colors.grey,
-                                                  size: 24,
+                                                Positioned(
+                                                  top: 0,
+                                                  bottom: 0,
+                                                  left: 0,
+                                                  right: 0,
+                                                  child: Center(
+                                                    child: Icon(
+                                                      Icons.lock,
+                                                      color: Colors.grey[300],
+                                                      size: 48,
+                                                    ),
+                                                  ),
                                                 ),
                                             ],
                                           ),
                                         ),
                                       ),
-                                    );
-                                  },
-                                ),
+                                    ),
+                                  );
+                                },
                               ),
-                              // Indicadores de página (dots)
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: List.generate(
-                                  adventures.length,
-                                  (index) => Container(
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 4,
-                                    ),
-                                    width: _currentPage == index ? 12 : 8,
-                                    height: _currentPage == index ? 12 : 8,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color:
-                                          _currentPage == index
-                                              ? Colors.cyanAccent
-                                              : Colors.grey.withOpacity(0.5),
-                                    ),
+                            ),
+                            // Indicadores de página (dots)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: List.generate(
+                                adventures.length,
+                                (index) => Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                  ),
+                                  width: _currentPage == index ? 12 : 8,
+                                  height: _currentPage == index ? 12 : 8,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: _currentPage == index
+                                        ? Colors.cyanAccent
+                                        : Colors.grey.withOpacity(0.5),
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 10),
-                            ],
-                          )
-                          : const Center(
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
                             ),
+                            const SizedBox(height: 10),
+                          ],
+                        )
+                      : const Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
                           ),
+                        ),
                 ),
                 Container(
                   height: 60,
@@ -468,6 +547,7 @@ class _GameStartScreenState extends State<GameStartScreen>
                         size: 30,
                         onPressed: () {
                           if (mounted) {
+                            _playClickSound(); // Toca o som ao clicar
                             showModalBottomSheet(
                               context: context,
                               isScrollControlled: true,

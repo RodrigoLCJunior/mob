@@ -331,29 +331,41 @@ class _IntroScreenState extends State<IntroScreen>
   }
 
   void _startGame() {
-    if (!_isBlinkingFast && mounted && !_isDragging) {
-      logger.d("Toque detectado no texto - Iniciando _startGame");
-      try {
-        if (!_hasPlayedPressHereSound) {
-          _playPressHereSound();
-          setState(() {
-            _hasPlayedPressHereSound = true;
-          });
-        }
-
+  if (!_isBlinkingFast && mounted && !_isDragging) {
+    logger.d("Toque detectado no texto - Iniciando _startGame");
+    try {
+      if (!_hasPlayedPressHereSound) {
+        _playPressHereSound();
         setState(() {
-          _isBlinkingFast = true;
+          _hasPlayedPressHereSound = true;
         });
-        _controller.stop();
-        _controller.duration = const Duration(milliseconds: 200);
-        _controller.repeat(reverse: true);
+      }
 
-        Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) {
-            _controller.stop();
-            setState(() {
-              _isBlinkingFast = false;
-            });
+      setState(() {
+        _isBlinkingFast = true;
+      });
+      _controller.stop();
+      _controller.duration = const Duration(milliseconds: 200);
+      _controller.repeat(reverse: true);
+
+      Future.delayed(const Duration(seconds: 2), () async {
+        if (mounted) {
+          _controller.stop();
+          setState(() {
+            _isBlinkingFast = false;
+          });
+
+          if (UserManager.currentUser != null) {
+            _musicPlayer.stop();
+            _isMusicPlaying = false;
+            logger.d("Usuário já logado - indo direto pra GameStartScreen");
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const GameStartScreen(),
+              ),
+            );
+          } else {
             showLoginModal(context)
                 .then((_) {
                   _updateUser();
@@ -371,9 +383,7 @@ class _IntroScreenState extends State<IntroScreen>
                     } else {
                       setState(() {
                         _hasPlayedPressHereSound = false;
-                        logger.d(
-                          "Usuário voltou do modal sem logar, som press_here resetado",
-                        );
+                        logger.d("Usuário voltou sem logar");
                       });
                     }
                   }
@@ -395,12 +405,14 @@ class _IntroScreenState extends State<IntroScreen>
                   }
                 });
           }
-        });
-      } catch (e, stackTrace) {
-        _handleError("Erro no _startGame: $e", stackTrace);
-      }
+        }
+      });
+    } catch (e, stackTrace) {
+      _handleError("Erro no _startGame: $e", stackTrace);
     }
   }
+}
+
 
   Future<void> _playThunderSound() async {
     try {
