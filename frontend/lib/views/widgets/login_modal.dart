@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field
+
 import 'package:flutter/material.dart';
 import 'package:midnight_never_end/services/user/user_service.dart';
 import 'package:midnight_never_end/views/pages/game_start_screen.dart';

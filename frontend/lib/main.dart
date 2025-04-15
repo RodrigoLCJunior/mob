@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:midnight_never_end/controllers/user_controller.dart';
 import 'package:midnight_never_end/views/pages/intro_screen.dart';
 
-void main() async {
+void main(){
   WidgetsFlutterBinding.ensureInitialized();
-  await UserManager.loadUser(); // Garante que o usuário seja carregado
+  UserManager.loadUser(); // Garante que o usuário seja carregado
   runApp(const MyApp());
 }
 

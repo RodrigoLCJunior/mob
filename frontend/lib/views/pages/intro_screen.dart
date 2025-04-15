@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field, unused_local_variable
+
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
@@ -88,7 +90,7 @@ class _IntroScreenState extends State<IntroScreen>
       WidgetsBinding.instance.addObserver(this);
       _initializeAnimations();
       _loadUser();
-      _playBackgroundMusic();
+      //_playBackgroundMusic();
       _pingBackend();
       _startKeepAlive();
       _loadAllImageSizes();
@@ -289,46 +291,55 @@ class _IntroScreenState extends State<IntroScreen>
   }
 
   void _handleTap() {
-    if (!_showFlash && !_isBlinkingFast && mounted && !_isDragging) {
-      logger.d("Toque detectado fora da área do texto - Iniciando flash");
-      try {
-        final currentTransform = _transformationController.value.clone();
+  if (!_showFlash && !_isBlinkingFast && mounted && !_isDragging) {
+    // Garante que só toca uma vez, e só após interação real
+    if (!_isMusicPlaying) {
+      _playBackgroundMusic();
+    }
 
-        setState(() {
-          _showFlash = true;
-          _currentLightning =
-              _lightningImages[_random.nextInt(_lightningImages.length)];
-          if (!_hasChangedBackground) {
-            _currentBackgroundImage = "assets/images/background_image2.png";
-            _hasChangedBackground = true;
-            _imageSize = _backgroundImage2Size;
-            _showRain = true;
-            logger.d("Chuva ativada: _showRain = $_showRain");
-            _rainController.repeat();
-            logger.d("Animação da chuva iniciada");
-            _transformationController.value = currentTransform;
-          }
-        });
+    logger.d("Toque detectado fora da área do texto - Iniciando flash");
 
-        _playThunderSound();
-        _controller.stop();
-        _controller.duration = const Duration(milliseconds: 200);
-        _controller.reset();
-        _controller.forward().then((_) {
-          if (mounted) {
-            logger.d("Flash terminado");
-            setState(() {
-              _showFlash = false;
-            });
-            _controller.duration = const Duration(seconds: 2);
-            _controller.repeat(reverse: true);
-          }
-        });
-      } catch (e, stackTrace) {
-        _handleError("Erro no _handleTap: $e", stackTrace);
-      }
+    try {
+      final currentTransform = _transformationController.value.clone();
+
+      setState(() {
+        _showFlash = true;
+        _currentLightning =
+            _lightningImages[_random.nextInt(_lightningImages.length)];
+
+        if (!_hasChangedBackground) {
+          _currentBackgroundImage = "assets/images/background_image2.png";
+          _hasChangedBackground = true;
+          _imageSize = _backgroundImage2Size;
+          _showRain = true;
+          logger.d("Chuva ativada: _showRain = $_showRain");
+          _rainController.repeat();
+          logger.d("Animação da chuva iniciada");
+          _transformationController.value = currentTransform;
+        }
+      });
+
+      _playThunderSound();
+
+      _controller.stop();
+      _controller.duration = const Duration(milliseconds: 200);
+      _controller.reset();
+      _controller.forward().then((_) {
+        if (mounted) {
+          logger.d("Flash terminado");
+          setState(() {
+            _showFlash = false;
+          });
+          _controller.duration = const Duration(seconds: 2);
+          _controller.repeat(reverse: true);
+        }
+      });
+    } catch (e, stackTrace) {
+      _handleError("Erro no _handleTap: $e", stackTrace);
     }
   }
+}
+
 
   void _startGame() {
   if (!_isBlinkingFast && mounted && !_isDragging) {
@@ -439,20 +450,25 @@ class _IntroScreenState extends State<IntroScreen>
   }
 
   Future<void> _playBackgroundMusic() async {
-    try {
-      logger.d("Tentando tocar música de fundo...");
-      await _musicPlayer.setSource(AssetSource('audios/sons_of_liberty.mp3'));
-      await _musicPlayer.setReleaseMode(ReleaseMode.loop);
-      await _musicPlayer.setVolume(0.5);
-      await _musicPlayer.resume();
-      setState(() {
-        _isMusicPlaying = true;
-      });
-      logger.d("Música iniciada: sons_of_liberty.mp3");
-    } catch (e, stackTrace) {
-      _handleError("Erro ao tocar música: $e", stackTrace);
-    }
+  try {
+    logger.d("Tentando tocar música de fundo após interação do usuário...");
+    await _musicPlayer.setSource(AssetSource('audios/sons_of_liberty.mp3'));
+    await _musicPlayer.setReleaseMode(ReleaseMode.loop);
+    await _musicPlayer.setVolume(0.5); // Volume direto, já que o usuário interagiu
+    await _musicPlayer.resume();
+
+    setState(() {
+      _isMusicPlaying = true;
+    });
+
+    logger.d("Música de fundo iniciada com sucesso.");
+  } catch (e, stackTrace) {
+    _handleError("Erro ao tocar música: $e", stackTrace);
   }
+}
+
+
+
 
   void _handleError(String message, [StackTrace? stackTrace]) {
     logger.e("$message\n${stackTrace ?? ''}");
