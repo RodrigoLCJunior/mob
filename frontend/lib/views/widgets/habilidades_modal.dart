@@ -1,9 +1,11 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:midnight_never_end/controllers/user_controller.dart';
 import 'package:midnight_never_end/models/moeda_permanente/moeda_permanente_entity.dart';
 import 'package:midnight_never_end/views/widgets/talent_tile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:logger/logger.dart';
 
 class HabilidadesWidget extends StatefulWidget {
   const HabilidadesWidget({super.key});
@@ -20,8 +22,9 @@ class _HabilidadesWidgetState extends State<HabilidadesWidget>
   final AudioPlayer _audioPlayer = AudioPlayer();
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
-  late Animation<double> _glowAnimation;
+  final logger = Logger();
+  bool _resourcesPreloaded =
+      false; // Flag pra evitar múltiplos pré-carregamentos
 
   @override
   void initState() {
@@ -38,25 +41,38 @@ class _HabilidadesWidgetState extends State<HabilidadesWidget>
       end: 1.0,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-
-    _glowAnimation = Tween<double>(
-      begin: 0.5,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-
-    _controller.repeat(reverse: true);
     _controller.forward();
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_resourcesPreloaded) {
+      _preloadResources();
+      _resourcesPreloaded = true;
+    }
+  }
+
+  @override
   void dispose() {
-    _audioPlayer.dispose();
+    _controller.stop();
     _controller.dispose();
+    _audioPlayer.stop();
+    _audioPlayer.dispose();
     super.dispose();
+    if (kDebugMode) logger.d("HabilidadesWidget descartado");
+  }
+
+  Future<void> _preloadResources() async {
+    try {
+      await precacheImage(AssetImage("assets/icons/permCoin.png"), context);
+      await _audioPlayer.setVolume(0.5);
+      await _audioPlayer.setSource(AssetSource('audios/ka-chin.mp3'));
+      if (kDebugMode) logger.d("Recursos pré-carregados com sucesso");
+    } catch (e, stackTrace) {
+      if (kDebugMode)
+        logger.e("Erro ao pré-carregar recursos: $e\n$stackTrace");
+    }
   }
 
   Future<void> _loadData() async {
@@ -132,9 +148,13 @@ class _HabilidadesWidgetState extends State<HabilidadesWidget>
   }
 
   Future<void> _playCoinSound() async {
-    await _audioPlayer.stop();
-    await _audioPlayer.setSource(AssetSource('audios/ka-chin.mp3'));
-    await _audioPlayer.resume();
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/ka-chin.mp3'));
+      if (kDebugMode) logger.d("Som de moeda tocado");
+    } catch (e, stackTrace) {
+      if (kDebugMode) logger.e("Erro ao tocar som de moeda: $e\n$stackTrace");
+    }
   }
 
   void _upgradeTalent(int index) {
@@ -147,45 +167,14 @@ class _HabilidadesWidgetState extends State<HabilidadesWidget>
       });
       _saveData();
     } else {
-      print("Moedas insuficientes!");
+      if (kDebugMode) logger.d("Moedas insuficientes!");
       showDialog(
         context: context,
         builder: (BuildContext dialogContext) {
-          return InsufficientCoinsDialog();
+          return const InsufficientCoinsDialog();
         },
       );
     }
-  }
-
-  Future<void> _resetData() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (UserManager.currentUser == null) return;
-
-    int savedInitialCoins =
-        prefs.getInt('initial_coins_${UserManager.currentUser!.id}') ??
-        initialCoins;
-
-    setState(() {
-      coins = savedInitialCoins;
-      talents = _initializeTalents(prefs);
-    });
-
-    await prefs.setInt(
-      'coins_${UserManager.currentUser!.id}',
-      savedInitialCoins,
-    );
-    for (int i = 0; i < talents.length; i++) {
-      await prefs.setInt('talent_${i}_${UserManager.currentUser!.id}', 1);
-    }
-    UserManager.currentUser = UserManager.currentUser!.copyWith(
-      moedaPermanente:
-          UserManager.currentUser!.moedaPermanente?.copyWith(
-            quantidade: savedInitialCoins,
-          ) ??
-          MoedaPermanente(id: "default", quantidade: savedInitialCoins),
-    );
-    await UserManager.setUser(UserManager.currentUser!);
-    print("🔄 Reset realizado! Moedas restauradas para $savedInitialCoins.");
   }
 
   @override
@@ -195,46 +184,40 @@ class _HabilidadesWidgetState extends State<HabilidadesWidget>
       minChildSize: 0.5,
       maxChildSize: 1,
       builder: (context, scrollController) {
-        return SlideTransition(
-          position: _slideAnimation,
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withOpacity(0.9),
-                    Colors.grey[900]!.withOpacity(0.9),
-                  ],
-                ),
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20),
-                ),
-                border: Border.all(
-                  color: Colors.cyanAccent.withOpacity(0.5),
-                  width: 2,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.cyanAccent.withOpacity(0.3),
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                  ),
-                ],
+        return FadeTransition(
+          opacity: _fadeAnimation,
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.9),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
               ),
-              child: ListView(
-                controller: scrollController,
-                children: [
-                  _buildHeader(),
-                  _buildCoinDisplay(),
-                  ..._buildTalentList(),
-                  const SizedBox(height: 20),
-                  _buildResetButton(),
-                ],
+              border: Border.all(
+                color: Colors.cyanAccent.withOpacity(0.5),
+                width: 2,
               ),
+            ),
+            child: ListView.builder(
+              controller: scrollController,
+              physics: const ClampingScrollPhysics(),
+              itemCount:
+                  talents.length +
+                  2, // Header, moedas e talentos (sem botão de reset)
+              itemBuilder: (context, index) {
+                if (index == 0) return _buildHeader();
+                if (index == 1) return _buildCoinDisplay();
+                final talentIndex = index - 2;
+                final talent = talents[talentIndex];
+                return TalentTile(
+                  icon: talent["icon"],
+                  title: talent["title"],
+                  level: talent["level"],
+                  cost: talent["cost"],
+                  onPressed: () => _upgradeTalent(talentIndex),
+                  glowAnimation: null,
+                );
+              },
             ),
           ),
         );
@@ -243,80 +226,32 @@ class _HabilidadesWidgetState extends State<HabilidadesWidget>
   }
 
   Widget _buildHeader() {
-    return Column(
+    return const Column(
       children: [
         Center(
-          child: AnimatedBuilder(
-            animation: _glowAnimation,
-            builder: (context, child) {
-              return ShaderMask(
-                shaderCallback: (bounds) {
-                  return LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.white.withOpacity(0.5),
-                      Colors.cyanAccent.withOpacity(_glowAnimation.value),
-                      Colors.white.withOpacity(0.5),
-                    ],
-                  ).createShader(bounds);
-                },
-                blendMode: BlendMode.srcATop,
-                child: const Text(
-                  "TALENTOS",
-                  style: TextStyle(
-                    fontFamily: "Cinzel",
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(
-                        blurRadius: 10.0,
-                        color: Colors.cyanAccent,
-                        offset: Offset(0, 0),
-                      ),
-                      Shadow(
-                        blurRadius: 5.0,
-                        color: Colors.white,
-                        offset: Offset(0, 0),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
+          child: Text(
+            "TALENTOS",
+            style: TextStyle(
+              fontFamily: "Cinzel",
+              fontSize: 30,
+              fontWeight: FontWeight.bold,
+              color: Colors.cyanAccent, // Texto em azul
+            ),
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         Center(
-          child: AnimatedBuilder(
-            animation: _glowAnimation,
-            builder: (context, child) {
-              return Text(
-                "Talentos podem fazer com que você\nfique mais forte permanentemente!",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: "Cinzel",
-                  fontSize: 16,
-                  color: Colors.white.withOpacity(0.8),
-                  shadows: [
-                    Shadow(
-                      blurRadius: 10.0 * _glowAnimation.value,
-                      color: Colors.cyanAccent,
-                      offset: const Offset(0, 0),
-                    ),
-                    Shadow(
-                      blurRadius: 5.0 * _glowAnimation.value,
-                      color: Colors.white,
-                      offset: const Offset(0, 0),
-                    ),
-                  ],
-                ),
-              );
-            },
+          child: Text(
+            "Talentos podem fazer com que você\nfique mais forte permanentemente!",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: "Cinzel",
+              fontSize: 16,
+              color: Colors.cyanAccent, // Texto em azul
+            ),
           ),
         ),
-        const SizedBox(height: 40),
+        SizedBox(height: 40),
       ],
     );
   }
@@ -330,103 +265,23 @@ class _HabilidadesWidgetState extends State<HabilidadesWidget>
           width: 40,
           height: 40,
           fit: BoxFit.contain,
+          color: Colors.cyanAccent, // Ícone tingido de azul
         ),
         const SizedBox(width: 10),
-        AnimatedBuilder(
-          animation: _glowAnimation,
-          builder: (context, child) {
-            return Text(
-              '$coins',
-              style: TextStyle(
-                fontFamily: "Cinzel",
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                shadows: [
-                  Shadow(
-                    blurRadius: 10.0 * _glowAnimation.value,
-                    color: Colors.cyanAccent,
-                    offset: const Offset(0, 0),
-                  ),
-                  Shadow(
-                    blurRadius: 5.0 * _glowAnimation.value,
-                    color: Colors.white,
-                    offset: const Offset(0, 0),
-                  ),
-                ],
-              ),
-            );
-          },
+        Text(
+          '$coins',
+          style: const TextStyle(
+            fontFamily: "Cinzel",
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            color: Colors.cyanAccent, // Texto em azul
+          ),
         ),
       ],
     );
   }
-
-  List<Widget> _buildTalentList() {
-    return talents.asMap().entries.map((entry) {
-      final index = entry.key;
-      final talent = entry.value;
-      return TalentTile(
-        icon: talent["icon"],
-        title: talent["title"],
-        level: talent["level"],
-        cost: talent["cost"],
-        onPressed: () => _upgradeTalent(index),
-        glowAnimation: _glowAnimation,
-      );
-    }).toList();
-  }
-
-  Widget _buildResetButton() {
-    return Center(
-      child: GestureDetector(
-        onTap: _resetData,
-        child: AnimatedBuilder(
-          animation: _glowAnimation,
-          builder: (context, child) {
-            return Container(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              decoration: BoxDecoration(
-                color: Colors.redAccent.withOpacity(0.8),
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.redAccent.withOpacity(0.5),
-                    blurRadius: 10 * _glowAnimation.value,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              child: Text(
-                "🔄 RESETAR",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontFamily: "Cinzel",
-                  shadows: [
-                    Shadow(
-                      blurRadius: 10.0 * _glowAnimation.value,
-                      color: Colors.cyanAccent,
-                      offset: const Offset(0, 0),
-                    ),
-                    Shadow(
-                      blurRadius: 5.0 * _glowAnimation.value,
-                      color: Colors.white,
-                      offset: const Offset(0, 0),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
 }
 
-// Novo widget pra o diálogo de moedas insuficientes
 class InsufficientCoinsDialog extends StatefulWidget {
   const InsufficientCoinsDialog({super.key});
 
@@ -438,8 +293,8 @@ class InsufficientCoinsDialog extends StatefulWidget {
 class _InsufficientCoinsDialogState extends State<InsufficientCoinsDialog>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _glowAnimation;
   late Animation<double> _scaleAnimation;
+  final logger = Logger();
 
   @override
   void initState() {
@@ -449,24 +304,20 @@ class _InsufficientCoinsDialogState extends State<InsufficientCoinsDialog>
       vsync: this,
     );
 
-    _glowAnimation = Tween<double>(
-      begin: 0.5,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-
     _scaleAnimation = Tween<double>(
       begin: 0.9,
       end: 1.0,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
-    _controller.repeat(reverse: true);
     _controller.forward();
   }
 
   @override
   void dispose() {
+    _controller.stop();
     _controller.dispose();
     super.dispose();
+    if (kDebugMode) logger.d("InsufficientCoinsDialog descartado");
   }
 
   @override
@@ -480,118 +331,49 @@ class _InsufficientCoinsDialogState extends State<InsufficientCoinsDialog>
         content: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.black.withOpacity(0.9),
-                Colors.grey[900]!.withOpacity(0.9),
-              ],
-            ),
+            color: Colors.black.withOpacity(0.9),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: Colors.cyanAccent.withOpacity(0.5),
               width: 2,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.cyanAccent.withOpacity(0.3),
-                blurRadius: 10,
-                spreadRadius: 2,
-              ),
-            ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              AnimatedBuilder(
-                animation: _glowAnimation,
-                builder: (context, child) {
-                  return ShaderMask(
-                    shaderCallback: (bounds) {
-                      return LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Colors.white.withOpacity(0.5),
-                          Colors.cyanAccent.withOpacity(_glowAnimation.value),
-                          Colors.white.withOpacity(0.5),
-                        ],
-                      ).createShader(bounds);
-                    },
-                    blendMode: BlendMode.srcATop,
-                    child: const Text(
-                      "MOEDAS INSUFICIENTES!",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontFamily: "Cinzel",
-                        shadows: [
-                          Shadow(
-                            blurRadius: 10.0,
-                            color: Colors.cyanAccent,
-                            offset: Offset(0, 0),
-                          ),
-                          Shadow(
-                            blurRadius: 5.0,
-                            color: Colors.white,
-                            offset: Offset(0, 0),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+              const Text(
+                "MOEDAS INSUFICIENTES!",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.cyanAccent, // Texto em azul
+                  fontFamily: "Cinzel",
+                ),
               ),
               const SizedBox(height: 20),
               GestureDetector(
                 onTap: () {
                   Navigator.pop(context);
                 },
-                child: AnimatedBuilder(
-                  animation: _glowAnimation,
-                  builder: (context, child) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 10,
-                        horizontal: 20,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.cyan.withOpacity(0.8),
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.cyanAccent.withOpacity(0.5),
-                            blurRadius: 10 * _glowAnimation.value,
-                            spreadRadius: 2,
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        "OK",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontFamily: "Cinzel",
-                          shadows: [
-                            Shadow(
-                              blurRadius: 10.0 * _glowAnimation.value,
-                              color: Colors.cyanAccent,
-                              offset: const Offset(0, 0),
-                            ),
-                            Shadow(
-                              blurRadius: 5.0 * _glowAnimation.value,
-                              color: Colors.white,
-                              offset: const Offset(0, 0),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 20,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.cyanAccent,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Text(
+                    "OK",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black, // Texto em preto pra contrastar
+                      fontFamily: "Cinzel",
+                    ),
+                  ),
                 ),
               ),
             ],

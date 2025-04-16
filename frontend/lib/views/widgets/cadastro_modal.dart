@@ -186,15 +186,8 @@ class _CadastroModalState extends State<CadastroModal> {
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          // Nuvem estática atrás da logo
                           Image.asset(
-                            "assets/images/dark_cloud.png",
-                            width: 400, // Mesmo tamanho do LoginModal
-                            height: 240,
-                            fit: BoxFit.contain,
-                          ),
-                          Image.asset(
-                            "assets/images/logo_image.png",
+                            "assets/images/rewalker.png",
                             width: 300,
                             height: 200,
                             fit: BoxFit.contain,

@@ -28,284 +28,6 @@ Future<void> _logout(BuildContext context, VoidCallback updateState) async {
   }
 }
 
-void _showSignOutConfirmation(BuildContext context, VoidCallback updateState) {
-  showDialog(
-    context: context,
-    builder: (BuildContext dialogContext) {
-      return SignOutConfirmationDialog(
-        onConfirm: () async {
-          await _logout(dialogContext, updateState);
-          if (dialogContext.mounted) {
-            Navigator.pop(dialogContext); // Fecha o diálogo
-            Navigator.pop(dialogContext); // Fecha o modal de opções
-            Navigator.pushAndRemoveUntil(
-              dialogContext,
-              MaterialPageRoute(builder: (context) => const IntroScreen()),
-              (route) => false,
-            );
-          }
-        },
-        onCancel: () {
-          Navigator.pop(dialogContext);
-        },
-      );
-    },
-  );
-}
-
-class SignOutConfirmationDialog extends StatefulWidget {
-  final VoidCallback onConfirm;
-  final VoidCallback onCancel;
-
-  const SignOutConfirmationDialog({
-    super.key,
-    required this.onConfirm,
-    required this.onCancel,
-  });
-
-  @override
-  _SignOutConfirmationDialogState createState() =>
-      _SignOutConfirmationDialogState();
-}
-
-class _SignOutConfirmationDialogState extends State<SignOutConfirmationDialog>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _glowAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 500),
-      vsync: this,
-    );
-
-    _glowAnimation = Tween<double>(
-      begin: 0.5,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-
-    _controller.repeat(reverse: true);
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: Colors.transparent,
-      contentPadding: EdgeInsets.zero,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-      content: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.black.withOpacity(0.9),
-              Colors.grey[900]!.withOpacity(0.9),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: Colors.cyanAccent.withOpacity(0.5),
-            width: 2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.cyanAccent.withOpacity(0.3),
-              blurRadius: 10,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedBuilder(
-              animation: _glowAnimation,
-              builder: (context, child) {
-                return ShaderMask(
-                  shaderCallback: (bounds) {
-                    return LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.white.withOpacity(0.5),
-                        Colors.cyanAccent.withOpacity(_glowAnimation.value),
-                        Colors.white.withOpacity(0.5),
-                      ],
-                    ).createShader(bounds);
-                  },
-                  blendMode: BlendMode.srcATop,
-                  child: const Text(
-                    "CONFIRMAÇÃO",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontFamily: "Cinzel",
-                      shadows: [
-                        Shadow(
-                          blurRadius: 10.0,
-                          color: Colors.cyanAccent,
-                          offset: Offset(0, 0),
-                        ),
-                        Shadow(
-                          blurRadius: 5.0,
-                          color: Colors.white,
-                          offset: Offset(0, 0),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 16),
-            AnimatedBuilder(
-              animation: _glowAnimation,
-              builder: (context, child) {
-                return Text(
-                  "Tem certeza que deseja sair?",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white.withOpacity(0.8),
-                    fontFamily: "Cinzel",
-                    shadows: [
-                      Shadow(
-                        blurRadius: 10.0 * _glowAnimation.value,
-                        color: Colors.cyanAccent,
-                        offset: const Offset(0, 0),
-                      ),
-                      Shadow(
-                        blurRadius: 5.0 * _glowAnimation.value,
-                        color: Colors.white,
-                        offset: const Offset(0, 0),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                GestureDetector(
-                  onTap: widget.onCancel,
-                  child: AnimatedBuilder(
-                    animation: _glowAnimation,
-                    builder: (context, child) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 10,
-                          horizontal: 20,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.8),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: Colors.cyanAccent.withOpacity(0.5),
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.cyanAccent.withOpacity(0.3),
-                              blurRadius: 10 * _glowAnimation.value,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          "CANCELAR",
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.white,
-                            fontFamily: "Cinzel",
-                            shadows: [
-                              Shadow(
-                                blurRadius: 10.0 * _glowAnimation.value,
-                                color: Colors.cyanAccent,
-                                offset: const Offset(0, 0),
-                              ),
-                              Shadow(
-                                blurRadius: 5.0 * _glowAnimation.value,
-                                color: Colors.white,
-                                offset: const Offset(0, 0),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(width: 10),
-                GestureDetector(
-                  onTap: widget.onConfirm,
-                  child: AnimatedBuilder(
-                    animation: _glowAnimation,
-                    builder: (context, child) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 10,
-                          horizontal: 20,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.redAccent.withOpacity(0.8),
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.redAccent.withOpacity(0.5),
-                              blurRadius: 10 * _glowAnimation.value,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          "SAIR",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            fontFamily: "Cinzel",
-                            shadows: [
-                              Shadow(
-                                blurRadius: 10.0 * _glowAnimation.value,
-                                color: Colors.cyanAccent,
-                                offset: const Offset(0, 0),
-                              ),
-                              Shadow(
-                                blurRadius: 5.0 * _glowAnimation.value,
-                                color: Colors.white,
-                                offset: const Offset(0, 0),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 void showAccountOptions(
   BuildContext context,
   String userName,
@@ -341,8 +63,6 @@ class __AccountOptionsModalState extends State<_AccountOptionsModal>
   late Animation<Offset> _slideAnimation;
   late Animation<double> _glowAnimation;
 
-  bool _isLogoutHovered = false;
-
   @override
   void initState() {
     super.initState();
@@ -374,6 +94,18 @@ class __AccountOptionsModalState extends State<_AccountOptionsModal>
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  void _handleLogout() async {
+    await _logout(context, widget.updateState);
+    if (context.mounted) {
+      Navigator.pop(context); // Fecha o modal de opções
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const IntroScreen()),
+        (route) => false,
+      );
+    }
   }
 
   @override
@@ -417,182 +149,78 @@ class __AccountOptionsModalState extends State<_AccountOptionsModal>
                 child: AnimatedBuilder(
                   animation: _glowAnimation,
                   builder: (context, child) {
-                    return ShaderMask(
-                      shaderCallback: (bounds) {
-                        return LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Colors.white.withOpacity(0.5),
-                            Colors.cyanAccent.withOpacity(_glowAnimation.value),
-                            Colors.white.withOpacity(0.5),
-                          ],
-                        ).createShader(bounds);
-                      },
-                      blendMode: BlendMode.srcATop,
-                      child: Text(
-                        "OPÇÕES DA CONTA - ${widget.userName.toUpperCase()}",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontFamily: "Cinzel",
-                          shadows: [
-                            Shadow(
-                              blurRadius: 10.0 * _glowAnimation.value,
-                              color: Colors.cyanAccent,
-                              offset: const Offset(0, 0),
-                            ),
-                            Shadow(
-                              blurRadius: 5.0 * _glowAnimation.value,
-                              color: Colors.white,
-                              offset: const Offset(0, 0),
-                            ),
-                          ],
-                        ),
+                    return Text(
+                      "OPÇÕES DA CONTA - ${widget.userName.toUpperCase()}",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white.withOpacity(_glowAnimation.value),
+                        fontFamily: "Cinzel",
+                        shadows: [
+                          Shadow(
+                            blurRadius: 10.0,
+                            color: Colors.cyanAccent.withOpacity(0.5),
+                            offset: const Offset(0, 0),
+                          ),
+                        ],
                       ),
                     );
                   },
                 ),
               ),
               const SizedBox(height: 20),
-              GestureDetector(
-                onTapDown: (_) {
-                  setState(() {
-                    _isLogoutHovered = true;
-                  });
-                },
-                onTapUp: (_) {
-                  setState(() {
-                    _isLogoutHovered = false;
-                  });
-                  print("Sair clicado no celular");
-                  _showSignOutConfirmation(context, widget.updateState);
-                },
-                onTapCancel: () {
-                  setState(() {
-                    _isLogoutHovered = false;
-                  });
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  transform:
-                      Matrix4.identity()..scale(_isLogoutHovered ? 1.05 : 1.0),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 16,
-                  ),
-                  child: Row(
-                    children: [
-                      GlowingIcon(
-                        icon: Icons.logout,
-                        size: 24,
-                        onPressed: () {},
-                        tooltip: "Sair",
-                        glowAnimation: _glowAnimation,
-                      ),
-                      const SizedBox(width: 16),
-                      AnimatedBuilder(
-                        animation: _glowAnimation,
-                        builder: (context, child) {
-                          return Text(
-                            "SAIR",
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.white,
-                              fontFamily: "Cinzel",
-                              shadows: [
-                                Shadow(
-                                  blurRadius: 10.0 * _glowAnimation.value,
-                                  color: Colors.cyanAccent,
-                                  offset: const Offset(0, 0),
-                                ),
-                                Shadow(
-                                  blurRadius: 5.0 * _glowAnimation.value,
-                                  color: Colors.white,
-                                  offset: const Offset(0, 0),
-                                ),
-                              ],
+              TextButton(
+                onPressed: _handleLogout,
+                child: Row(
+                  children: [
+                    AnimatedBuilder(
+                      animation: _glowAnimation,
+                      builder: (context, child) {
+                        return Icon(
+                          Icons.logout,
+                          size: 24,
+                          color: Colors.cyanAccent.withOpacity(
+                            _glowAnimation.value,
+                          ),
+                          shadows: [
+                            Shadow(
+                              blurRadius: 10.0,
+                              color: Colors.cyanAccent.withOpacity(0.5),
+                              offset: const Offset(0, 0),
                             ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                          ],
+                        );
+                      },
+                    ),
+                    const SizedBox(width: 16),
+                    AnimatedBuilder(
+                      animation: _glowAnimation,
+                      builder: (context, child) {
+                        return Text(
+                          "SAIR",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white.withOpacity(
+                              _glowAnimation.value,
+                            ),
+                            fontFamily: "Cinzel",
+                            shadows: [
+                              Shadow(
+                                blurRadius: 10.0,
+                                color: Colors.cyanAccent.withOpacity(0.5),
+                                offset: const Offset(0, 0),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-// Widget customizado pra ícones com efeito de brilho
-class GlowingIcon extends StatelessWidget {
-  final IconData icon;
-  final double size;
-  final VoidCallback onPressed;
-  final String tooltip;
-  final Animation<double> glowAnimation;
-
-  const GlowingIcon({
-    super.key,
-    required this.icon,
-    required this.size,
-    required this.onPressed,
-    required this.tooltip,
-    required this.glowAnimation,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: onPressed,
-      tooltip: tooltip,
-      icon: AnimatedBuilder(
-        animation: glowAnimation,
-        builder: (context, child) {
-          return Stack(
-            alignment: Alignment.center,
-            children: [
-              Icon(
-                icon,
-                size: size,
-                color: Colors.cyanAccent.withOpacity(glowAnimation.value * 0.5),
-                shadows: [
-                  Shadow(
-                    blurRadius: 10.0 * glowAnimation.value,
-                    color: Colors.cyanAccent,
-                    offset: const Offset(0, 0),
-                  ),
-                  Shadow(
-                    blurRadius: 5.0 * glowAnimation.value,
-                    color: Colors.white,
-                    offset: const Offset(0, 0),
-                  ),
-                ],
-              ),
-              ShaderMask(
-                shaderCallback: (bounds) {
-                  return LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.white.withOpacity(0.5),
-                      Colors.cyanAccent.withOpacity(glowAnimation.value),
-                      Colors.white.withOpacity(0.5),
-                    ],
-                    stops: const [0.0, 0.5, 1.0],
-                  ).createShader(bounds);
-                },
-                blendMode: BlendMode.srcATop,
-                child: Icon(icon, size: size, color: Colors.white),
-              ),
-            ],
-          );
-        },
       ),
     );
   }

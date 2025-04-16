@@ -1,7 +1,10 @@
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:midnight_never_end/controllers/user_controller.dart';
 import 'package:midnight_never_end/views/widgets/habilidades_modal.dart';
 import 'package:midnight_never_end/views/widgets/opcoes_conta.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:logger/logger.dart';
 
 class GameStartScreen extends StatefulWidget {
   const GameStartScreen({super.key});
@@ -15,56 +18,146 @@ class _GameStartScreenState extends State<GameStartScreen>
   bool _isLayoutReady = false;
   late AnimationController _glowController;
   late Animation<double> _glowAnimation;
-  final PageController _pageController = PageController(viewportFraction: 0.85);
-  int _currentPage = 0;
+  late AudioPlayer _audioPlayer; // Para sons de efeitos
+  late AudioPlayer _backgroundAudioPlayer; // Para música de fundo
+  final logger = Logger();
 
   @override
   void initState() {
     super.initState();
-    // Inicializar o AnimationController pro efeito de brilho
+    _audioPlayer = AudioPlayer();
+    _backgroundAudioPlayer = AudioPlayer();
+    _preloadSounds();
+
     _glowController = AnimationController(
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 3),
       vsync: this,
     )..repeat(reverse: true);
 
-    _glowAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+    _glowAnimation = Tween<double>(begin: 0.7, end: 1.0).animate(
       CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
     );
 
-    _pageController.addListener(() {
-      setState(() {
-        _currentPage = _pageController.page?.round() ?? 0;
-      });
-    });
+    // Iniciar a música de fundo
+    _playBackgroundMusic();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (mounted) {
+        await _precacheImages(context);
         setState(() {
           _isLayoutReady = true;
-          print("Layout pronto: $_isLayoutReady");
+          if (kDebugMode) logger.d("Layout pronto: $_isLayoutReady");
         });
       }
     });
   }
 
+  Future<void> _preloadSounds() async {
+    try {
+      await _audioPlayer.setVolume(0.5);
+      await _audioPlayer.setSource(AssetSource('audios/woosh.mp3'));
+      await _audioPlayer.setSource(AssetSource('audios/tec.wav'));
+      await _audioPlayer.setSource(AssetSource('audios/pop.wav'));
+
+      // Pré-carregar a música de fundo
+      await _backgroundAudioPlayer.setVolume(
+        0.3,
+      ); // Volume mais baixo pra música de fundo
+      await _backgroundAudioPlayer.setSource(
+        AssetSource('audios/game_background.mp3'),
+      );
+      if (kDebugMode)
+        logger.d("Sons e música de fundo pré-carregados com sucesso");
+    } catch (e, stackTrace) {
+      if (kDebugMode) logger.e("Erro ao pré-carregar sons: $e\n$stackTrace");
+    }
+  }
+
+  Future<void> _playBackgroundMusic() async {
+    try {
+      await _backgroundAudioPlayer.setReleaseMode(
+        ReleaseMode.loop,
+      ); // Configurar pra tocar em loop
+      await _backgroundAudioPlayer.play(
+        AssetSource('audios/game_background.mp3'),
+      );
+      if (kDebugMode) logger.d("Música de fundo iniciada");
+    } catch (e, stackTrace) {
+      if (kDebugMode)
+        logger.e("Erro ao tocar música de fundo: $e\n$stackTrace");
+    }
+  }
+
+  Future<void> _precacheImages(BuildContext context) async {
+    try {
+      for (int i = 1; i <= 5; i++) {
+        await precacheImage(
+          AssetImage("assets/images/mini_dungeons/dungeon_$i.png"),
+          context,
+        );
+      }
+      await precacheImage(
+        AssetImage("assets/images/game_background.png"),
+        context,
+      );
+      await precacheImage(AssetImage("assets/icons/permCoin.png"), context);
+      if (kDebugMode) logger.d("Imagens pré-carregadas com sucesso");
+    } catch (e, stackTrace) {
+      if (kDebugMode) logger.e("Erro ao pré-carregar imagens: $e\n$stackTrace");
+    }
+  }
+
+  Future<void> _playScrollSound() async {
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/woosh.mp3'));
+      if (kDebugMode) logger.d("Som de scroll tocado");
+    } catch (e, stackTrace) {
+      if (kDebugMode) logger.e("Erro ao tocar som de scroll: $e\n$stackTrace");
+    }
+  }
+
+  Future<void> _playClickSound() async {
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/tec.wav'));
+      if (kDebugMode) logger.d("Som de clique tocado");
+    } catch (e, stackTrace) {
+      if (kDebugMode) logger.e("Erro ao tocar som de clique: $e\n$stackTrace");
+    }
+  }
+
+  Future<void> _playDungeonSound() async {
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audios/pop.wav'));
+      if (kDebugMode) logger.d("Som da dungeon tocado");
+    } catch (e, stackTrace) {
+      if (kDebugMode) logger.e("Erro ao tocar som da dungeon: $e\n$stackTrace");
+    }
+  }
+
   @override
   void dispose() {
     _glowController.dispose();
-    _pageController.dispose();
+    _audioPlayer.stop();
+    _audioPlayer.dispose();
+    _backgroundAudioPlayer.stop(); // Parar a música de fundo
+    _backgroundAudioPlayer.dispose();
     super.dispose();
+    if (kDebugMode) logger.d("GameStartScreen descartado");
   }
 
   void _updateState() {
-    if (mounted) {
-      setState(() {});
-    }
+    if (mounted) setState(() {});
   }
 
   void _startAdventure(int index) {
     if (_isLayoutReady && mounted) {
+      _playDungeonSound();
       final adventures = [
         {
-          "title": "A Floresta Sombria",
+          "title": "A Cidade Sombria",
           "desc": "Uma jornada inicial cheia de mistérios.",
           "locked": false,
         },
@@ -100,7 +193,7 @@ class _GameStartScreenState extends State<GameStartScreen>
           ),
         );
       } else {
-        print("Iniciando aventura ${index + 1}");
+        if (kDebugMode) logger.d("Iniciando aventura ${index + 1}");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Iniciando aventura ${index + 1}..."),
@@ -108,13 +201,13 @@ class _GameStartScreenState extends State<GameStartScreen>
             duration: const Duration(seconds: 2),
           ),
         );
-        // Adicione aqui a lógica pra iniciar a aventura
       }
     }
   }
 
   void _openAccountOptions() {
     if (mounted) {
+      _playClickSound();
       showAccountOptions(
         context,
         UserManager.currentUser?.nome ?? "Usuário",
@@ -125,34 +218,6 @@ class _GameStartScreenState extends State<GameStartScreen>
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> adventures = [
-      {
-        "title": "A Floresta Sombria",
-        "desc": "Uma jornada inicial cheia de mistérios.",
-        "locked": false,
-      },
-      {
-        "title": "Noite Eterna",
-        "desc": "Enfrente desafios sob a luz da lua.",
-        "locked": false,
-      },
-      {
-        "title": "Abismo Esquecido",
-        "desc": "Descubra segredos antigos.",
-        "locked": true,
-      },
-      {
-        "title": "Coração da Escuridão",
-        "desc": "A aventura suprema.",
-        "locked": true,
-      },
-      {
-        "title": "Rastro do Caos",
-        "desc": "Sobreviva ao imprevisível.",
-        "locked": true,
-      },
-    ];
-
     return Scaffold(
       backgroundColor: Colors.black,
       body: Container(
@@ -184,32 +249,15 @@ class _GameStartScreenState extends State<GameStartScreen>
                         const SizedBox(width: 8),
                         GestureDetector(
                           onTap: _openAccountOptions,
-                          child: AnimatedBuilder(
-                            animation: _glowAnimation,
-                            builder: (context, child) {
-                              return Text(
-                                (UserManager.currentUser?.nome ?? "Usuário")
-                                    .toUpperCase(),
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: "Cinzel",
-                                  shadows: [
-                                    Shadow(
-                                      blurRadius: 10.0 * _glowAnimation.value,
-                                      color: Colors.cyanAccent,
-                                      offset: const Offset(0, 0),
-                                    ),
-                                    Shadow(
-                                      blurRadius: 5.0 * _glowAnimation.value,
-                                      color: Colors.white,
-                                      offset: const Offset(0, 0),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
+                          child: Text(
+                            (UserManager.currentUser?.nome ?? "Usuário")
+                                .toUpperCase(),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "Cinzel",
+                            ),
                           ),
                         ),
                       ],
@@ -223,18 +271,6 @@ class _GameStartScreenState extends State<GameStartScreen>
                             fontSize: 30,
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            shadows: [
-                              Shadow(
-                                blurRadius: 8.0,
-                                color: Colors.cyanAccent,
-                                offset: Offset(0, 0),
-                              ),
-                              Shadow(
-                                blurRadius: 4.0,
-                                color: Colors.white,
-                                offset: Offset(0, 0),
-                              ),
-                            ],
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -243,213 +279,19 @@ class _GameStartScreenState extends State<GameStartScreen>
                           width: 40,
                           height: 40,
                           fit: BoxFit.contain,
+                          color: Colors.cyanAccent,
                         ),
                       ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                Center(
-                  child: Text(
-                    "Midnight Never End",
-                    style: const TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontFamily: "Cinzel",
-                      shadows: [
-                        Shadow(
-                          blurRadius: 10.0,
-                          color: Colors.cyanAccent,
-                          offset: Offset(0, 0),
-                        ),
-                        Shadow(
-                          blurRadius: 5.0,
-                          color: Colors.white,
-                          offset: Offset(0, 0),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
                 Expanded(
                   child:
                       _isLayoutReady
-                          ? Column(
-                            children: [
-                              Expanded(
-                                child: PageView.builder(
-                                  controller: _pageController,
-                                  itemCount: adventures.length,
-                                  itemBuilder: (context, index) {
-                                    final adventure = adventures[index];
-                                    final bool isLocked =
-                                        adventure["locked"] as bool;
-                                    final double scale =
-                                        _currentPage == index
-                                            ? 1.0
-                                            : 0.9; // Escala maior pra dungeon atual
-                                    return Transform.scale(
-                                      scale: scale,
-                                      child: GestureDetector(
-                                        onTap: () => _startAdventure(index),
-                                        child: Container(
-                                          margin: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 20,
-                                          ),
-                                          padding: const EdgeInsets.all(12),
-                                          decoration: BoxDecoration(
-                                            color:
-                                                isLocked
-                                                    ? Colors.grey.withOpacity(
-                                                      0.5,
-                                                    )
-                                                    : Colors.white.withOpacity(
-                                                      0.9,
-                                                    ),
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withOpacity(
-                                                  0.3,
-                                                ),
-                                                blurRadius: 4,
-                                                offset: const Offset(1, 1),
-                                              ),
-                                            ],
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                child: Image.asset(
-                                                  "assets/images/mini_dungeons/dungeon_${index + 1}.png",
-                                                  width: 60,
-                                                  height: 60,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder:
-                                                      (
-                                                        context,
-                                                        error,
-                                                        stackTrace,
-                                                      ) => const Icon(
-                                                        Icons
-                                                            .image_not_supported,
-                                                        size: 60,
-                                                        color: Colors.grey,
-                                                      ),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 12),
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    Text(
-                                                      adventure["title"]
-                                                          as String,
-                                                      style: TextStyle(
-                                                        fontSize: 20,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color:
-                                                            isLocked
-                                                                ? Colors.grey
-                                                                : Colors
-                                                                    .black87,
-                                                        fontFamily: "Cinzel",
-                                                        shadows:
-                                                            isLocked
-                                                                ? []
-                                                                : [
-                                                                  const Shadow(
-                                                                    blurRadius:
-                                                                        10.0,
-                                                                    color:
-                                                                        Colors
-                                                                            .cyanAccent,
-                                                                    offset:
-                                                                        Offset(
-                                                                          0,
-                                                                          0,
-                                                                        ),
-                                                                  ),
-                                                                  const Shadow(
-                                                                    blurRadius:
-                                                                        5.0,
-                                                                    color:
-                                                                        Colors
-                                                                            .white,
-                                                                    offset:
-                                                                        Offset(
-                                                                          0,
-                                                                          0,
-                                                                        ),
-                                                                  ),
-                                                                ],
-                                                      ),
-                                                    ),
-                                                    const SizedBox(height: 4),
-                                                    Text(
-                                                      adventure["desc"]
-                                                          as String,
-                                                      style: TextStyle(
-                                                        fontSize: 14,
-                                                        color:
-                                                            isLocked
-                                                                ? Colors.grey
-                                                                : Colors
-                                                                    .black54,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              if (isLocked)
-                                                const Icon(
-                                                  Icons.lock,
-                                                  color: Colors.grey,
-                                                  size: 24,
-                                                ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                              // Indicadores de página (dots)
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: List.generate(
-                                  adventures.length,
-                                  (index) => Container(
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 4,
-                                    ),
-                                    width: _currentPage == index ? 12 : 8,
-                                    height: _currentPage == index ? 12 : 8,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color:
-                                          _currentPage == index
-                                              ? Colors.cyanAccent
-                                              : Colors.grey.withOpacity(0.5),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                            ],
+                          ? AdventureCarousel(
+                            glowAnimation: _glowAnimation,
+                            onAdventureTap: _startAdventure,
+                            playScrollSound: _playScrollSound,
                           )
                           : const Center(
                             child: CircularProgressIndicator(
@@ -468,6 +310,7 @@ class _GameStartScreenState extends State<GameStartScreen>
                         size: 30,
                         onPressed: () {
                           if (mounted) {
+                            _playClickSound();
                             showModalBottomSheet(
                               context: context,
                               isScrollControlled: true,
@@ -510,7 +353,258 @@ class _GameStartScreenState extends State<GameStartScreen>
   }
 }
 
-// Widget customizado pra ícones com efeito de brilho
+class AdventureCarousel extends StatefulWidget {
+  final Animation<double> glowAnimation;
+  final Function(int) onAdventureTap;
+  final Function() playScrollSound;
+
+  const AdventureCarousel({
+    super.key,
+    required this.glowAnimation,
+    required this.onAdventureTap,
+    required this.playScrollSound,
+  });
+
+  @override
+  _AdventureCarouselState createState() => _AdventureCarouselState();
+}
+
+class _AdventureCarouselState extends State<AdventureCarousel> {
+  final PageController _pageController = PageController(viewportFraction: 0.85);
+  double _currentPageValue = 0.0;
+  double _dragStartPosition = 0.0;
+  double _dragDelta = 0.0;
+  int _lastPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController.addListener(() {
+      final newPageValue = _pageController.page ?? 0.0;
+      final newPage = newPageValue.round();
+
+      if ((_currentPageValue - newPageValue).abs() > 0.01) {
+        setState(() {
+          _currentPageValue = newPageValue;
+        });
+      }
+
+      if (_pageController.position.haveDimensions &&
+          (_currentPageValue - newPage).abs() < 0.1 &&
+          newPage != _lastPage) {
+        _lastPage = newPage;
+        widget.playScrollSound();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Map<String, dynamic>> adventures = [
+      {
+        "title": "A Floresta Sombria",
+        "desc": "Uma jornada inicial cheia de mistérios.",
+        "locked": false,
+      },
+      {
+        "title": "Noite Eterna",
+        "desc": "Enfrente desafios sob a luz da lua.",
+        "locked": false,
+      },
+      {
+        "title": "Abismo Esquecido",
+        "desc": "Descubra segredos antigos.",
+        "locked": true,
+      },
+      {
+        "title": "Coração da Escuridão",
+        "desc": "A aventura suprema.",
+        "locked": true,
+      },
+      {
+        "title": "Rastro do Caos",
+        "desc": "Sobreviva ao imprevisível.",
+        "locked": true,
+      },
+    ];
+
+    void _onDragStart(DragStartDetails details) {
+      _dragStartPosition = _currentPageValue;
+      _dragDelta = 0.0;
+    }
+
+    void _onDragUpdate(DragUpdateDetails details) {
+      _dragDelta += details.primaryDelta! / context.size!.width * 5;
+      final newPosition = _dragStartPosition - _dragDelta;
+      final pageWidth = context.size!.width * 0.85;
+      _pageController.jumpTo(newPosition * pageWidth);
+    }
+
+    void _onDragEnd(DragEndDetails details) {
+      final newPage = _currentPageValue.round();
+      _pageController.animateToPage(
+        newPage,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+
+    Widget carousel = PageView.builder(
+      controller: _pageController,
+      physics: const ClampingScrollPhysics(),
+      itemCount: adventures.length,
+      itemBuilder: (context, index) {
+        final adventure = adventures[index];
+        final bool isLocked = adventure["locked"] as bool;
+
+        final double pageOffset = (_currentPageValue - index).abs();
+        final double scale = (1.0 - (pageOffset * 0.1)).clamp(0.9, 1.0);
+        final double opacity = (1.0 - (pageOffset * 0.3)).clamp(0.7, 1.0);
+
+        return Transform.scale(
+          scale: scale,
+          child: Opacity(
+            opacity: opacity,
+            child: GestureDetector(
+              onTap: () => widget.onAdventureTap(index),
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.cyanAccent.withOpacity(
+                      widget.glowAnimation.value * 0.5,
+                    ),
+                    width: 2,
+                  ),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: Image.asset(
+                          "assets/images/mini_dungeons/dungeon_${index + 1}.png",
+                          fit: BoxFit.cover,
+                          color: isLocked ? Colors.grey.withOpacity(0.5) : null,
+                          colorBlendMode:
+                              isLocked ? BlendMode.saturation : null,
+                          errorBuilder:
+                              (context, error, stackTrace) => Container(
+                                color: Colors.grey[300],
+                                child: const Icon(
+                                  Icons.image_not_supported,
+                                  size: 60,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                        ),
+                      ),
+                      if (isLocked)
+                        Positioned.fill(
+                          child: Container(
+                            color: Colors.black.withOpacity(0.5),
+                          ),
+                        ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          color: Colors.black.withOpacity(0.7),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                adventure["title"] as String,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: isLocked ? Colors.grey : Colors.white,
+                                  fontFamily: "Cinzel",
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                adventure["desc"] as String,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color:
+                                      isLocked ? Colors.grey : Colors.white70,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      if (isLocked)
+                        const Positioned(
+                          top: 0,
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          child: Center(
+                            child: Icon(
+                              Icons.lock,
+                              color: Colors.grey,
+                              size: 48,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    if (kIsWeb) {
+      carousel = GestureDetector(
+        onHorizontalDragStart: _onDragStart,
+        onHorizontalDragUpdate: _onDragUpdate,
+        onHorizontalDragEnd: _onDragEnd,
+        child: carousel,
+      );
+    }
+
+    return Column(
+      children: [
+        Expanded(child: carousel),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(adventures.length, (index) {
+            final double pageOffset = (_currentPageValue - index).abs();
+            final double size = (12.0 - (pageOffset * 4.0)).clamp(8.0, 12.0);
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color:
+                    pageOffset < 0.5
+                        ? Colors.cyanAccent
+                        : Colors.grey.withOpacity(0.5),
+              ),
+            );
+          }),
+        ),
+        const SizedBox(height: 10),
+      ],
+    );
+  }
+}
+
 class GlowingIcon extends StatelessWidget {
   final IconData icon;
   final double size;
@@ -535,43 +629,10 @@ class GlowingIcon extends StatelessWidget {
       icon: AnimatedBuilder(
         animation: glowAnimation,
         builder: (context, child) {
-          return Stack(
-            alignment: Alignment.center,
-            children: [
-              Icon(
-                icon,
-                size: size,
-                color: Colors.cyanAccent.withOpacity(glowAnimation.value * 0.5),
-                shadows: [
-                  Shadow(
-                    blurRadius: 10.0 * glowAnimation.value,
-                    color: Colors.cyanAccent,
-                    offset: const Offset(0, 0),
-                  ),
-                  Shadow(
-                    blurRadius: 5.0 * glowAnimation.value,
-                    color: Colors.white,
-                    offset: const Offset(0, 0),
-                  ),
-                ],
-              ),
-              ShaderMask(
-                shaderCallback: (bounds) {
-                  return LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.white.withOpacity(0.5),
-                      Colors.cyanAccent.withOpacity(glowAnimation.value),
-                      Colors.white.withOpacity(0.5),
-                    ],
-                    stops: const [0.0, 0.5, 1.0],
-                  ).createShader(bounds);
-                },
-                blendMode: BlendMode.srcATop,
-                child: Icon(icon, size: size, color: Colors.white),
-              ),
-            ],
+          return Icon(
+            icon,
+            size: size,
+            color: Colors.cyanAccent.withOpacity(glowAnimation.value),
           );
         },
       ),
