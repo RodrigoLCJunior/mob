@@ -32,6 +32,10 @@ public class Avatar {
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuarios usuario;
 
+    /* Rodrigo Luiz - 18/03/2025 - mob_018 */
+    @OneToOne(mappedBy = "avatar", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Progressao progressao;
+
     //private List<SkillsAtivas> habilidadesAtivas;
 
     //Metodo de Criar o Avatar
@@ -70,5 +74,14 @@ public class Avatar {
 
     public void setUsuario(Usuarios usuario) {
         this.usuario = usuario;
+    }
+
+    /* Rodrigo Luiz - 15/03/2025 - mob_015 */
+    public Progressao getProgressao() {
+        return progressao;
+    }
+
+    public void setProgressao(Progressao progressao) {
+        this.progressao = progressao;
     }
 }
