@@ -1,0 +1,1 @@
+enum AudioType { background, effect }

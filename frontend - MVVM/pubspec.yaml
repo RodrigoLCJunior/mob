@@ -1,0 +1,60 @@
+name: midnight_never_end
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.7.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.3.0
+  uuid: ^4.2.1
+  bcrypt: ^1.1.3
+  flutter_secure_storage: ^9.0.0
+  flutter_dotenv: ^5.0.2
+  shared_preferences: ^2.2.2
+  flutter_launcher_icons: ^0.13.1
+  audioplayers: ^5.2.1
+  flame: ^1.10.0
+  logger: ^2.5.0
+  dartz: ^0.10.1
+  flutter_bloc: ^9.1.0
+  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  mockito: ^5.0.0 
+  test: ^1.20.0 
+
+flutter_launcher_icons:
+  android: true
+  image_path: "assets/logos/logo-aplicativo/LOGO-MEME.png"  # Caminho para a nova imagem do ícone
+  adaptive_icon_background: "#ffffff"  # (Opcional) Cor de fundo para Android  
+  
+flutter:
+  fonts:
+    - family: Bosk
+      fonts:
+        - asset: assets/fonts/Bosk.ttf
+
+    - family: Balmy
+      fonts:
+        - asset: assets/fonts/Balmy.ttf  
+
+    - family: Kirsty
+      fonts:
+        - asset: assets/fonts/KirstyRg.otf
+  assets:
+    - assets/images/
+    - assets/images/mini_dungeons/
+    - assets/images/pfp/
+    - assets/logos/logos-google/
+    - assets/icons/
+    - assets/audios/
+
+  uses-material-design: true
+
+  
