@@ -49,6 +49,8 @@ class OpenHabilidadesEvent extends GameStartEvent {}
 
 class OpenSettingsEvent extends GameStartEvent {}
 
+class ClearErrorMessageEvent extends GameStartEvent {} // <- NOVO EVENTO
+
 // Estado
 class GameStartState extends Equatable {
   final bool isLayoutReady;
@@ -90,7 +92,7 @@ class GameStartState extends Equatable {
     return GameStartState(
       isLayoutReady: isLayoutReady ?? this.isLayoutReady,
       hasError: hasError ?? this.hasError,
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: errorMessage,
       currentPageValue: currentPageValue ?? this.currentPageValue,
       lastPage: lastPage ?? this.lastPage,
       adventures: adventures ?? this.adventures,
@@ -103,17 +105,17 @@ class GameStartState extends Equatable {
 
   @override
   List<Object?> get props => [
-    isLayoutReady,
-    hasError,
-    errorMessage,
-    currentPageValue,
-    lastPage,
-    adventures,
-    userName,
-    coinAmount,
-    isAudioEnabled,
-    showAudioPrompt,
-  ];
+        isLayoutReady,
+        hasError,
+        errorMessage,
+        currentPageValue,
+        lastPage,
+        adventures,
+        userName,
+        coinAmount,
+        isAudioEnabled,
+        showAudioPrompt,
+      ];
 }
 
 // Bloc
@@ -125,8 +127,8 @@ class GameStartBloc extends Bloc<GameStartEvent, GameStartState> {
   GameStartBloc({
     required this.audioPlayer,
     required this.backgroundAudioPlayer,
-  }) : logger = Logger(),
-       super(const GameStartState()) {
+  })  : logger = Logger(),
+        super(const GameStartState()) {
     on<InitializeEvent>(_onInitialize);
     on<EnableAudioEvent>(_onEnableAudio);
     on<AdventureTappedEvent>(_onAdventureTapped);
@@ -134,8 +136,8 @@ class GameStartBloc extends Bloc<GameStartEvent, GameStartState> {
     on<OpenAccountOptionsEvent>(_onOpenAccountOptions);
     on<OpenHabilidadesEvent>(_onOpenHabilidades);
     on<OpenSettingsEvent>(_onOpenSettings);
+    on<ClearErrorMessageEvent>(_onClearErrorMessage); // <- HANDLER NOVO
 
-    // Inicializar ao criar o Bloc
     add(InitializeEvent());
   }
 
@@ -144,7 +146,6 @@ class GameStartBloc extends Bloc<GameStartEvent, GameStartState> {
     Emitter<GameStartState> emit,
   ) async {
     try {
-      // Inicializar dados do usuário e aventuras
       final List<Map<String, dynamic>> adventures = [
         {
           "title": "A Floresta Sombria",
@@ -177,9 +178,9 @@ class GameStartBloc extends Bloc<GameStartEvent, GameStartState> {
         state.copyWith(
           adventures: adventures,
           userName: UserManager.currentUser?.nome ?? "Usuário",
-          coinAmount: UserManager.currentUser?.moedaPermanente?.quantidade ?? 0,
-          isLayoutReady:
-              true, // Layout será marcado como pronto após pré-carregar imagens na View
+          coinAmount:
+              UserManager.currentUser?.moedaPermanente?.quantidade ?? 0,
+          isLayoutReady: true,
         ),
       );
 
@@ -187,9 +188,7 @@ class GameStartBloc extends Bloc<GameStartEvent, GameStartState> {
     } catch (e, stackTrace) {
       if (kDebugMode)
         logger.e("Erro ao inicializar GameStartBloc: $e\n$stackTrace");
-      emit(
-        state.copyWith(hasError: true, errorMessage: "Erro ao inicializar: $e"),
-      );
+      emit(state.copyWith(hasError: true, errorMessage: "Erro ao inicializar: $e"));
     }
   }
 
@@ -200,17 +199,9 @@ class GameStartBloc extends Bloc<GameStartEvent, GameStartState> {
     if (state.isAudioEnabled) return;
 
     try {
-      // Pré-carregar sons
       await audioPlayer.setVolume(0.5);
-      await audioPlayer.setSource(AssetSource('audios/woosh.mp3'));
-      await audioPlayer.setSource(AssetSource('audios/tec.wav'));
-      await audioPlayer.setSource(AssetSource('audios/pop.wav'));
 
-      // Pré-carregar e tocar a música de fundo
       await backgroundAudioPlayer.setVolume(0.3);
-      await backgroundAudioPlayer.setSource(
-        AssetSource('audios/game_background.mp3'),
-      );
       await backgroundAudioPlayer.setReleaseMode(ReleaseMode.loop);
       await backgroundAudioPlayer.play(
         AssetSource('audios/game_background.mp3'),
@@ -235,10 +226,8 @@ class GameStartBloc extends Bloc<GameStartEvent, GameStartState> {
     }
 
     try {
-      // Tocar som da dungeon
       await audioPlayer.stop();
       await audioPlayer.play(AssetSource('audios/pop.wav'));
-      if (kDebugMode) logger.d("Som da dungeon tocado");
 
       final adventure = state.adventures[event.index];
       final bool isLocked = adventure["locked"] as bool;
@@ -246,12 +235,7 @@ class GameStartBloc extends Bloc<GameStartEvent, GameStartState> {
       if (isLocked) {
         emit(state.copyWith(errorMessage: "Esta aventura está bloqueada!"));
       } else {
-        if (kDebugMode) logger.d("Iniciando aventura ${event.index + 1}");
-        emit(
-          state.copyWith(
-            errorMessage: "Iniciando aventura ${event.index + 1}...",
-          ),
-        );
+        emit(state.copyWith(errorMessage: "Iniciando aventura ${event.index + 1}..."));
       }
     } catch (e, stackTrace) {
       if (kDebugMode) logger.e("Erro ao iniciar aventura: $e\n$stackTrace");
@@ -278,14 +262,11 @@ class GameStartBloc extends Bloc<GameStartEvent, GameStartState> {
     if ((state.currentPageValue - newPage).abs() < 0.1 &&
         newPage != state.lastPage) {
       emit(state.copyWith(lastPage: newPage));
-      // Tocar som de scroll
       try {
         await audioPlayer.stop();
         await audioPlayer.play(AssetSource('audios/woosh.mp3'));
-        if (kDebugMode) logger.d("Som de scroll tocado");
       } catch (e, stackTrace) {
-        if (kDebugMode)
-          logger.e("Erro ao tocar som de scroll: $e\n$stackTrace");
+        if (kDebugMode) logger.e("Erro ao tocar som de scroll: $e\n$stackTrace");
       }
     }
   }
@@ -302,7 +283,6 @@ class GameStartBloc extends Bloc<GameStartEvent, GameStartState> {
     try {
       await audioPlayer.stop();
       await audioPlayer.play(AssetSource('audios/tec.wav'));
-      if (kDebugMode) logger.d("Som de clique tocado");
     } catch (e, stackTrace) {
       if (kDebugMode) logger.e("Erro ao tocar som de clique: $e\n$stackTrace");
     }
@@ -320,7 +300,6 @@ class GameStartBloc extends Bloc<GameStartEvent, GameStartState> {
     try {
       await audioPlayer.stop();
       await audioPlayer.play(AssetSource('audios/tec.wav'));
-      if (kDebugMode) logger.d("Som de clique tocado");
     } catch (e, stackTrace) {
       if (kDebugMode) logger.e("Erro ao tocar som de clique: $e\n$stackTrace");
     }
@@ -331,6 +310,13 @@ class GameStartBloc extends Bloc<GameStartEvent, GameStartState> {
     Emitter<GameStartState> emit,
   ) async {
     emit(state.copyWith(errorMessage: "Configurações em breve!"));
+  }
+
+  Future<void> _onClearErrorMessage(
+    ClearErrorMessageEvent event,
+    Emitter<GameStartState> emit,
+  ) async {
+    emit(state.copyWith(errorMessage: null, hasError: false));
   }
 
   @override
