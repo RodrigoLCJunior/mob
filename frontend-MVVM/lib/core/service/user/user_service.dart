@@ -32,6 +32,10 @@ class UserService {
     _loadUser();
   }
 
+// Método público para inicializar o serviço e carregar o usuário
+  Future<void> initialize() async {
+    await _loadUser();
+  }
   User? get currentUser => _currentUser;
 
   // Ping ao backend

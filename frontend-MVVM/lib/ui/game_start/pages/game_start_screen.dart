@@ -1,11 +1,14 @@
-import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter/material.dart' hide CarouselController;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:midnight_never_end/core/library/overlay_notification.dart';
 import 'package:midnight_never_end/ui/game_start/view_models/game_start_bloc.dart';
 import 'package:midnight_never_end/ui/habilidades/pages/habilidades_moda.dart';
 import 'package:midnight_never_end/ui/opcoes_conta/pages/opcoes_conta.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+
+final CarouselSliderController _controller = CarouselSliderController();
 
 class GameStartScreen extends StatelessWidget {
   const GameStartScreen({super.key});
@@ -34,6 +37,8 @@ class _GameStartScreenContentState extends State<GameStartScreenContent>
     with TickerProviderStateMixin {
   late AnimationController _glowController;
   late Animation<double> _glowAnimation;
+
+  
 
   @override
   void initState() {
@@ -170,7 +175,9 @@ class _GameStartScreenContentState extends State<GameStartScreenContent>
                                     );
                                   },
                                   child: Text(
-                                    state.userName.toUpperCase(),
+                                    state.userName.length > 12
+                                        ? "${state.userName.toUpperCase().substring(0, 12).trim()}..."
+                                        : state.userName.toUpperCase(),
                                     style: const TextStyle(
                                       fontSize: 18,
                                       color: Colors.white,
@@ -311,7 +318,7 @@ class AdventureCarousel extends StatelessWidget {
   final double currentPageValue;
   final int lastPage;
 
-  const AdventureCarousel({
+  AdventureCarousel({
     super.key,
     required this.glowAnimation,
     required this.onAdventureTap,
@@ -323,54 +330,25 @@ class AdventureCarousel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final PageController pageController = PageController(
-      viewportFraction: 0.85,
-    );
+    return Column(
+      children: [
+        CarouselSlider.builder(
+           carouselController: _controller,
+            options: CarouselOptions(
+            viewportFraction: 0.85,
+            height: MediaQuery.of(context).size.height * 0.75,
+            enableInfiniteScroll: false,
+            enlargeCenterPage: true,
+            onPageChanged: (index, reason) {
+              onScrollChanged(index.toDouble());
+            },
+          ),
+          itemCount: adventures.length,
+          itemBuilder: (context, index, realIndex) {
+            final adventure = adventures[index];
+            final bool isLocked = adventure["locked"] as bool;
 
-    // Listener para atualizar o estado do carrossel
-    pageController.addListener(() {
-      final newPageValue = pageController.page ?? 0.0;
-      onScrollChanged(newPageValue);
-    });
-
-    void onDragStart(DragStartDetails details) {
-      // Não é necessário armazenar o estado aqui, já que o Bloc gerencia
-    }
-
-    void onDragUpdate(DragUpdateDetails details) {
-      final newPosition =
-          pageController.page! -
-          (details.primaryDelta! / context.size!.width * 5);
-      final pageWidth = context.size!.width * 0.85;
-      pageController.jumpTo(newPosition * pageWidth);
-    }
-
-    void onDragEnd(DragEndDetails details) {
-      final newPage = currentPageValue.round();
-      pageController.animateToPage(
-        newPage,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
-
-    Widget carousel = PageView.builder(
-      controller: pageController,
-      physics: const ClampingScrollPhysics(),
-      itemCount: adventures.length,
-      itemBuilder: (context, index) {
-        final adventure = adventures[index];
-        final bool isLocked = adventure["locked"] as bool;
-
-        final double pageOffset = (currentPageValue - index).abs();
-        final double scale = (1.0 - (pageOffset * 0.1)).clamp(0.9, 1.0);
-        final double opacity = (1.0 - (pageOffset * 0.3)).clamp(0.7, 1.0);
-
-        return Transform.scale(
-          scale: scale,
-          child: Opacity(
-            opacity: opacity,
-            child: GestureDetector(
+            return GestureDetector(
               onTap: () => onAdventureTap(index),
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 20),
@@ -394,15 +372,14 @@ class AdventureCarousel extends StatelessWidget {
                           color: isLocked ? Colors.grey.withOpacity(0.5) : null,
                           colorBlendMode:
                               isLocked ? BlendMode.saturation : null,
-                          errorBuilder:
-                              (context, error, stackTrace) => Container(
-                                color: Colors.grey[300],
-                                child: const Icon(
-                                  Icons.image_not_supported,
-                                  size: 60,
-                                  color: Colors.grey,
-                                ),
-                              ),
+                          errorBuilder: (context, error, stackTrace) => Container(
+                            color: Colors.grey[300],
+                            child: const Icon(
+                              Icons.image_not_supported,
+                              size: 60,
+                              color: Colors.grey,
+                            ),
+                          ),
                         ),
                       ),
                       if (isLocked)
@@ -435,8 +412,9 @@ class AdventureCarousel extends StatelessWidget {
                                 adventure["desc"] as String,
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color:
-                                      isLocked ? Colors.grey : Colors.white70,
+                                  color: isLocked
+                                      ? Colors.grey
+                                      : Colors.white70,
                                 ),
                               ),
                             ],
@@ -444,11 +422,7 @@ class AdventureCarousel extends StatelessWidget {
                         ),
                       ),
                       if (isLocked)
-                        const Positioned(
-                          top: 0,
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
+                        const Positioned.fill(
                           child: Center(
                             child: Icon(
                               Icons.lock,
@@ -461,24 +435,10 @@ class AdventureCarousel extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
-          ),
-        );
-      },
-    );
-
-    if (kIsWeb) {
-      carousel = GestureDetector(
-        onHorizontalDragStart: onDragStart,
-        onHorizontalDragUpdate: onDragUpdate,
-        onHorizontalDragEnd: onDragEnd,
-        child: carousel,
-      );
-    }
-
-    return Column(
-      children: [
-        Expanded(child: carousel),
+            );
+          },
+        ),
+        const SizedBox(height: 10),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(adventures.length, (index) {
@@ -490,15 +450,13 @@ class AdventureCarousel extends StatelessWidget {
               height: size,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color:
-                    pageOffset < 0.5
-                        ? Colors.cyanAccent
-                        : Colors.grey.withOpacity(0.5),
+                color: pageOffset < 0.5
+                    ? Colors.cyanAccent
+                    : Colors.grey.withOpacity(0.5),
               ),
             );
           }),
         ),
-        const SizedBox(height: 10),
       ],
     );
   }

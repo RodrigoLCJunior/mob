@@ -27,7 +27,7 @@ class HabilidadesContent extends StatefulWidget {
 }
 
 class _HabilidadesContentState extends State<HabilidadesContent>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   final logger = Logger();
@@ -239,7 +239,7 @@ class InsufficientCoinsDialog extends StatefulWidget {
 }
 
 class _InsufficientCoinsDialogState extends State<InsufficientCoinsDialog>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   final logger = Logger();

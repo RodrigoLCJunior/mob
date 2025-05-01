@@ -98,7 +98,7 @@ class _UpgradeButton extends StatefulWidget {
 }
 
 class _UpgradeButtonState extends State<_UpgradeButton>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
@@ -147,15 +147,6 @@ class _UpgradeButtonState extends State<_UpgradeButton>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
-                    "Melhorar ",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                      fontFamily: "Cinzel",
-                    ),
-                  ),
                   Text(
                     "${widget.cost}",
                     style: const TextStyle(
