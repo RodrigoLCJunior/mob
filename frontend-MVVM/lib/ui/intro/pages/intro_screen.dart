@@ -9,10 +9,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:midnight_never_end/core/service/intro/intro_service.dart';
+import 'package:midnight_never_end/data/repositories/user/user_repository.dart';
 import 'package:midnight_never_end/ui/auth/login/pages/login_modal.dart';
 import 'package:midnight_never_end/ui/game_start/pages/game_start_screen.dart';
 import 'package:midnight_never_end/ui/intro/view_models/intro_bloc.dart';
-import 'package:midnight_never_end/core/service/user/user_service.dart';
 
 class IntroScreen extends StatelessWidget {
   const IntroScreen({super.key});
@@ -114,14 +114,6 @@ class _IntroScreenContentState extends State<IntroScreenContent>
     _controller.repeat(reverse: true);
   }
 
-  late IntroService _introService;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _introService = context.read<IntroBloc>().introService;
-  }
-
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -132,7 +124,7 @@ class _IntroScreenContentState extends State<IntroScreenContent>
     _pressHereController.stop();
     _pressHereController.dispose();
     _transformationController.dispose();
-    _introService.dispose();
+    context.read<IntroBloc>().introService.dispose();
     super.dispose();
   }
 
@@ -185,54 +177,38 @@ class _IntroScreenContentState extends State<IntroScreenContent>
     return BlocListener<IntroBloc, IntroState>(
       listener: (context, state) {
         if (state.isBlinkingFast) {
-          Future.delayed(const Duration(milliseconds: 1000), () {
-            if (mounted) {
-              final userService = UserService(); // Instanciar o UserService
-              final currentUser = userService.currentUser;
+          Future.delayed(const Duration(milliseconds: 1000), () async {
+            if (!mounted) return;
 
-              if (currentUser != null) {
-                // Usuário já está logado, redirecionar para GameStartScreen
-                context.read<IntroBloc>().introService.stopMusic();
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const GameStartScreen(),
-                  ),
-                  (Route<dynamic> route) => false,
-                );
-              } else {
-                // Usuário não está logado, exibir modal de login
-                showLoginModal(context)
-                    .then((isLoggedIn) {
-                      if (mounted) {
-                        if (!isLoggedIn) {
-                          // Resetar o som do "PRESS HERE" se o login não foi bem-sucedido
-                          context.read<IntroBloc>().add(ToggleFlashEvent(false));
-                          context
-                              .read<IntroBloc>()
-                              .introService
-                              .resetPressHereSound();
-                        } else {
-                          // Para a música e navega para GameStartScreen
-                          context.read<IntroBloc>().introService.stopMusic();
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const GameStartScreen(),
-                            ),
-                            (Route<dynamic> route) => false,
-                          );
-                        }
-                      }
-                    })
-                    .catchError((e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text("Erro ao abrir login: $e"),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    });
+            final isLoggedIn = UserManager.currentUser != null;
+
+            if (isLoggedIn) {
+              context.read<IntroBloc>().introService.stopMusic();
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const GameStartScreen(),
+                ),
+                (Route<dynamic> route) => false,
+              );
+            } else {
+              final isLoginSuccess = await showLoginModal(context);
+
+              if (mounted) {
+                if (!isLoginSuccess) {
+                  // reset som
+                  context.read<IntroBloc>().add(ToggleFlashEvent(false));
+                  context.read<IntroBloc>().introService.resetPressHereSound();
+                } else {
+                  context.read<IntroBloc>().introService.stopMusic();
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const GameStartScreen(),
+                    ),
+                    (Route<dynamic> route) => false,
+                  );
+                }
               }
             }
           });

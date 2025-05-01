@@ -11,6 +11,10 @@ import 'package:flutter/material.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:midnight_never_end/core/service/intro/intro_service.dart';
+import 'package:midnight_never_end/data/repositories/user/user_repository.dart';
+import 'package:midnight_never_end/main.dart';
+import 'package:midnight_never_end/ui/auth/login/pages/login_modal.dart';
+import 'package:midnight_never_end/ui/game_start/pages/game_start_screen.dart';
 
 // Eventos
 abstract class IntroEvent extends Equatable {
@@ -261,8 +265,8 @@ class IntroBloc extends Bloc<IntroEvent, IntroState> {
   }
 
   Future<void> _onStartGame(
-    StartGameEvent event,
-    Emitter<IntroState> emit,
+  StartGameEvent event,
+  Emitter<IntroState> emit,
   ) async {
     if (!state.isBlinkingFast && !state.isDragging) {
       try {
@@ -270,31 +274,41 @@ class IntroBloc extends Bloc<IntroEvent, IntroState> {
           await introService.playPressHereSound();
         }
 
-        // Iniciar o piscar rápido (5 ciclos de 200ms cada = 1000ms no total)
+        // Blink rápido
         for (int i = 0; i < 5; i++) {
-          emit(
-            state.copyWith(
-              isBlinkingFast: true,
-              blinkDuration: const Duration(milliseconds: 200),
-            ),
-          );
+          emit(state.copyWith(
+            isBlinkingFast: true,
+            blinkDuration: const Duration(milliseconds: 200),
+          ));
           await Future.delayed(const Duration(milliseconds: 200));
         }
 
-        // Voltar ao piscar normal após os 5 ciclos
-        emit(
-          state.copyWith(
-            isBlinkingFast: false,
-            blinkDuration: const Duration(seconds: 2),
-          ),
-        );
+        emit(state.copyWith(
+          isBlinkingFast: false,
+          blinkDuration: const Duration(seconds: 2),
+        ));
+
+        // Navegação condicional
+        final isLoggedIn = UserManager.currentUser != null;
+        final context = navigatorKey.currentContext!;
+
+        if (isLoggedIn) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const GameStartScreen()),
+          );
+        } else {
+          await showLoginModal(context);
+        }
       } catch (e) {
-        emit(
-          state.copyWith(hasError: true, errorMessage: "Erro no startGame: $e"),
-        );
+        emit(state.copyWith(
+          hasError: true,
+          errorMessage: "Erro no startGame: $e",
+        ));
       }
     }
   }
+
 
   Future<void> _onCenterImage(
     CenterImageEvent event,
