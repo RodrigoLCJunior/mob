@@ -116,7 +116,7 @@ class _HabilidadesContentState extends State<HabilidadesContent>
             return FadeTransition(
               opacity: _fadeAnimation,
               child: Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.only(top: 8, left: 16, right: 16, bottom: 16),
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.9),
                   borderRadius: const BorderRadius.vertical(
@@ -132,38 +132,38 @@ class _HabilidadesContentState extends State<HabilidadesContent>
                     ListView.builder(
                       controller: scrollController,
                       physics: const ClampingScrollPhysics(),
-                      itemCount: state.talents.length + 2,
+                      itemCount: state.talents.length + 3,
                       itemBuilder: (context, index) {
-                        if (index == 0) return _buildHeader();
-                        if (index == 1) return _buildCoinDisplay(state.coins);
-                        final talentIndex = index - 2;
+                        if (index == 0) {
+                          return Center(
+                            child: Container(
+                              width: 100,
+                              height: 5,
+                              margin: const EdgeInsets.only(bottom: 12),
+                              decoration: BoxDecoration(
+                                color: Colors.cyanAccent,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          );
+                        }
+                        if (index == 1) return _buildHeader();
+                        if (index == 2) return _buildCoinDisplay(state.coins);
+
+                        final talentIndex = index - 3;
                         final talent = state.talents[talentIndex];
                         return TalentTile(
                           icon: talent["icon"],
                           title: talent["title"],
                           level: talent["level"],
                           cost: talent["cost"],
-                          onPressed:
-                              () => context.read<HabilidadesBloc>().add(
-                                UpgradeTalentEvent(talentIndex),
-                              ),
+                          onPressed: () => context
+                              .read<HabilidadesBloc>()
+                              .add(UpgradeTalentEvent(talentIndex)),
                           glowAnimation: null,
                         );
                       },
                     ),
-                    if (state.showAudioPrompt)
-                      Positioned(
-                        top: 20,
-                        left: 20,
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          color: Colors.black.withOpacity(0.7),
-                          child: const Text(
-                            "Toque na tela para ativar o som",
-                            style: TextStyle(color: Colors.white, fontSize: 14),
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               ),

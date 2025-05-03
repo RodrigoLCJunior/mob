@@ -11,11 +11,14 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:midnight_never_end/data/repositories/user/user_repository.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 
 class IntroService {
   final Logger logger = Logger();
 
   // Áudio
+  bool get hasStartedBackgroundMusic => _isMusicPlaying;
   final AudioPlayer _audioPlayer = AudioPlayer();
   final AudioPlayer _musicPlayer = AudioPlayer();
   bool _isMusicPlaying = false;
@@ -44,35 +47,52 @@ class IntroService {
 
   // Métodos de áudio
   Future<void> playBackgroundMusic() async {
-    if (_isMusicPlaying) {
-      logger.d(
-        "Música já está tocando, ignorando tentativa de iniciar novamente",
-      );
-      return;
-    }
-
-    try {
-      logger.d("Tentando tocar música de fundo...");
-      await _musicPlayer.stop();
-      await _musicPlayer.setSource(AssetSource('audios/sons_of_liberty.mp3'));
-      await _musicPlayer.setReleaseMode(ReleaseMode.loop);
-      await _musicPlayer.setVolume(0.5);
-      await _musicPlayer.resume();
-      _isMusicPlaying = true;
-      _showAudioPrompt = false;
-      logger.d("Música iniciada com sucesso: sons_of_liberty.mp3");
-    } catch (e, stackTrace) {
-      logger.e("Erro ao tocar música de fundo: $e\n$stackTrace");
-      if (e.toString().contains("NotAllowedError")) {
-        logger.w(
-          "Reprodução automática bloqueada pelo navegador. Aguardando interação do usuário...",
-        );
-        _showAudioPrompt = true;
-        return;
-      }
-      throw Exception("Erro ao tocar música de fundo: $e");
-    }
+  if (_isMusicPlaying) {
+    logger.d("Música já está tocando, ignorando tentativa de iniciar novamente");
+    return;
   }
+
+  if (kIsWeb) {
+    logger.w("Web detectado: aguardando interação do usuário para iniciar música");
+    _showAudioPrompt = true;
+    return;
+  }
+
+  try {
+    logger.d("Tentando tocar música de fundo...");
+    await _musicPlayer.stop();
+    await _musicPlayer.setSource(AssetSource('audios/sons_of_liberty.mp3'));
+    await _musicPlayer.setReleaseMode(ReleaseMode.loop);
+    await _musicPlayer.setVolume(0.5);
+    await _musicPlayer.resume();
+    _isMusicPlaying = true;
+    _showAudioPrompt = false;
+    logger.d("Música iniciada com sucesso: sons_of_liberty.mp3");
+  } catch (e, stackTrace) {
+    logger.e("Erro ao tocar música de fundo: $e\n$stackTrace");
+    throw Exception("Erro ao tocar música de fundo: $e");
+  }
+}
+
+Future<void> startBackgroundMusic() async {
+  if (_isMusicPlaying) return;
+
+  try {
+    logger.d("Iniciando música de fundo via interação do usuário...");
+    await _musicPlayer.stop();
+    await _musicPlayer.setSource(AssetSource('audios/sons_of_liberty.mp3'));
+    await _musicPlayer.setReleaseMode(ReleaseMode.loop);
+    await _musicPlayer.setVolume(0.5);
+    await _musicPlayer.resume();
+    _isMusicPlaying = true;
+    _showAudioPrompt = false;
+    logger.d("Música iniciada com sucesso após interação.");
+  } catch (e, stackTrace) {
+    logger.e("Erro ao iniciar música após interação: $e\n$stackTrace");
+  }
+}
+
+
 
   Future<void> playThunderSound() async {
     try {
@@ -149,10 +169,16 @@ class IntroService {
   }
 
   Future<void> stopMusic() async {
+  try {
     await _musicPlayer.stop();
+    await _musicPlayer.release();
     _isMusicPlaying = false;
-    logger.d("Música parada");
+    logger.d("Música parada e liberada com sucesso");
+  } catch (e, stackTrace) {
+    logger.e("Erro ao parar a música: $e\n$stackTrace");
   }
+}
+
 
   // Ping ao backend
   Future<void> pingBackend() async {

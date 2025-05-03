@@ -52,10 +52,12 @@ class _IntroScreenContentState extends State<IntroScreenContent>
   Duration _lastBlinkDuration = const Duration(
     seconds: 2,
   ); // Para rastrear mudanças
+  late final IntroService _introService;
 
   @override
   void initState() {
     super.initState();
+    _introService = context.read<IntroBloc>().introService;
     WidgetsBinding.instance.addObserver(this);
     _initializeAnimations();
   }
@@ -124,7 +126,7 @@ class _IntroScreenContentState extends State<IntroScreenContent>
     _pressHereController.stop();
     _pressHereController.dispose();
     _transformationController.dispose();
-    context.read<IntroBloc>().introService.dispose();
+    _introService.dispose();
     super.dispose();
   }
 

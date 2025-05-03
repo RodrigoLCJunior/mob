@@ -15,6 +15,8 @@ import 'package:midnight_never_end/data/repositories/user/user_repository.dart';
 import 'package:midnight_never_end/main.dart';
 import 'package:midnight_never_end/ui/auth/login/pages/login_modal.dart';
 import 'package:midnight_never_end/ui/game_start/pages/game_start_screen.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 
 // Eventos
 abstract class IntroEvent extends Equatable {
@@ -203,43 +205,48 @@ class IntroBloc extends Bloc<IntroEvent, IntroState> {
   }
 
   Future<void> _onHandleTap(
-    HandleTapEvent event,
-    Emitter<IntroState> emit,
-  ) async {
-    if (!state.showFlash && !state.isBlinkingFast && !state.isDragging) {
-      try {
-        // Preservar a transformationMatrix atual
-        final currentTransform = state.transformationMatrix.clone();
-        emit(
-          state.copyWith(
-            showFlash: true,
-            currentLightning:
-                state.lightningImages[_random.nextInt(
-                  state.lightningImages.length,
-                )],
-            currentBackgroundImage:
-                state.hasChangedBackground
-                    ? state.currentBackgroundImage
-                    : "assets/images/background_image2.png",
-            hasChangedBackground: true,
-            imageSize:
-                state.hasChangedBackground
-                    ? state.imageSize
-                    : introService.backgroundImage2Size,
-            transformationMatrix: currentTransform, // Manter a posição atual
-          ),
-        );
-        add(PlayThunderSoundEvent());
-        // Remover o flash após a animação
-        await Future.delayed(const Duration(milliseconds: 200));
-        emit(state.copyWith(showFlash: false));
-      } catch (e) {
-        emit(
-          state.copyWith(hasError: true, errorMessage: "Erro no handleTap: $e"),
-        );
+  HandleTapEvent event,
+  Emitter<IntroState> emit,
+) async {
+  if (!state.showFlash && !state.isBlinkingFast && !state.isDragging) {
+    try {
+      // Inicia música no web após o primeiro toque
+      if (kIsWeb && !introService.hasStartedBackgroundMusic) {
+        await introService.startBackgroundMusic();
       }
+
+      final currentTransform = state.transformationMatrix.clone();
+
+      emit(
+        state.copyWith(
+          showFlash: true,
+          currentLightning: state.lightningImages[
+            _random.nextInt(state.lightningImages.length)
+          ],
+          currentBackgroundImage: state.hasChangedBackground
+              ? state.currentBackgroundImage
+              : "assets/images/background_image2.png",
+          hasChangedBackground: true,
+          imageSize: state.hasChangedBackground
+              ? state.imageSize
+              : introService.backgroundImage2Size,
+          transformationMatrix: currentTransform,
+        ),
+      );
+
+      add(PlayThunderSoundEvent());
+
+      await Future.delayed(const Duration(milliseconds: 200));
+      emit(state.copyWith(showFlash: false));
+    } catch (e) {
+      emit(state.copyWith(
+        hasError: true,
+        errorMessage: "Erro no handleTap: $e",
+      ));
     }
   }
+}
+
 
   Future<void> _onPlayThunderSound(
     PlayThunderSoundEvent event,
