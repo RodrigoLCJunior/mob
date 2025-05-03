@@ -1,11 +1,3 @@
-/*
- ** Task..: 18 - Criação e formulação da classe Progresso
- ** Data..: 18/03/2024
- ** Autor.: Rodrigo Luiz
- ** Motivo: Criar classe Progressão
- ** Obs...:
- */
-
 package com.example.jogo.controller;
 
 import com.example.jogo.model.Avatar;
@@ -16,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -28,46 +21,71 @@ public class ProgressaoController {
     @Autowired
     private AvatarService avatarService;
 
-    @GetMapping("/{avatarId}")
-    private ResponseEntity<Progressao> buscarProgressao(@PathVariable UUID avatarId){
-        Avatar avatar = avatarService.getAvatar(avatarId);
-        if (avatar == null){
-            return ResponseEntity.notFound().build();
+    @GetMapping
+    public ResponseEntity<List<Progressao>> buscarTodasProgressoes() {
+        List<Progressao> progressoes = progressaoService.acharTodasProgressoes();
+        return ResponseEntity.ok(progressoes);
+    }
+
+    @GetMapping("/{avatarId}/avatar-id")
+    public ResponseEntity<?> buscarProgressaoPorAvatar(@PathVariable UUID avatarId) {
+        Avatar avatar = avatarService.buscarAvatarPorId(avatarId);
+        if (avatar == null) {
+            return ResponseEntity.status(404).body("Avatar não encontrado");
         }
+
         Progressao progressao = progressaoService.buscarProgressaoPorAvatar(avatar);
         return ResponseEntity.ok(progressao);
     }
 
     @PostMapping("/{avatarId}/adicionarMoedasTemporarias")
-    private ResponseEntity<Progressao> adicinarMoedasTemporarias(@PathVariable UUID avatarId, @RequestParam int quantidade){
-        Avatar avatar = avatarService.getAvatar(avatarId);
-        if (avatar == null){
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<?> adicionarMoedasTemporarias(
+            @PathVariable UUID avatarId,
+            @RequestParam int quantidade) {
+
+        try {
+            Avatar avatar = avatarService.buscarAvatarPorId(avatarId);
+            if (avatar == null) {
+                return ResponseEntity.status(404).body("Avatar não encontrado");
+            }
+
+            progressaoService.adicionarMoedasTemporarias(avatar, quantidade);
+            Progressao progressao = progressaoService.buscarProgressaoPorAvatar(avatar);
+            return ResponseEntity.ok(progressao);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro ao adicionar moedas temporárias");
         }
-        progressaoService.adicionarMoedasTemporarias(avatar, quantidade);
-        Progressao progressao = progressaoService.buscarProgressaoPorAvatar(avatar);
-        return ResponseEntity.ok(progressao);
     }
 
     @PostMapping("/{avatarId}/adicionarClique")
-    private ResponseEntity<Progressao> adicinarClique(@PathVariable UUID avatarId){
-        Avatar avatar = avatarService.getAvatar(avatarId);
-        if (avatar == null){
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<?> adicionarClique(@PathVariable UUID avatarId) {
+        try {
+            Avatar avatar = avatarService.buscarAvatarPorId(avatarId);
+            if (avatar == null) {
+                return ResponseEntity.status(404).body("Avatar não encontrado");
+            }
+
+            progressaoService.adicionarClique(avatar);
+            Progressao progressao = progressaoService.buscarProgressaoPorAvatar(avatar);
+            return ResponseEntity.ok(progressao);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro ao adicionar clique");
         }
-        progressaoService.adicionarClique(avatar);
-        Progressao progressao = progressaoService.buscarProgressaoPorAvatar(avatar);
-        return ResponseEntity.ok(progressao);
     }
 
     @PostMapping("/{avatarId}/adicionarInimigoDerrotado")
-    private ResponseEntity<Progressao> adicionarInimigoDerrotado(@PathVariable UUID avatarId){
-        Avatar avatar = avatarService.getAvatar(avatarId);
-        if (avatar == null){
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<?> adicionarInimigoDerrotado(@PathVariable UUID avatarId) {
+        try {
+            Avatar avatar = avatarService.buscarAvatarPorId(avatarId);
+            if (avatar == null) {
+                return ResponseEntity.status(404).body("Avatar não encontrado");
+            }
+
+            progressaoService.adicionarInimigoDerrotado(avatar);
+            Progressao progressao = progressaoService.buscarProgressaoPorAvatar(avatar);
+            return ResponseEntity.ok(progressao);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erro ao adicionar inimigo derrotado");
         }
-        progressaoService.adicionarInimigoDerrotado(avatar);
-        Progressao progressao = progressaoService.buscarProgressaoPorAvatar(avatar);
-        return ResponseEntity.ok(progressao);
     }
 }

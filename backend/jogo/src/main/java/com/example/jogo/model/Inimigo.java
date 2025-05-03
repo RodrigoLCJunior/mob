@@ -1,6 +1,6 @@
 /*
  ** Task..: 13 - Sistema Inicial do Combate
- ** Data..: 08/03/2024
+ ** Data..: 08/03/2025
  ** Autor.: Rodrigo Luiz
  ** Motivo: Criar classe Inimigo para usar no Combate
  ** Obs...:
@@ -9,8 +9,7 @@
 package com.example.jogo.model;
 
 import jakarta.persistence.*;
-import org.yaml.snakeyaml.events.Event;
-
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -18,85 +17,82 @@ import java.util.List;
 public class Inimigo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    /* Rodrigo Luiz - 30/03/2025 - mob_031 */
+    @Column(nullable = false)
+    private String nome;
 
     @Column(nullable = false)
-    private float hp;
-
-    @Column(nullable = false)
-    private int danoBase;
-
-    @Column(nullable = false)
-    private float timeToHit;
+    private int hp;
 
     @Column(nullable = false)
     private int recompensa;
 
-    @Column(nullable = false)
-    private int tipo;
+    @Column
+    private String imageInimigo;
 
-    @OneToMany(mappedBy = "inimigo", cascade = CascadeType.ALL)
-    private List<WaveInimigos> waveInimigos;
+    @ManyToMany
+    @JoinTable(
+            name = "inimigo_cards",
+            joinColumns = @JoinColumn(name = "inimigo_id"),
+            inverseJoinColumns = @JoinColumn(name = "card_id")
+    )
+    private List<Cards> deck = new ArrayList<>();
 
-    public Inimigo(int id, float hp, int danoBase, float timeToHit, int recompensa, int tipo) {
+    public Inimigo(){}
+
+    public Inimigo(Long id, String nome, int hp, int recompensa) {
         this.id = id;
+        this.nome = nome; /* Rodrigo Luiz - 30/03/2025 - mob_031 */
         this.hp = hp;
-        this.danoBase = danoBase;
-        this.timeToHit = timeToHit;
         this.recompensa = recompensa;
-        this.tipo = tipo;
+        this.imageInimigo = ""; // Valor padrão null
     }
 
-    public void setHp(float hp) {
+    public void setHp(int hp) {
         this.hp = hp;
-    }
-
-    public void setTipo(int tipo) {
-        this.tipo = tipo;
     }
 
     public void setRecompensa(int recompensa) {
         this.recompensa = recompensa;
     }
 
-    public void setTimeToHit(float timeToHit) {
-        this.timeToHit = timeToHit;
-    }
-
-    public void setDanoBase(int danoBase) {
-        this.danoBase = danoBase;
-    }
-
-    public int getTipo() {
-        return tipo;
-    }
-
     public int getRecompensa() {
         return recompensa;
     }
 
-    public float getTimeToHit() {
-        return timeToHit;
-    }
-
-    public int getDanoBase() {
-        return danoBase;
-    }
-
-    public float getHp() {
+    public int getHp() {
         return hp;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public List<WaveInimigos> getWaveInimigos() {
-        return waveInimigos;
+    /* Rodrigo Luiz - 30/03/2025 - mob_031 */
+    public String getNome() {
+        return nome;
     }
 
-    public void setWaveInimigos(List<WaveInimigos> waveInimigos) {
-        this.waveInimigos = waveInimigos;
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public List<Cards> getDeck() {
+        return deck;
+    }
+
+    public void setDeck(List<Cards> deck) {
+        this.deck = deck;
+    }
+
+    public String getImageInimigo() {
+        return imageInimigo;
+    }
+
+    public void setImageInimigo(String imageInimigo) {
+        this.imageInimigo = imageInimigo;
     }
 }
