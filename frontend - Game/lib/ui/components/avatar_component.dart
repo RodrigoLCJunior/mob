@@ -156,7 +156,7 @@ class AvatarComponent extends PositionComponent {
 
     hpText = TextComponent(
       text: '$currentHp',
-      position: Vector2(15 + (90 - 15) / 2, 53),
+      position: Vector2(15 + 90.0 / 2, 53), // <-- já centralizado na barra completa
       anchor: Anchor.center,
       textRenderer: TextPaint(
         style: const TextStyle(
@@ -220,7 +220,7 @@ class AvatarComponent extends PositionComponent {
           currentWidth + (_targetLifeBarWidth - currentWidth) * 0.1;
       lifeBar.size.x = newWidth;
       lifeBar.position = Vector2(15, 53);
-      hpText.position = Vector2(15 + newWidth / 2, 53);
+      hpText.position = Vector2(15 + 90.0 / 2, 53); // Posição fixa no centro da barra total
     }
   }
 }
