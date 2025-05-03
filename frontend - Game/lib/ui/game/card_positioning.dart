@@ -1,6 +1,7 @@
 import 'package:flame/components.dart';
 import 'dart:math' as math;
 import 'package:midnight_never_end/ui/game/combat_game.dart';
+import 'package:midnight_never_end/ui/game/draw_card_animation.dart';
 
 void posicionarCartasJogador(CombatGame game) {
   if (!game.isComponentsLoaded || game.avatarComponent == null) {
@@ -43,6 +44,27 @@ void posicionarCartasJogador(CombatGame game) {
     // Aumente o valor negativo para subir mais (ex.: -30 para -40)
     carta.position = Vector2(adjustedX, y - 30);
     carta.setOriginalPosition(carta.position);
+
+    // Após definir posição e ângulo final
+    carta.position = Vector2(adjustedX, y - 30);
+    carta.setOriginalPosition(carta.position);
+
+    // NOVO BLOCO: atualiza animação, se existir
+    if (!game.children.contains(carta)) {
+      DrawCardAnimation? animation;
+      try {
+        animation = game.children
+            .whereType<DrawCardAnimation>()
+            .firstWhere((anim) => anim.card == carta.card);
+      } catch (_) {
+        animation = null;
+      }
+
+      if (animation != null) {
+        animation.targetPosition.setFrom(carta.position);
+      }
+    }
+
 
     carta.angle = angle;
     carta.originalAngle = angle;

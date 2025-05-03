@@ -28,22 +28,35 @@ import 'package:midnight_never_end/ui/components/enemy_component.dart';
 import 'package:midnight_never_end/ui/game/animated_card.dart';
 import 'package:midnight_never_end/ui/game/card_positioning.dart';
 import 'package:midnight_never_end/ui/game/combat_game.dart';
+import 'package:midnight_never_end/ui/game/draw_card_animation.dart';
 
 Future<void> loadPlayerCards(CombatGame game) async {
-  print(
-    'CombatGame - Cartas do avatar na mão: ${game.viewModel.state.maoAvatar.length} cartas (card_management.dart)',
-  );
   game.cartasJogador.clear();
+
   for (int i = 0; i < game.viewModel.state.maoAvatar.length; i++) {
+    final cardModel = game.viewModel.state.maoAvatar[i];
+
     final carta = CardComponent(
-      game.viewModel.state.maoAvatar[i],
+      cardModel,
       isDraggable: game.viewModel.state.isPlayerTurn,
       onDragEndCallback: (CardComponent card) {
         handleCardDrop(game, card, game.inimigoComponent);
       },
     );
+
     game.cartasJogador.add(carta);
-    await game.add(carta);
+    final targetPosition = Vector2.zero(); // será setado depois via posicionamento
+
+    final animation = DrawCardAnimation(
+      card: cardModel,
+      startPosition: Vector2(game.size.x / 2, game.size.y / 2),
+      targetPosition: targetPosition,
+      onAnimationComplete: () {
+        game.add(carta);
+      },
+    );
+
+    game.add(animation);
   }
 }
 
@@ -94,18 +107,55 @@ void handleCardDrop(
 }
 
 Future<void> updatePlayerCards(CombatGame game) async {
-  // Remover todas as cartas atuais
+  final novasCartasData = game.viewModel.state.maoAvatar;
+  final cartasAnteriores = game.cartasJogador.map((c) => c.card).toList();
+
   for (var carta in game.cartasJogador) {
     game.remove(carta);
   }
   game.cartasJogador.clear();
 
-  // Recarregar as cartas com base na nova mão
-  await loadPlayerCards(game);
+  final novasCartas = <CardComponent>[];
+
+  for (final card in novasCartasData) {
+    final carta = CardComponent(
+      card,
+      isDraggable: game.viewModel.state.isPlayerTurn,
+      onDragEndCallback: (CardComponent cardComp) {
+        handleCardDrop(game, cardComp, game.inimigoComponent);
+      },
+    );
+    novasCartas.add(carta);
+  }
+
+  game.cartasJogador.addAll(novasCartas);
   posicionarCartasJogador(game);
 
-  // Atualizar a propriedade isDraggable com base no turno
+  final cartasNovas = novasCartas
+      .where((c) => !cartasAnteriores.any((prev) => prev.id == c.card.id))
+      .toList();
+
+  for (final carta in cartasNovas) {
+    final animation = DrawCardAnimation(
+      card: carta.card,
+      startPosition: Vector2(game.size.x / 2, game.size.y / 2),
+      targetPosition: carta.position.clone(),
+      onAnimationComplete: () {
+        game.add(carta);
+      },
+    );
+    game.add(animation);
+  }
+
+  for (final carta in novasCartas) {
+    if (!cartasNovas.contains(carta)) {
+      game.add(carta);
+    }
+  }
+
   for (var carta in game.cartasJogador) {
     carta.isDraggable = game.viewModel.state.isPlayerTurn;
   }
 }
+
+

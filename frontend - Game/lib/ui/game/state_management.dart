@@ -22,10 +22,12 @@
  * Esse sistema garante que a interface do combate esteja sempre sincronizada com o estado do jogo.
  */
 
+import 'package:flame/components.dart';
 import 'package:midnight_never_end/ui/components/card_component.dart';
 import 'package:midnight_never_end/ui/game/card_management.dart';
 import 'package:midnight_never_end/ui/game/card_positioning.dart';
 import 'package:midnight_never_end/ui/game/combat_game.dart';
+import 'package:midnight_never_end/ui/game/draw_card_animation.dart';
 
 void onStateChanged(CombatGame game) {
   if (!game.isComponentsLoaded) return;
@@ -64,22 +66,49 @@ void onStateChanged(CombatGame game) {
 }
 
 void _syncEnemyCards(CombatGame game) {
-  // Remover todas as cartas atuais do inimigo
+  final cartasAnteriores = game.cartasInimigo.map((c) => c.card).toList();
+  final novasCartasData = game.viewModel.state.maoInimigo;
+
   for (var carta in game.cartasInimigo) {
     game.remove(carta);
   }
   game.cartasInimigo.clear();
 
-  // Recarregar as cartas do inimigo com base na mão do estado do CombatBloc
-  for (int i = 0; i < game.viewModel.state.maoInimigo.length; i++) {
+  final novasCartas = <CardComponent>[];
+
+  for (final card in novasCartasData) {
     final carta = CardComponent(
-      game.viewModel.state.maoInimigo[i],
+      card,
       isDraggable: false,
     );
-    game.cartasInimigo.add(carta);
-    game.add(carta);
+    novasCartas.add(carta);
   }
 
-  // Reposicionar as cartas do inimigo
+  game.cartasInimigo.addAll(novasCartas);
   posicionarCartasInimigo(game);
+
+  final cartasNovas = novasCartas
+      .where((c) => !cartasAnteriores.any((prev) => prev.id == c.card.id))
+      .toList();
+
+  for (final carta in cartasNovas) {
+    final animation = DrawCardAnimation(
+      card: carta.card,
+      startPosition: Vector2(game.size.x / 2, game.size.y / 2),
+      targetPosition: carta.position.clone(),
+      onAnimationComplete: () {
+        game.add(carta);
+      },
+    );
+    game.add(animation);
+  }
+
+  for (final carta in novasCartas) {
+    if (!cartasNovas.contains(carta)) {
+      game.add(carta);
+    }
+  }
 }
+
+
+

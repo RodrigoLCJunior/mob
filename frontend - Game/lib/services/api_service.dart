@@ -5,8 +5,8 @@ import 'package:midnight_never_end/models/inimigo.dart';
 import 'package:midnight_never_end/models/usuario.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://localhost:9090/api';
-  //static const String baseUrl = 'https://mob-backend-2.onrender.com/api';
+  //static const String baseUrl = 'http://localhost:9090/api';
+  static const String baseUrl = 'https://mob-backend-2.onrender.com/api';
 
   Future<Usuario> login(String email, String senha) async {
     try {
