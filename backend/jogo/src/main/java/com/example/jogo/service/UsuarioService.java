@@ -38,6 +38,7 @@ public class UsuarioService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Transactional
     public LoginResponse login(Usuarios loginRequest) {
         Optional<Usuarios> usuarioOpt = usuarioRepository.findByEmail(loginRequest.getEmail());
 

@@ -28,7 +28,6 @@ public class ProgressaoService {
         return progressaoRepository.findByAvatarId(avatar.getId());
     }
 
-    @Transactional
     public Progressao salvarProgressao(Progressao progressao) {
         if (progressao == null) {
             throw new IllegalArgumentException("Progressão não pode ser nula");

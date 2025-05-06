@@ -22,7 +22,6 @@ public class MoedaPermanenteService {
     @Autowired
     private MoedaPermanenteRepository moedaPermanenteRepository;
 
-    @Transactional
     public MoedaPermanente criarMoedaPermanente() {
         MoedaPermanente moedaPermanente = new MoedaPermanente();
         return moedaPermanenteRepository.save(moedaPermanente);

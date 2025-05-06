@@ -27,7 +27,6 @@ public class AvatarService {
         return avatarRepository.findAll();
     }
 
-    @Transactional
     public Avatar criarAvatar(Avatar avatarNovo) {
         if (avatarNovo == null || avatarNovo.getHp() < 0) {
             throw new IllegalArgumentException("Dados inválidos para criar avatar");
