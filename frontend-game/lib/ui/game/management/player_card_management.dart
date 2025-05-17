@@ -105,7 +105,9 @@ Future<void> updatePlayerCards(CombatGame game) async {
   final cartasAnteriores = game.cartasJogador.map((c) => c.card).toList();
 
   for (var carta in game.cartasJogador) {
-    game.remove(carta);
+    if (carta.isMounted) {
+      game.remove(carta);
+    }
   }
   game.cartasJogador.clear();
 
@@ -125,10 +127,7 @@ Future<void> updatePlayerCards(CombatGame game) async {
   game.cartasJogador.addAll(novasCartas);
   posicionarCartasJogador(game);
 
-  final cartasNovas =
-      novasCartas
-          .where((c) => !cartasAnteriores.any((prev) => prev.id == c.card.id))
-          .toList();
+  final cartasNovas = novasCartas.where((c) => !cartasAnteriores.any((prev) => prev.id == c.card.id)).toList();
 
   for (final carta in cartasNovas) {
     final animation = DrawCardAnimation(
