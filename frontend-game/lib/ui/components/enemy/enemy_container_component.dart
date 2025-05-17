@@ -53,7 +53,7 @@ class EnemyContainerComponent extends PositionComponent with HasGameRef {
     await add(healthBar);
 
     poisonIcon = SpriteComponent()
-      ..sprite = await Sprite.load('../icons/iconeVeneno.png')
+      ..sprite = await Sprite.load('../icons/poisonIcon.png')
       ..size = Vector2(35, 35)
       ..position = Vector2(
         healthBar.position.x + healthBar.size.x + 160,
