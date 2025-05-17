@@ -7,17 +7,19 @@
  */
 
 package com.example.jogo.model;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "usuarios")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Usuarios {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @Column(nullable = false)
@@ -29,27 +31,25 @@ public class Usuarios {
     @Column(nullable = false)
     private String senha;  // Armazenada de forma segura (hash)
 
-    @Column(nullable = false, columnDefinition = "integer default 1")
-    private int nivel;
-
-    /* Rodrigo Luiz - 15/03/2025 - mob_015 */
-    @Column(nullable = false, columnDefinition = "integer default 0")
-    private int experiencia;
-
-    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "avatar_id", referencedColumnName = "id")
     private Avatar avatar;
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Dungeon> dungeons;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "moeda_permanente_id", referencedColumnName = "id")
+    private MoedaPermanente moedaPermanente;
 
-    public Usuarios() {} 
+    /*
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Dungeon> dungeons;
+    */
+
+    public Usuarios() {}
 
     public Usuarios(String nome, String email, String senha) {
         this.nome = nome;
         this.email = email;
         this.senha = senha;
-        this.nivel = 1; // Nível inicial
-        this.experiencia = 0;
     }
 
     public UUID getId() {
@@ -81,14 +81,6 @@ public class Usuarios {
         this.avatar = avatar;
     }
 
-    public int getNivel() {
-        return nivel;
-    }
-
-    public void setNivel(int nivel) {
-        this.nivel = nivel;
-    }
-
     public void setEmail(String email) {
         this.email = email;
     }
@@ -97,6 +89,7 @@ public class Usuarios {
         this.nome = nome;
     }
 
+    /*
     public List<Dungeon> getDungeons() {
         return dungeons;
     }
@@ -104,12 +97,13 @@ public class Usuarios {
     public void setDungeons(List<Dungeon> dungeons) {
         this.dungeons = dungeons;
     }
+    */
 
-    public int getExperiencia() {
-        return experiencia;
+    public MoedaPermanente getMoedaPermanente() {
+        return moedaPermanente;
     }
 
-    public void setExperiencia(int experiencia) {
-        this.experiencia = experiencia;
+    public void setMoedaPermanente(MoedaPermanente moedaPermanente) {
+        this.moedaPermanente = moedaPermanente;
     }
 }

@@ -1,68 +1,80 @@
-/*
- ** Task..: 13 - Sistema Inicial do Combate
- ** Data..: 08/03/2024
- ** Autor.: Rodrigo Luiz
- ** Motivo: Criar service Avatar para usar no Combate
- ** Obs...:
- */
-
 package com.example.jogo.service;
+
 import com.example.jogo.model.Avatar;
-import com.example.jogo.model.Usuarios;
+import com.example.jogo.model.Progressao;
 import com.example.jogo.repository.AvatarRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class AvatarService {
 
-    /* Rodrigo Luiz - 15/03/2025 - mob_015 */
     @Autowired
     private AvatarRepository avatarRepository;
 
-    public Avatar getAvatar(UUID id) {
+    @Autowired
+    private ProgressaoService progressaoService;
+
+    public Avatar buscarAvatarPorId(UUID id) {
         return avatarRepository.findById(id).orElse(null);
     }
 
-    // Aplicar dano ao avatar
-    public void aplicarDano(UUID id, int dano) {
-        Avatar avatar = getAvatar(id);
-        if (avatar != null) {
-            avatar.setHp(Math.max(0, avatar.getHp() - dano)); // Garante que HP não fique negativo
-            avatarRepository.save(avatar);
-        } else {
-            System.out.println("Não encontrou nenhum Avatar com ID: " + id + " (AvatarService.java)");
+    public List<Avatar> listarAvatares() {
+        return avatarRepository.findAll();
+    }
+
+    public Avatar criarAvatar(Avatar avatarNovo) {
+        if (avatarNovo == null || avatarNovo.getHp() < 0) {
+            throw new IllegalArgumentException("Dados inválidos para criar avatar");
         }
-    }
 
-    public boolean estaMorto(UUID id) {
-        Avatar avatar = getAvatar(id);
-        return avatar == null || avatar.getHp() == 0;
-    }
+        Avatar avatar = new Avatar(avatarNovo.getHp());
+        avatar = avatarRepository.save(avatar);
 
-    /* Rodrigo Luiz - 15/03/2025 - mob_015 */
-    // Criar avatar para usuário
-    public Avatar criarAvatar(Usuarios usuario) {
-        Avatar avatar = new Avatar();
-        avatar.setUsuario(usuario);
-        avatar.setHp(5); // Definir valores iniciais para o avatar
-        avatar.setDanoBase(1); // Definir valores iniciais para o avatar
-        return avatar;
-    }
-
-    public Avatar criarAvatarController(Usuarios usuario) {
-        Avatar avatar = new Avatar(5, 1, usuario); // Valores iniciais de HP e danoBase
+        try {
+            Progressao progressao = new Progressao();
+            progressao.setAvatarId(avatar.getId());
+            progressao = progressaoService.salvarProgressao(progressao);
+            avatar.setProgressao(progressao);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Erro ao criar progressão: " + e.getMessage(), e);
+        }
         return avatarRepository.save(avatar);
     }
 
-    public Avatar modificarAvatar(UUID id, int hp, int danoBase) {
-        Avatar avatar = getAvatar(id);
-        if (avatar != null) {
-            avatar.setHp(hp);
-            avatar.setDanoBase(danoBase);
-            avatarRepository.save(avatar);
+    @Transactional
+    public Avatar aplicarDano(UUID id, int dano) {
+        Avatar avatar = buscarAvatarPorId(id);
+        if (avatar == null) {
+            return null;
         }
-        return avatar;
+
+        avatar.setHp(Math.max(0, avatar.getHp() - dano));
+        return avatarRepository.save(avatar);
+    }
+
+    public boolean estaMorto(UUID id) {
+        Avatar avatar = buscarAvatarPorId(id);
+        return avatar == null || avatar.getHp() <= 0;
+    }
+
+    @Transactional
+    public Avatar modificarAvatar(UUID id, int hp, int danoBase) {
+        Avatar avatar = buscarAvatarPorId(id);
+        if (avatar == null) {
+            return null;
+        }
+
+        avatar.setHp(hp);
+        return avatarRepository.save(avatar);
+    }
+
+    @Transactional
+    public void deletarAvatarPorId(UUID avatarId) {
+        avatarRepository.deleteById(avatarId);
     }
 }
