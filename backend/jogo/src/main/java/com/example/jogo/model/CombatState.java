@@ -8,6 +8,7 @@ public class CombatState {
     private UUID playerId;
     private Avatar avatar;
     private Inimigo enemy;
+    private Wave wave;
     private List<Cards> playerHand;
     private List<Cards> enemyHand;
     private List<Cards> usedPlayerCards;
@@ -48,6 +49,8 @@ public class CombatState {
     public void setAvatar(Avatar avatar) { this.avatar = avatar; }
     public Inimigo getEnemy() { return enemy; }
     public void setEnemy(Inimigo enemy) { this.enemy = enemy; }
+    public Wave getWave() { return wave; }
+    public void setWave(Wave wave) { this.wave = wave; }
     public List<Cards> getPlayerHand() { return playerHand; }
     public void setPlayerHand(List<Cards> playerHand) { this.playerHand = playerHand; }
     public List<Cards> getEnemyHand() { return enemyHand; }

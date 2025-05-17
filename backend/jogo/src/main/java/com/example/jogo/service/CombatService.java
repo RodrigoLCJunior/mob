@@ -1,13 +1,8 @@
 package com.example.jogo.service;
 
-import com.example.jogo.model.Avatar;
-import com.example.jogo.model.CombatState;
-import com.example.jogo.model.Inimigo;
-import com.example.jogo.model.Cards;
-import com.example.jogo.model.Turn;
+import com.example.jogo.model.*;
 import com.example.jogo.repository.InimigoRepository;
 import com.example.jogo.repository.UsuarioRepository;
-import com.example.jogo.model.Usuarios;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,10 +23,50 @@ public class CombatService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private WaveService waveService;
+
+    @Autowired
+    private DungeonService dungeonService;
+
     private final Map<UUID, CombatState> combatStates = new HashMap<>();
     private final Random random = new Random();
 
+    public CombatState iniciarDungeon(UUID playerId, Long dungeonId) {
+        // Buscar a dungeon pelo id
+        Dungeon dungeon = dungeonService.buscarDungeonPorId(dungeonId);
+
+        // Inicializar o estado do combate para o player
+        CombatState combatState = new CombatState();
+
+        // Setar quantidade de waves da dungeon no combatState
+        Wave wave = new Wave(1, dungeon.getQtdWaves());
+        combatState.setWave(wave);
+
+        // Criar ou buscar o avatar do player
+        Usuarios usuario = usuarioRepository.findById(playerId)
+                .orElseThrow(() -> new IllegalArgumentException("Jogador não encontrado"));
+
+        Avatar avatar = usuario.getAvatar();
+        if (avatar == null) {
+            throw new IllegalStateException("Jogador não possui avatar");
+        }
+        combatState.setAvatar(avatar);
+
+        // Escolher o primeiro inimigo da wave
+        Inimigo inimigo = waveService.escolherInimigoNaoRepetido(wave);
+        combatState.setEnemy(inimigo);
+
+        return combatState;
+    }
+
     public CombatState startCombat(UUID playerId) {
+        // Inicia uma nova wave (no futuro poderá receber o total de waves da Dungeon)
+        Wave wave = waveService.iniciarWave();
+        if (wave == null) {
+            throw new RuntimeException("Erro ao criar a wave");
+        }
+
         // Validar se o jogador existe e possui avatar
         Usuarios usuario = usuarioRepository.findById(playerId)
                 .orElseThrow(() -> new IllegalArgumentException("Jogador não encontrado pelo ID: " + playerId));
@@ -41,29 +76,29 @@ public class CombatService {
             throw new IllegalStateException("Jogador não possui um avatar válido.");
         }
 
-        // Buscar todos os inimigos e selecionar um aleatório
-        List<Inimigo> allEnemies = new ArrayList<>(inimigoRepository.findAll());
-        if (allEnemies.isEmpty()) {
-            throw new RuntimeException("Nenhum inimigo encontrado");
-        }
-        Inimigo enemy = allEnemies.get(random.nextInt(allEnemies.size()));
+        // Selecionar inimigo não repetido para esta wave
+        Inimigo enemy = waveService.escolherInimigoNaoRepetido(wave);
 
         // Inicializa as mãos com 5 cartas aleatórias, sem modificar o baralho original
         List<Cards> playerHand = drawCards(avatar.getDeck(), 5);
         List<Cards> enemyHand = drawCards(enemy.getDeck(), 5);
 
+        // Criar o estado inicial do combate com dados do jogador, inimigo e wave
         CombatState combatState = new CombatState(playerId, avatar, enemy, playerHand);
         combatState.setEnemyHand(enemyHand);
+        combatState.setWave(wave);
         combatState.setCurrentTurn(Turn.PLAYER);
         combatState.setFirstTurn(true);
         combatState.setCombatActive(true);
         combatState.setPlayerHandRestored(true); // Para animação inicial
-        combatState.setEnemyDeckRestored(true); // Para animação inicial
+        combatState.setEnemyDeckRestored(true);  // Para animação inicial
 
+        // Armazenar o estado do combate para o jogador
         combatStates.put(playerId, combatState);
 
         return combatState;
     }
+
 
     private List<Cards> drawCards(List<Cards> deck, int quantity) {
         List<Cards> hand = new ArrayList<>();
@@ -104,8 +139,29 @@ public class CombatService {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Carta não encontrada na mão do jogador"));
 
-        int newEnemyHp = combatState.getEnemyHp() - cardToPlay.getDamage();
-        combatState.setEnemyHp(Math.max(newEnemyHp, 0));
+        int newEnemyHp = combatState.getEnemyHp();
+        switch (cardToPlay.getTipoEfeito()) {
+            case DANO -> {
+                newEnemyHp =  newEnemyHp - cardToPlay.getValor();
+                combatState.setEnemyHp(Math.max(newEnemyHp, 0));
+            }
+            case CURA -> {
+                int newPlayerHp = combatState.getAvatarHp() + cardToPlay.getValor();
+                combatState.setAvatarHp(Math.min(newPlayerHp, combatState.getAvatar().getHp())); // hp maximo
+            }
+            case ESCUDO -> {
+                // Em breve: poderíamos armazenar escudo temporário por turnos
+                // Ex: combatState.setEscudoAtual(cardToPlay.getDamage());
+            }
+            case VENENO -> {
+                // Em breve: marcar status "envenenado" por X turnos // serve tambem pra sangramente
+            }
+            case BUFF, DEBUFF -> {
+                // Futuro: alteração de stats ou manipulação de cartas
+            }
+            default -> throw new IllegalStateException("Tipo de efeito desconhecido.");
+        }
+
 
         // Remover a carta da mão temporária (playerHand), não do baralho original
         combatState.getPlayerHand().remove(cardToPlay);
@@ -161,11 +217,30 @@ public class CombatService {
         List<Cards> enemyHand = combatState.getEnemyHand();
 
         for (Cards card : enemyHand) {
-            int newPlayerHp = combatState.getAvatarHp() - card.getDamage();
-            combatState.setAvatarHp(Math.max(newPlayerHp, 0));
+            switch (card.getTipoEfeito()) {
+                case DANO -> {
+                    int newPlayerHp = combatState.getAvatarHp() - card.getValor();
+                    combatState.setAvatarHp(Math.max(newPlayerHp, 0));
+                }
+                case CURA -> {
+                    int newEnemyHp = combatState.getEnemyHp() + card.getValor();
+                    combatState.setEnemyHp(Math.min(newEnemyHp, combatState.getEnemy().getHp())); // cura até o máximo original
+                }
+                case ESCUDO -> {
+                    // Exemplo: não implementado ainda, mas você pode guardar o escudo em uma nova variável no CombatState
+                }
+                case VENENO -> {
+                    // Exemplo: marcar o avatar como envenenado
+                    // combatState.setAvatarPoisonTurns(3); // precisa criar o campo
+                }
+                default -> {
+                    System.out.println("Efeito de carta não implementado: " + card.getTipoEfeito());
+                }
+            }
+
             combatState.getUsedEnemyCards().add(card);
 
-            if (newPlayerHp <= 0) {
+            if (combatState.getAvatarHp() <= 0) {
                 combatState.setCombatActive(false);
                 combatState.setPlayerLost(true);
                 return;
@@ -174,6 +249,7 @@ public class CombatService {
 
         // Limpar a mão temporária do inimigo (enemyHand), não o baralho original
         enemyHand.clear();
+
         // Comprar 3 cartas para o inimigo, exceto no primeiro turno dele, sem modificar o baralho original
         if (!isFirstEnemyTurn) {
             combatState.setEnemyHand(drawCards(combatState.getEnemy().getDeck(), 3));
@@ -201,4 +277,5 @@ public class CombatService {
 
         return combatState;
     }
+
 }

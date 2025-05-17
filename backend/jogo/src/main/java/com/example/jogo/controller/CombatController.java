@@ -43,6 +43,21 @@ public class CombatController {
         return ResponseEntity.ok("pong");
     }
 
+    @PostMapping("/start-dungeon")
+    public ResponseEntity<Map<String, Object>> startDungeon(@RequestParam UUID playerId, @RequestParam Long dungeonId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            CombatState combatState = combatService.iniciarDungeon(playerId, dungeonId);
+            response.put("success", true);
+            response.put("combatState", combatState);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Erro ao iniciar dungeon: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
     @PostMapping("/start")
     public ResponseEntity<Map<String, Object>> startCombat(@RequestParam UUID playerId) {
         Map<String, Object> response = new HashMap<>();
