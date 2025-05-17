@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:flame/components.dart';
+import 'package:flutter/material.dart';
 import 'package:midnight_never_end/models/inimigo.dart';
 import 'package:midnight_never_end/ui/components/damage_text_component.dart';
 import 'package:midnight_never_end/ui/components/enemy/enemy_image_component.dart';
@@ -13,6 +16,7 @@ class EnemyContainerComponent extends PositionComponent with HasGameRef {
   late EnemyNameComponent enemyName;
   late EnemyHealthBarComponent healthBar;
   late SpriteComponent poisonIcon;
+  late TextComponent poisonTurnText;
 
   int currentHp;
   bool _isLoaded = false;
@@ -62,6 +66,38 @@ class EnemyContainerComponent extends PositionComponent with HasGameRef {
       ..opacity = 0.0;
 
     await add(poisonIcon);
+
+    poisonTurnText = TextComponent(
+      text: '0',
+      position: Vector2(
+        poisonIcon.position.x + poisonIcon.size.x + 2, // levemente à direita do ícone
+        poisonIcon.position.y + 5,
+      ),
+      anchor: Anchor.topLeft,
+      textRenderer: TextPaint(
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          shadows: [
+            Shadow(color: Colors.black, offset: Offset(1, 1), blurRadius: 2),
+          ],
+        ),
+      ),
+    );
+    poisonTurnText.textRenderer = TextPaint(
+      style: const TextStyle(
+        color: Color.fromARGB(0, 255, 255, 255), // totalmente transparente
+        fontSize: 14,
+        fontWeight: FontWeight.bold,
+        shadows: [
+          Shadow(color: Colors.black, offset: Offset(1, 1), blurRadius: 2),
+        ],
+      ),
+    );
+
+    await add(poisonTurnText);
+
 
     _isLoaded = true;
   }
@@ -125,5 +161,22 @@ class EnemyContainerComponent extends PositionComponent with HasGameRef {
 
   void updatePoisonIcon({required int poisonTurns}) {
     poisonIcon.opacity = poisonTurns > 0 ? 1.0 : 0.0;
+    poisonTurnText.text = poisonTurns.toString();
+
+    // Define a cor com ou sem opacidade
+    final double opacity = poisonTurns > 0 ? 1.0 : 0.0;
+    final Color visibleColor = Colors.white.withOpacity(opacity);
+
+    poisonTurnText.textRenderer = TextPaint(
+      style: TextStyle(
+        color: visibleColor,
+        fontSize: 14,
+        fontWeight: FontWeight.bold,
+        shadows: const [
+          Shadow(color: Colors.black, offset: Offset(1, 1), blurRadius: 2),
+        ],
+      ),
+    );
   }
+
 }
