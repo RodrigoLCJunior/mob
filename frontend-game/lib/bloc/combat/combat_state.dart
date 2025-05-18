@@ -44,8 +44,6 @@ class CombatState {
   final int venenoAvatarValor;
   final int venenoInimigoValor;
 
-  final String? statusMessage;
-
   CombatState({
     required this.isLoading,
     this.error,
@@ -64,7 +62,6 @@ class CombatState {
     this.venenoInimigoTurnos = 0,
     this.venenoAvatarValor = 0,
     this.venenoInimigoValor = 0,
-    this.statusMessage,
   });
 
   factory CombatState.initial() {
@@ -80,7 +77,6 @@ class CombatState {
       gameResult: null,
       playerTurnCount: 0,
       enemyTurnCount: 0,
-      statusMessage: null,
     );
   }
 
@@ -102,7 +98,6 @@ class CombatState {
     int? venenoInimigoTurnos,
     int? venenoAvatarValor,
     int? venenoInimigoValor,
-    String? statusMessage,
   }) {
     return CombatState(
       isLoading: isLoading ?? this.isLoading,
@@ -122,7 +117,6 @@ class CombatState {
       venenoInimigoTurnos: venenoInimigoTurnos ?? this.venenoInimigoTurnos,
       venenoAvatarValor: venenoAvatarValor ?? this.venenoAvatarValor,
       venenoInimigoValor: venenoInimigoValor ?? this.venenoInimigoValor,
-      statusMessage: statusMessage ?? this.statusMessage,
     );
   }
 
@@ -135,7 +129,6 @@ class CombatState {
         'enemyTurnCount: $enemyTurnCount, gameResult: $gameResult, '
         'escudoAvatar: $escudoAvatar, escudoInimigo: $escudoInimigo, '
         'venenoAvatarTurnos: $venenoAvatarTurnos, venenoInimigoTurnos: $venenoInimigoTurnos, '
-        'venenoAvatarValor: $venenoAvatarValor, venenoInimigoValor: $venenoInimigoValor),'
-        ' statusMessage: $statusMessage';
+        'venenoAvatarValor: $venenoAvatarValor, venenoInimigoValor: $venenoInimigoValor)';
   }
 }

@@ -50,7 +50,6 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
     on<PlayCard>(_onPlayCard);
     on<PlayEnemyCard>(_onPlayEnemyCard);
     on<EndEnemyTurn>(_onEndEnemyTurn);
-    on<ClearStatusMessage>(_onClearStatusMessage);
   }
 
   // --- Funções Auxiliares ---
@@ -176,7 +175,6 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
           deckAvatar: deckAvatar,
           deckInimigo: deckInimigo,
           error: null,
-          statusMessage: result.message,
         ),
       );
       print(
@@ -252,7 +250,6 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
           isPlayerTurn: false,
           enemyTurnCount: newEnemyTurnCount,
           maoInimigo: result.hand,
-          statusMessage: result.message,
           venenoAvatarTurnos: venenoAvatarTurnos,
           venenoAvatarValor: venenoAvatarValor,
           venenoInimigoTurnos: venenoInimigoTurnos,
@@ -278,7 +275,6 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
           isPlayerTurn: true,
           playerTurnCount: newPlayerTurnCount,
           maoAvatar: result.hand,
-          statusMessage: result.message,
           venenoAvatarTurnos: venenoAvatarTurnos,
           venenoAvatarValor: venenoAvatarValor,
           venenoInimigoTurnos: venenoInimigoTurnos,
@@ -467,7 +463,6 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
           isPlayerTurn: true,
           playerTurnCount: newPlayerTurnCount,
           maoAvatar: result.hand,
-          statusMessage: result.message,
         ),
       );
       print(
@@ -478,10 +473,4 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
     }
   }
 
-  Future<void> _onClearStatusMessage(
-    ClearStatusMessage event,
-    Emitter<CombatState> emit,
-  ) async {
-    emit(state.copyWith(statusMessage: null));
-  }
 }

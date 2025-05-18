@@ -23,9 +23,11 @@
 
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import 'package:midnight_never_end/models/card.dart';
 import 'package:midnight_never_end/ui/components/avatar/card_component.dart';
 import 'package:midnight_never_end/ui/components/enemy/enemy_container_component.dart';
 import 'package:midnight_never_end/ui/game/animation/animated_card.dart';
+import 'package:midnight_never_end/ui/game/animation/animated_heal_card.dart';
 import 'package:midnight_never_end/ui/game/animation/draw_card_animation.dart';
 import 'package:midnight_never_end/ui/game/positioning/player_card_positioning.dart';
 import 'package:midnight_never_end/ui/game/combat_game.dart';
@@ -85,15 +87,25 @@ void handleCardDrop(
       game.remove(card);
       game.cartasJogador.removeAt(cardIndex);
 
-      final animatedCard = AnimatedCard(
-        card: card.card,
-        startPosition: card.position.clone(),
-        startAngle: card.angle,
-        targetPosition: enemyContainer.getCenterPosition(),
-        cardIndex: cardIndex,
-        viewModel: game.viewModel,
-      );
-      game.add(animatedCard);
+      if (card.card.tipoEfeito == TipoEfeito.CURA) {
+        final healAnimation = AnimatedHealCard(
+          card: card.card,
+          cardIndex: cardIndex,
+          viewModel: game.viewModel,
+          startPosition: card.position.clone(),
+        );
+        game.add(healAnimation);
+      } else {
+        final animatedCard = AnimatedCard(
+          card: card.card,
+          startPosition: card.position.clone(),
+          startAngle: card.angle,
+          targetPosition: enemyContainer.getCenterPosition(),
+          cardIndex: cardIndex,
+          viewModel: game.viewModel,
+        );
+        game.add(animatedCard);
+      }
     }
   } else {
     card.position = card.originalPosition.clone();

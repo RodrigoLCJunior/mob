@@ -74,23 +74,6 @@ class _CombatScreenState extends State<CombatScreen> {
 
           final state = snapshot.data!;
 
-          if (state.statusMessage != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              final scaffold = ScaffoldMessenger.of(context);
-              scaffold.clearSnackBars(); // Evita empilhamento
-              scaffold.showSnackBar(
-                SnackBar(
-                  content: Text(state.statusMessage!),
-                  duration: const Duration(seconds: 3),
-                  behavior: SnackBarBehavior.floating,
-                  backgroundColor: Colors.black87,
-                ),
-              );
-              // Limpar mensagem após mostrar
-              _viewModel.clearStatusMessage();
-            });
-          }
-
           if (state.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
