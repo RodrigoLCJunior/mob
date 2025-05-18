@@ -38,7 +38,9 @@ public class CombatService {
 
         // Inicializar o estado do combate para o player
         CombatState combatState = new CombatState();
-
+        if (combatState == null) {
+            throw new RuntimeException("Erro ao criar o estado de combate para o jogador");
+        }
         // Setar quantidade de waves da dungeon no combatState
         Wave wave = new Wave(1, dungeon.getQtdWaves());
         combatState.setWave(wave);
