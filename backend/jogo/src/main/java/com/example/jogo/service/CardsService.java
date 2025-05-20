@@ -30,7 +30,9 @@ public class CardsService {
                 cards.getNome() == null || cards.getNome().trim().isEmpty() ||
                 cards.getDescricao() == null || cards.getDescricao().trim().isEmpty() ||
                 cards.getImageCard() == null || cards.getImageCard().trim().isEmpty() ||
-                cards.getDamage() < 0) {
+                cards.getTipoEfeito() == null ||
+                cards.getQtdTurnos() < 0 ||
+                cards.getValor() < 0) {
             throw new IllegalArgumentException("Campos obrigatórios estão vazios ou inválidos");
         }
 
@@ -51,7 +53,9 @@ public class CardsService {
 
         if (cards.getNome() == null || cards.getNome().trim().isEmpty() ||
                 cards.getDescricao() == null || cards.getDescricao().trim().isEmpty() ||
-                cards.getDamage() < 0) {
+                cards.getValor() < 0 ||
+                cards.getQtdTurnos() < 0 ||
+                cards.getTipoEfeito() == null) {
             throw new IllegalArgumentException("Campos obrigatórios estão vazios ou inválidos");
         }
 
@@ -62,8 +66,10 @@ public class CardsService {
 
         Cards cardExistente = cardsOptional.get();
         cardExistente.setNome(cards.getNome());
-        cardExistente.setDamage(cards.getDamage());
+        cardExistente.setValor(cards.getValor());
         cardExistente.setDescricao(cards.getDescricao());
+        cardExistente.setQtdTurnos(cards.getQtdTurnos());
+        cardExistente.setTipoEfeito(cards.getTipoEfeito());
 
         return cardsRepository.save(cardExistente);
     }
