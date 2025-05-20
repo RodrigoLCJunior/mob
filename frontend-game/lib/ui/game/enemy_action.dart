@@ -60,8 +60,8 @@ class EnemyAction {
     final cardIndex = game.cartasInimigo.indexOf(cardComponent);
 
     // Remover a carta da mão e do jogo
-    game.cartasInimigo.removeAt(cardIndex);
-    game.remove(cardComponent);
+   // game.cartasInimigo.removeAt(cardIndex);
+    //game.remove(cardComponent);
 
     // Calcular o centro do avatar como alvo da animação
     final targetPosition =
