@@ -25,8 +25,11 @@ public class WaveService {
     @Autowired
     private InimigoRepository inimigoRepository;
 
-    public Wave iniciarWave() {
-        Wave wave = new Wave(1, 0); // waveFinal será definido depois com base na Dungeon
+    @Autowired
+    private InimigoService inimigoService;
+
+    public Wave iniciarWave(int waveFinal) {
+        Wave wave = new Wave(1, waveFinal); // Começa na wave 1 e define o total com base na Dungeon
         if (wave == null) {
             throw new RuntimeException("Erro ao criar a wave");
         }
@@ -59,7 +62,7 @@ public class WaveService {
     }
 
     public Inimigo escolherInimigoNaoRepetido(Wave wave) {
-        List<Inimigo> allEnemies = inimigoRepository.findAll();
+        List<Inimigo> allEnemies = inimigoService.findAll();
 
         Long ultimoId = wave.getUltimoInimigoId();
 

@@ -20,12 +20,8 @@ import java.util.List;
 @RequestMapping("/api/dungeons")
 public class DungeonController {
 
-    private final DungeonService dungeonService;
-
     @Autowired
-    public DungeonController(DungeonService dungeonService) {
-        this.dungeonService = dungeonService;
-    }
+    private DungeonService dungeonService;
 
     @PostMapping
     public ResponseEntity<Dungeon> criarDungeon(@RequestBody Dungeon dungeon) {

@@ -18,12 +18,8 @@ import java.util.Optional;
 @Service
 public class DungeonService {
 
-    private final DungeonRepository dungeonRepository;
-
     @Autowired
-    public DungeonService(DungeonRepository dungeonRepository) {
-        this.dungeonRepository = dungeonRepository;
-    }
+    private DungeonRepository dungeonRepository;
 
     public Dungeon criarDungeon(Dungeon dungeon) {
         Dungeon criada = dungeonRepository.save(dungeon);

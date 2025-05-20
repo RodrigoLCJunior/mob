@@ -35,14 +35,21 @@ public class CombatService {
     public CombatState iniciarDungeon(UUID playerId, Long dungeonId) {
         // Buscar a dungeon pelo id
         Dungeon dungeon = dungeonService.buscarDungeonPorId(dungeonId);
+        if (dungeon == null) {
+            throw new RuntimeException("Dungeon não encontrada para o ID: " + dungeonId);
+        }
 
         // Inicializar o estado do combate para o player
         CombatState combatState = new CombatState();
         if (combatState == null) {
             throw new RuntimeException("Erro ao criar o estado de combate para o jogador");
         }
-        // Setar quantidade de waves da dungeon no combatState
-        Wave wave = new Wave(1, dungeon.getQtdWaves());
+
+        // Criar a wave usando o service, passando a quantidade de waves da dungeon
+        Wave wave = waveService.iniciarWave(dungeon.getQtdWaves());
+        if (wave == null) {
+            throw new RuntimeException("Erro ao criar a wave para a dungeon");
+        }
         combatState.setWave(wave);
 
         // Criar ou buscar o avatar do player
@@ -57,18 +64,15 @@ public class CombatService {
 
         // Escolher o primeiro inimigo da wave
         Inimigo inimigo = waveService.escolherInimigoNaoRepetido(wave);
+        if (inimigo == null) {
+            throw new RuntimeException("Erro ao selecionar o inimigo para a primeira wave");
+        }
         combatState.setEnemy(inimigo);
 
         return combatState;
     }
 
     public CombatState startCombat(UUID playerId) {
-        // Inicia uma nova wave (no futuro poderá receber o total de waves da Dungeon)
-        Wave wave = waveService.iniciarWave();
-        if (wave == null) {
-            throw new RuntimeException("Erro ao criar a wave");
-        }
-
         // Validar se o jogador existe e possui avatar
         Usuarios usuario = usuarioRepository.findById(playerId)
                 .orElseThrow(() -> new IllegalArgumentException("Jogador não encontrado pelo ID: " + playerId));
@@ -78,8 +82,22 @@ public class CombatService {
             throw new IllegalStateException("Jogador não possui um avatar válido.");
         }
 
+        // Recuperar o CombatState previamente criado na dungeon
+        CombatState existingState = combatStates.get(playerId);
+        if (existingState == null) {
+            throw new IllegalStateException("Estado de combate não inicializado. Inicie uma dungeon antes do combate.");
+        }
+
+        Wave wave = existingState.getWave();
+        if (wave == null) {
+            throw new IllegalStateException("Wave não definida no estado de combate.");
+        }
+
         // Selecionar inimigo não repetido para esta wave
         Inimigo enemy = waveService.escolherInimigoNaoRepetido(wave);
+        if (enemy == null) {
+            throw new RuntimeException("Erro ao selecionar inimigo para o combate");
+        }
 
         // Inicializa as mãos com 5 cartas aleatórias, sem modificar o baralho original
         List<Cards> playerHand = drawCards(avatar.getDeck(), 5);
@@ -100,7 +118,6 @@ public class CombatService {
 
         return combatState;
     }
-
 
     private List<Cards> drawCards(List<Cards> deck, int quantity) {
         List<Cards> hand = new ArrayList<>();
