@@ -20,12 +20,22 @@
 /// A classe `CombatBloc` deve ser usada em conjunto com a UI e o `CombatViewModel`, permitindo
 /// uma separação clara entre interface e lógica de negócios no Flutter.
 
+//
+//Angelo: Alteracao na funcao de criar copia de carta, onPlayCard e onPlayEnemyCard para suportar novo formato de carta com enum
+//
 import 'package:bloc/bloc.dart';
 import 'package:midnight_never_end/models/combat.dart';
 import 'package:midnight_never_end/models/card.dart';
 import 'combat_event.dart';
 import 'combat_state.dart';
 import 'dart:math' as math;
+
+  class DrawResult {
+    final List<Cards> hand;
+    final String? message;
+
+    DrawResult(this.hand, this.message);
+  }
 
 class CombatBloc extends Bloc<CombatEvent, CombatState> {
   // Contador global para turnos
@@ -50,34 +60,64 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
     return Cards(
       id: _cardIdCounter,
       nome: card.nome,
-      damage: card.damage,
+      valor: card.valor,
       imageCard: card.imageCard,
+      tipoEfeito: card.tipoEfeito,
+      descricao: card.descricao,
+      qtdTurnos: card.qtdTurnos,
     );
   }
 
-  /// Compra um número específico de cartas de um deck, reabastecendo-o se necessário.
-  List<Cards> _drawCards({
-    required List<Cards> currentHand,
-    required List<Cards> originalDeck,
-    required int cardsToDraw,
-  }) {
-    final newHand = List<Cards>.from(currentHand);
-    final deckCopy = List<Cards>.from(originalDeck);
-    final random = math.Random();
 
-    for (int i = 0; i < cardsToDraw; i++) {
-      if (deckCopy.isEmpty) {
-        if (originalDeck.isEmpty) break;
-        deckCopy.addAll(originalDeck);
-      }
-      final index = random.nextInt(deckCopy.length);
-      final selectedCard = deckCopy[index];
-      newHand.add(_copyCardWithNewId(selectedCard));
-      deckCopy.removeAt(index);
+  /// Compra um número específico de cartas de um deck, reabastecendo-o se necessário.
+  DrawResult _drawCards({
+  required List<Cards> currentHand,
+  required List<Cards> originalDeck,
+  required int cardsToDraw,
+  bool notifyOverflow = false,
+}) {
+  final newHand = List<Cards>.from(currentHand);
+  final deckCopy = List<Cards>.from(originalDeck);
+  final random = math.Random();
+
+  const maxHandSize = 12;
+  String? statusMessage;
+
+  if (newHand.length >= maxHandSize) {
+    final indicesToReplace = <int>{};
+    while (indicesToReplace.length < 3 && indicesToReplace.length < newHand.length) {
+      indicesToReplace.add(random.nextInt(newHand.length));
     }
 
-    return newHand;
+    for (final index in indicesToReplace) {
+      if (deckCopy.isEmpty) break;
+      final cardIndex = random.nextInt(deckCopy.length);
+      final replacement = _copyCardWithNewId(deckCopy[cardIndex]);
+      newHand[index] = replacement;
+      deckCopy.removeAt(cardIndex);
+    }
+
+    if (notifyOverflow) {
+      statusMessage = "Você atingiu o limite de 12 cartas. 3 cartas foram substituídas aleatoriamente.";
+      print("CombatBloc - $statusMessage");
+    }
+
+    return DrawResult(newHand, statusMessage);
   }
+
+  for (int i = 0; i < cardsToDraw && newHand.length < maxHandSize; i++) {
+    if (deckCopy.isEmpty) {
+      if (originalDeck.isEmpty) break;
+      deckCopy.addAll(originalDeck);
+    }
+    final index = random.nextInt(deckCopy.length);
+    final selectedCard = deckCopy[index];
+    newHand.add(_copyCardWithNewId(selectedCard));
+    deckCopy.removeAt(index);
+  }
+
+  return DrawResult(newHand, null);
+}
 
   /// Atualiza a vida de um personagem, garantindo que não seja menor que 0.
   int _updateHp(int currentHp, int damage) {
@@ -111,11 +151,13 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
 
       // Inicializar o deck e a mão do avatar
       final List<Cards> deckAvatar = List.from(event.initialData.avatar.deck);
-      final List<Cards> maoAvatar = _drawCards(
+      final result = _drawCards(
         currentHand: [],
         originalDeck: deckAvatar,
         cardsToDraw: 5,
       );
+
+      final List<Cards> maoAvatar = result.hand;
       // deckAvatarCopy.removeAt(index); // Comentado para permitir duplicatas
       print('CombatBloc - Avatar hand: ${maoAvatar.length} cards');
 
@@ -153,166 +195,241 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
 
   /// Alterna o turno entre jogador e inimigo, comprando cartas para o próximo turno.
   Future<void> _onPassTurn(PassTurn event, Emitter<CombatState> emit) async {
+    int newAvatarHp = state.combat?.avatarHp ?? 0;
+    int newEnemyHp = state.combat?.enemyHp ?? 0;
+
+    int venenoAvatarTurnos = state.venenoAvatarTurnos;
+    int venenoInimigoTurnos = state.venenoInimigoTurnos;
+
+    int venenoAvatarValor = state.venenoAvatarValor;
+    int venenoInimigoValor = state.venenoInimigoValor;
+
+    // Aplicar dano de veneno no início de cada turno
+    if (state.isPlayerTurn && venenoInimigoTurnos > 0) {
+      newEnemyHp = _updateHp(newEnemyHp, venenoInimigoValor);
+      venenoInimigoTurnos--;
+      if (venenoInimigoTurnos == 0) venenoInimigoValor = 0;
+    } else if (!state.isPlayerTurn && venenoAvatarTurnos > 0) {
+
+      newAvatarHp = _updateHp(newAvatarHp, venenoAvatarValor);
+      venenoAvatarTurnos--;
+      if (venenoAvatarTurnos == 0) venenoAvatarValor = 0;
+    }
+
+    // Verifica se alguém morreu por veneno
+    String? gameResult;
+    if (newEnemyHp <= 0) {
+      gameResult = 'victory';
+    }
+    if (newAvatarHp <= 0) {
+      gameResult = 'defeat';
+    }
+
     print(
       'CombatBloc - Passing turn. Current state: isPlayerTurn=${state.isPlayerTurn}, '
       'playerTurnCount=${state.playerTurnCount}, enemyTurnCount=${state.enemyTurnCount}, '
       'avatar hand=${state.maoAvatar.length} cards, enemy hand=${state.maoInimigo.length} cards',
     );
 
-    // Incrementar o contador global de turnos
     _turnGlobalCounter++;
     print('CombatBloc - Turn global counter: $_turnGlobalCounter');
 
     if (state.isPlayerTurn) {
-      // Passar para o turno do inimigo
       final newEnemyTurnCount = state.enemyTurnCount + 1;
-      final cardsToDraw =
-          _turnGlobalCounter == 2
-              ? 5
-              : 3; // 5 cartas no primeiro turno do inimigo
-      final newMaoInimigo = _drawCards(
+      final cardsToDraw = _turnGlobalCounter == 2 ? 5 : 3;
+
+      final result = _drawCards(
         currentHand: state.maoInimigo,
         originalDeck: state.deckInimigo,
         cardsToDraw: cardsToDraw,
-      );
-
-      print(
-        'CombatBloc - Enemy drew ${newMaoInimigo.length - state.maoInimigo.length} cards, '
-        'new enemy hand: ${newMaoInimigo.length} cards',
+        notifyOverflow: true,
       );
 
       emit(
         state.copyWith(
           isPlayerTurn: false,
           enemyTurnCount: newEnemyTurnCount,
-          maoInimigo: newMaoInimigo,
+          maoInimigo: result.hand,
+          venenoAvatarTurnos: venenoAvatarTurnos,
+          venenoAvatarValor: venenoAvatarValor,
+          venenoInimigoTurnos: venenoInimigoTurnos,
+          venenoInimigoValor: venenoInimigoValor,
+          combat: state.combat?.copyWith(
+            avatarHp: newAvatarHp,
+            enemyHp: newEnemyHp,
+          ),
+          gameResult: gameResult,
         ),
       );
-      print(
-        'CombatBloc - Turn passed to enemy, new state: isPlayerTurn=${state.isPlayerTurn}, '
-        'enemyTurnCount=${state.enemyTurnCount}, '
-        'avatar hand=${state.maoAvatar.length} cards, enemy hand=${state.maoInimigo.length} cards',
-      );
     } else {
-      // Passar para o turno do jogador
       final newPlayerTurnCount = state.playerTurnCount + 1;
-      final newMaoAvatar = _drawCards(
+      final result = _drawCards(
         currentHand: state.maoAvatar,
         originalDeck: state.deckAvatar,
         cardsToDraw: 3,
-      );
-
-      print(
-        'CombatBloc - Player drew ${newMaoAvatar.length - state.maoAvatar.length} cards, '
-        'new avatar hand: ${newMaoAvatar.length} cards',
+        notifyOverflow: true,
       );
 
       emit(
         state.copyWith(
           isPlayerTurn: true,
           playerTurnCount: newPlayerTurnCount,
-          maoAvatar: newMaoAvatar,
+          maoAvatar: result.hand,
+          venenoAvatarTurnos: venenoAvatarTurnos,
+          venenoAvatarValor: venenoAvatarValor,
+          venenoInimigoTurnos: venenoInimigoTurnos,
+          venenoInimigoValor: venenoInimigoValor,
+          combat: state.combat?.copyWith(
+            avatarHp: newAvatarHp,
+            enemyHp: newEnemyHp,
+          ),
+          gameResult: gameResult,
         ),
-      );
-      print(
-        'CombatBloc - Turn passed to player, new state: isPlayerTurn=${state.isPlayerTurn}, '
-        'playerTurnCount=${state.playerTurnCount}, '
-        'avatar hand=${state.maoAvatar.length} cards, enemy hand=${state.maoInimigo.length} cards',
       );
     }
   }
+
 
   /// Processa o jogador jogando uma carta contra o inimigo.
   Future<void> _onPlayCard(PlayCard event, Emitter<CombatState> emit) async {
     print(
-      'CombatBloc - Playing card: ${event.card.nome} (id: ${event.card.id}), damage: ${event.card.damage}',
+      'CombatBloc - Playing card: ${event.card.nome} (id: ${event.card.id}), valor: ${event.card.valor}, efeito: ${event.card.tipoEfeito}',
     );
 
     if (!state.isPlayerTurn || state.combat == null) {
-      print(
-        'CombatBloc - Cannot play card: Not player turn or combat not initialized',
-      );
+      print('CombatBloc - Cannot play card: Not player turn or combat not initialized');
       return;
     }
 
-    // Calcular o novo HP do inimigo
-    final updatedEnemyHp = _updateHp(state.combat!.enemyHp, event.card.damage);
-    final updatedCombat = state.combat!.copyWith(enemyHp: updatedEnemyHp);
+    int updatedEnemyHp = state.combat!.enemyHp;
+    int updatedAvatarHp = state.combat!.avatarHp;
 
-    // Remover a carta da mão do avatar e adicionar de volta ao deck
-    final updatedMaoAvatar = List<Cards>.from(state.maoAvatar)
-      ..removeAt(event.cardIndex);
-    final updatedDeckAvatar = List<Cards>.from(state.deckAvatar)
-      ..add(event.card);
+    CombatState newState = state;
 
-    emit(
-      state.copyWith(
-        combat: updatedCombat,
-        maoAvatar: updatedMaoAvatar,
-        deckAvatar: updatedDeckAvatar,
-      ),
+    switch (event.card.tipoEfeito) {
+      case TipoEfeito.DANO:
+        updatedEnemyHp = _updateHp(updatedEnemyHp, event.card.valor);
+        break;
+      case TipoEfeito.CURA:
+        updatedAvatarHp += event.card.valor;
+        final maxHp = state.combat!.avatar.hp;
+        updatedAvatarHp = updatedAvatarHp.clamp(0, maxHp);
+        break;
+      case TipoEfeito.ESCUDO:
+        print('CombatBloc - ESCUDO não implementado ainda.');
+        break;
+      case TipoEfeito.VENENO:
+
+        if(state.venenoInimigoTurnos > 0){
+          newState = state.copyWith(
+            venenoInimigoTurnos: state.venenoInimigoTurnos + event.card.qtdTurnos,
+            venenoInimigoValor: event.card.valor,
+          );
+        }else{
+          newState = state.copyWith(
+            venenoInimigoTurnos: event.card.qtdTurnos,
+            venenoInimigoValor: event.card.valor,
+          );
+        }
+        
+        break;
+      case TipoEfeito.BUFF:
+      case TipoEfeito.DEBUFF:
+        print('CombatBloc - BUFF/DEBUFF não implementado ainda.');
+        break;
+    }
+
+    final updatedCombat = state.combat!.copyWith(
+      enemyHp: updatedEnemyHp,
+      avatarHp: updatedAvatarHp,
     );
+
+    final updatedMaoAvatar = List<Cards>.from(state.maoAvatar)..removeAt(event.cardIndex);
+    final updatedDeckAvatar = List<Cards>.from(state.deckAvatar)..add(event.card);
+
+    emit(newState.copyWith(
+      combat: updatedCombat,
+      maoAvatar: updatedMaoAvatar,
+      deckAvatar: updatedDeckAvatar,
+    ));
 
     print(
-      'CombatBloc - Card played. New enemy HP: $updatedEnemyHp, '
-      'new avatar hand: ${updatedMaoAvatar.length} cards',
+      'CombatBloc - Card played. New enemy HP: $updatedEnemyHp, new avatar HP: $updatedAvatarHp, hand size: ${updatedMaoAvatar.length}',
     );
 
-    // Verificar se o inimigo foi derrotado
     if (updatedEnemyHp <= 0) {
       print('CombatBloc - Enemy defeated!');
-      emit(state.copyWith(gameResult: 'victory'));
+      emit(newState.copyWith(gameResult: 'victory'));
     }
   }
 
+
   /// Processa o inimigo jogando uma carta contra o jogador.
-  Future<void> _onPlayEnemyCard(
-    PlayEnemyCard event,
-    Emitter<CombatState> emit,
-  ) async {
+  Future<void> _onPlayEnemyCard(PlayEnemyCard event, Emitter<CombatState> emit) async {
     print(
-      'CombatBloc - Enemy playing card: ${event.card.nome} (id: ${event.card.id}), damage: ${event.card.damage}',
+      'CombatBloc - Enemy playing card: ${event.card.nome} (id: ${event.card.id}), valor: ${event.card.valor}, tipoEfeito: ${event.card.tipoEfeito}',
     );
 
     if (state.isPlayerTurn || state.combat == null) {
-      print(
-        'CombatBloc - Cannot play enemy card: Not enemy turn or combat not initialized',
-      );
+      print('CombatBloc - Cannot play enemy card: Not enemy turn or combat not initialized');
       return;
     }
 
-    // Calcular o novo HP do avatar
-    final updatedAvatarHp = _updateHp(
-      state.combat!.avatarHp,
-      event.card.damage,
-    );
-    final updatedCombat = state.combat!.copyWith(avatarHp: updatedAvatarHp);
+    int updatedAvatarHp = state.combat!.avatarHp;
+    int updatedEnemyHp = state.combat!.enemyHp;
 
-    // Remover a carta da mão do inimigo e adicionar de volta ao deck
+    CombatState newState = state;
+
+    switch (event.card.tipoEfeito) {
+      case TipoEfeito.DANO:
+        updatedAvatarHp = _updateHp(updatedAvatarHp, event.card.valor);
+        break;
+      case TipoEfeito.CURA:
+        updatedEnemyHp += event.card.valor;
+        final maxHp = state.combat!.enemy.hp;
+        updatedEnemyHp = updatedEnemyHp.clamp(0, maxHp);
+        break;
+      case TipoEfeito.ESCUDO:
+        print('CombatBloc - ESCUDO não implementado ainda.');
+        break;
+      case TipoEfeito.VENENO:
+        newState = state.copyWith(
+          venenoAvatarTurnos: event.card.qtdTurnos,
+          venenoAvatarValor: event.card.valor,
+        );
+        break;
+      case TipoEfeito.BUFF:
+      case TipoEfeito.DEBUFF:
+        print('CombatBloc - BUFF/DEBUFF não implementado ainda.');
+        break;
+    }
+
+    final updatedCombat = state.combat!.copyWith(
+      avatarHp: updatedAvatarHp,
+      enemyHp: updatedEnemyHp,
+    );
+
     final updatedMaoInimigo = List<Cards>.from(state.maoInimigo)
       ..removeAt(event.cardIndex);
     final updatedDeckInimigo = List<Cards>.from(state.deckInimigo)
       ..add(event.card);
 
-    emit(
-      state.copyWith(
-        combat: updatedCombat,
-        maoInimigo: updatedMaoInimigo,
-        deckInimigo: updatedDeckInimigo,
-      ),
-    );
+    emit(newState.copyWith(
+      combat: updatedCombat,
+      maoInimigo: updatedMaoInimigo,
+      deckInimigo: updatedDeckInimigo,
+    ));
 
     print(
-      'CombatBloc - Enemy card played. New avatar HP: $updatedAvatarHp, '
-      'new enemy hand: ${updatedMaoInimigo.length} cards',
+      'CombatBloc - Enemy card played. New avatar HP: $updatedAvatarHp, new enemy HP: $updatedEnemyHp, hand size: ${updatedMaoInimigo.length}',
     );
 
-    // Verificar se o jogador foi derrotado
     if (updatedAvatarHp <= 0) {
       print('CombatBloc - Player defeated!');
-      emit(state.copyWith(gameResult: 'defeat'));
+      emit(newState.copyWith(gameResult: 'defeat'));
     }
   }
+
 
   /// Finaliza o turno do inimigo e passa para o jogador, comprando cartas para o jogador.
   Future<void> _onEndEnemyTurn(
@@ -328,22 +445,24 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
     if (!state.isPlayerTurn) {
       // Passar para o turno do jogador
       final newPlayerTurnCount = state.playerTurnCount + 1;
-      final newMaoAvatar = _drawCards(
+      final result = _drawCards(
         currentHand: state.maoAvatar,
         originalDeck: state.deckAvatar,
         cardsToDraw: 3,
+        notifyOverflow: true,
       );
 
+
       print(
-        'CombatBloc - Player drew ${newMaoAvatar.length - state.maoAvatar.length} cards, '
-        'new avatar hand: ${newMaoAvatar.length} cards',
+        'CombatBloc - Player drew ${result.hand.length - state.maoAvatar.length} cards, '
+        'new avatar hand: ${result.hand.length} cards',
       );
 
       emit(
         state.copyWith(
           isPlayerTurn: true,
           playerTurnCount: newPlayerTurnCount,
-          maoAvatar: newMaoAvatar,
+          maoAvatar: result.hand,
         ),
       );
       print(
@@ -353,4 +472,5 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
       );
     }
   }
+
 }

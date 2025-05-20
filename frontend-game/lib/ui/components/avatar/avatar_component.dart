@@ -5,6 +5,7 @@ import 'package:midnight_never_end/models/avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:midnight_never_end/ui/components/damage_text_component.dart';
 import 'package:midnight_never_end/ui/components/avatar/healthbar_component.dart';
+import 'package:midnight_never_end/ui/components/heal_text_component.dart';
 
 class AvatarComponent extends PositionComponent {
   final Usuario usuario;
@@ -69,4 +70,15 @@ class AvatarComponent extends PositionComponent {
     );
     add(damageText);
   }
+
+  void heal(int amount) {
+    currentHp = (currentHp + amount).clamp(0, avatar.hp);
+    healthBar.updateHp(currentHp);
+
+    final healText = HealText(
+      '+$amount',
+      Vector2(60, 25),
+    );
+    add(healText);
+  } 
 }

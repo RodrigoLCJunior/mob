@@ -25,7 +25,7 @@ class _UserLoadingScreenState extends State<UserLoadingScreen> {
   Future<Map<String, dynamic>> _performLoginAndFetchCombatData() async {
     try {
       final apiService = context.read<ApiService>();
-      final usuario = await apiService.login('rodrigo@gmail.com', '123456789');
+      final usuario = await apiService.login('filipe@gmail.com', 'lipe12345');
       print('UserLoadingScreen - Login successful, usuario ID: ${usuario.id}');
       final combatData = await apiService.startCombat(usuario.id);
       print(

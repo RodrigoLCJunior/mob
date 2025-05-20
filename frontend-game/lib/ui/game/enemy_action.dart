@@ -100,11 +100,33 @@ class EnemyAction {
   /// Seleciona a melhor carta com base em um critério simples (maior dano).
   EnemyCardComponent? _selectBestCard() {
     try {
-      return game.cartasInimigo.reduce((best, current) {
-        return (best.card.damage ?? 0) > (current.card.damage ?? 0)
-            ? best
-            : current;
-      });
+      final hpAtual = viewModel.state.combat?.enemyHp ?? 0;
+      final hpMaximo = viewModel.state.combat?.enemy.hp ?? 1;
+
+      final cartas = game.cartasInimigo;
+
+      if (cartas.isEmpty) return null;
+
+      // 1. Se HP baixo, prioriza cura
+      if (hpAtual < (hpMaximo / 2)) {
+        final cartasCura =
+            cartas.where((c) => c.card.tipoEfeito.name == 'CURA').toList();
+        if (cartasCura.isNotEmpty) {
+          return cartasCura.reduce(
+              (a, b) => a.card.valor > b.card.valor ? a : b);
+        }
+      }
+
+      // 2. Senão, usa carta de dano
+      final cartasDano =
+          cartas.where((c) => c.card.tipoEfeito.name == 'DANO').toList();
+      if (cartasDano.isNotEmpty) {
+        return cartasDano.reduce(
+            (a, b) => a.card.valor > b.card.valor ? a : b);
+      }
+
+      // 3. Se não tiver cura nem dano, joga qualquer carta
+      return cartas.first;
     } catch (e) {
       print('CombatGame - Error selecting best card: $e');
       return game.cartasInimigo.firstOrNull;

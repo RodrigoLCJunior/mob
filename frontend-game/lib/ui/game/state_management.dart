@@ -29,22 +29,26 @@ void onStateChanged(CombatGame game) {
   if (!game.isComponentsLoaded) return;
 
   // Atualizar o HP do inimigo e do avatar diretamente nos componentes
-  if (game.enemyContainer != null && game.viewModel.state.combat != null) {
-    game.enemyContainer!.updateInimigo(
-      game.combatData.enemy,
-      enemyHp: game.viewModel.state.combat!.enemyHp,
-    );
-  }
+  game.enemyContainer!.updateInimigo(
+    game.combatData.enemy,
+    enemyHp: game.viewModel.state.combat!.enemyHp,
+    poisonTurns: game.viewModel.state.venenoInimigoTurnos,
+  );
+
 
   if (game.avatarComponent != null && game.viewModel.state.combat != null) {
-    final newHp = game.viewModel.state.combat!.avatarHp;
-    if (newHp < game.avatarComponent!.currentHp) {
-      final damage = game.avatarComponent!.currentHp - newHp;
-      game.avatarComponent!.takeDamage(damage);
-    } else {
-      game.avatarComponent!.currentHp = newHp;
-    }
+  final newHp = game.viewModel.state.combat!.avatarHp;
+  final oldHp = game.avatarComponent!.currentHp;
+
+  if (newHp < oldHp) {
+    final damage = oldHp - newHp;
+    game.avatarComponent!.takeDamage(damage);
+  } else if (newHp > oldHp) {
+    final heal = newHp - oldHp;
+    game.avatarComponent!.heal(heal);
   }
+}
+
 
   // Sincronizar as cartas do jogador com o estado do CombatBloc
   updatePlayerCards(game);

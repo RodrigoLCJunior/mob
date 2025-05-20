@@ -60,6 +60,10 @@ class CombatViewModel extends ChangeNotifier {
     _combatBloc.add(EndEnemyTurn());
   }
 
+  void clearStatusMessage() {
+    _combatBloc.add(ClearStatusMessage());
+  }
+
   @override
   void dispose() {
     _stateSubscription?.cancel();

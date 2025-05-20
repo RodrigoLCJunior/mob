@@ -62,3 +62,8 @@ class EndEnemyTurn extends CombatEvent {
   @override
   String toString() => 'EndEnemyTurn() (combat_event.dart)';
 }
+
+class ClearStatusMessage extends CombatEvent {
+  @override
+  String toString() => 'ClearStatusMessage() (combat_event.dart)';
+}

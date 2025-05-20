@@ -12,6 +12,13 @@ class Combat {
   final bool playerWon;
   final bool playerLost;
 
+  // Efeitos temporários
+  // Adicionando escudo e veneno para o avatar e inimigo, ainda nao utilizados
+  final int escudoAvatar;
+  final int escudoInimigo;
+  final int venenoAvatarTurnos;
+  final int venenoInimigoTurnos;
+
   Combat({
     required this.avatar,
     required this.enemy,
@@ -21,6 +28,10 @@ class Combat {
     required this.isCombatActive,
     required this.playerWon,
     required this.playerLost,
+    this.escudoAvatar = 0,
+    this.escudoInimigo = 0,
+    this.venenoAvatarTurnos = 0,
+    this.venenoInimigoTurnos = 0,
   });
 
   factory Combat.fromInitialData(CombatInitialData data) {
@@ -29,7 +40,7 @@ class Combat {
       enemy: data.enemy,
       avatarHp: data.avatar.hp,
       enemyHp: data.enemy.hp,
-      currentTurn: 'PLAYER', // Começa com o turno do jogador
+      currentTurn: 'PLAYER',
       isCombatActive: true,
       playerWon: false,
       playerLost: false,
@@ -45,6 +56,10 @@ class Combat {
     bool? isCombatActive,
     bool? playerWon,
     bool? playerLost,
+    int? escudoAvatar,
+    int? escudoInimigo,
+    int? venenoAvatarTurnos,
+    int? venenoInimigoTurnos,
   }) {
     return Combat(
       avatar: avatar ?? this.avatar,
@@ -55,6 +70,10 @@ class Combat {
       isCombatActive: isCombatActive ?? this.isCombatActive,
       playerWon: playerWon ?? this.playerWon,
       playerLost: playerLost ?? this.playerLost,
+      escudoAvatar: escudoAvatar ?? this.escudoAvatar,
+      escudoInimigo: escudoInimigo ?? this.escudoInimigo,
+      venenoAvatarTurnos: venenoAvatarTurnos ?? this.venenoAvatarTurnos,
+      venenoInimigoTurnos: venenoInimigoTurnos ?? this.venenoInimigoTurnos,
     );
   }
 }

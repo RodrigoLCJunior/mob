@@ -73,6 +73,7 @@ class _CombatScreenState extends State<CombatScreen> {
           }
 
           final state = snapshot.data!;
+
           if (state.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }

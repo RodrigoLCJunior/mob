@@ -21,20 +21,28 @@
 import 'package:midnight_never_end/models/card.dart';
 import 'package:midnight_never_end/models/combat.dart';
 
-// CombatState guarda todas as informações do jogo, como quem é o turno, as cartas, etc.
 class CombatState {
-  final bool isLoading; // Indica se o jogo está carregando
-  final String? error; // Guarda mensagens de erro, se houver
-  final Combat? combat; // Informações do combate (HP do jogador e inimigo)
-  final List<Cards> maoAvatar; // Cartas na mão do jogador
-  final List<Cards> maoInimigo; // Cartas na mão do inimigo
-  final List<Cards> deckAvatar; // Deck do jogador
-  final List<Cards> deckInimigo; // Deck do inimigo
-  final bool isPlayerTurn; // Indica se é o turno do jogador
-  final String?
-  gameResult; // Indica o resultado do jogo ("victory" ou "defeat")
-  final int playerTurnCount; // Conta quantos turnos o jogador já teve
-  final int enemyTurnCount; // Conta quantos turnos o inimigo já teve
+  final bool isLoading;
+  final String? error;
+  final Combat? combat;
+
+  final List<Cards> maoAvatar;
+  final List<Cards> maoInimigo;
+  final List<Cards> deckAvatar;
+  final List<Cards> deckInimigo;
+
+  final bool isPlayerTurn;
+  final String? gameResult;
+  final int playerTurnCount;
+  final int enemyTurnCount;
+
+  final int escudoAvatar;
+  final int escudoInimigo;
+
+  final int venenoAvatarTurnos;
+  final int venenoInimigoTurnos;
+  final int venenoAvatarValor;
+  final int venenoInimigoValor;
 
   CombatState({
     required this.isLoading,
@@ -48,9 +56,14 @@ class CombatState {
     this.gameResult,
     required this.playerTurnCount,
     required this.enemyTurnCount,
+    this.escudoAvatar = 0,
+    this.escudoInimigo = 0,
+    this.venenoAvatarTurnos = 0,
+    this.venenoInimigoTurnos = 0,
+    this.venenoAvatarValor = 0,
+    this.venenoInimigoValor = 0,
   });
 
-  // Método para criar o estado inicial do jogo
   factory CombatState.initial() {
     return CombatState(
       isLoading: false,
@@ -60,14 +73,13 @@ class CombatState {
       maoInimigo: [],
       deckAvatar: [],
       deckInimigo: [],
-      isPlayerTurn: true, // O jogo começa com o turno do jogador
+      isPlayerTurn: true,
       gameResult: null,
-      playerTurnCount: 0, // Começa com 0 turnos
-      enemyTurnCount: 0, // Começa com 0 turnos
+      playerTurnCount: 0,
+      enemyTurnCount: 0,
     );
   }
 
-  // Método para criar uma cópia do estado com algumas mudanças
   CombatState copyWith({
     bool? isLoading,
     String? error,
@@ -80,6 +92,12 @@ class CombatState {
     String? gameResult,
     int? playerTurnCount,
     int? enemyTurnCount,
+    int? escudoAvatar,
+    int? escudoInimigo,
+    int? venenoAvatarTurnos,
+    int? venenoInimigoTurnos,
+    int? venenoAvatarValor,
+    int? venenoInimigoValor,
   }) {
     return CombatState(
       isLoading: isLoading ?? this.isLoading,
@@ -93,16 +111,24 @@ class CombatState {
       gameResult: gameResult ?? this.gameResult,
       playerTurnCount: playerTurnCount ?? this.playerTurnCount,
       enemyTurnCount: enemyTurnCount ?? this.enemyTurnCount,
+      escudoAvatar: escudoAvatar ?? this.escudoAvatar,
+      escudoInimigo: escudoInimigo ?? this.escudoInimigo,
+      venenoAvatarTurnos: venenoAvatarTurnos ?? this.venenoAvatarTurnos,
+      venenoInimigoTurnos: venenoInimigoTurnos ?? this.venenoInimigoTurnos,
+      venenoAvatarValor: venenoAvatarValor ?? this.venenoAvatarValor,
+      venenoInimigoValor: venenoInimigoValor ?? this.venenoInimigoValor,
     );
   }
 
-  // Método para mostrar o estado do jogo nos logs
   @override
   String toString() {
-    return 'CombatState(isLoading: $isLoading, error: $error, combat: $combat, '
-        'maoAvatar: ${maoAvatar.length} cartas, maoInimigo: ${maoInimigo.length} cartas, '
-        'deckAvatar: ${deckAvatar.length} cartas, deckInimigo: ${deckInimigo.length} cartas, '
-        'isPlayerTurn: $isPlayerTurn, gameResult: $gameResult, '
-        'playerTurnCount: $playerTurnCount, enemyTurnCount: $enemyTurnCount) (combat_state.dart)';
+    return 'CombatState(isLoading: $isLoading, error: $error, '
+        'combat: $combat, maoAvatar: ${maoAvatar.length}, maoInimigo: ${maoInimigo.length}, '
+        'deckAvatar: ${deckAvatar.length}, deckInimigo: ${deckInimigo.length}, '
+        'isPlayerTurn: $isPlayerTurn, playerTurnCount: $playerTurnCount, '
+        'enemyTurnCount: $enemyTurnCount, gameResult: $gameResult, '
+        'escudoAvatar: $escudoAvatar, escudoInimigo: $escudoInimigo, '
+        'venenoAvatarTurnos: $venenoAvatarTurnos, venenoInimigoTurnos: $venenoInimigoTurnos, '
+        'venenoAvatarValor: $venenoAvatarValor, venenoInimigoValor: $venenoInimigoValor)';
   }
 }
