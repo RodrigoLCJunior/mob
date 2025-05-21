@@ -50,6 +50,7 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
     on<PlayCard>(_onPlayCard);
     on<PlayEnemyCard>(_onPlayEnemyCard);
     on<EndEnemyTurn>(_onEndEnemyTurn);
+    on<ClearStatusMessage>(_onClearStatusMessage);
   }
 
   // --- Funções Auxiliares ---
@@ -74,12 +75,12 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
   required List<Cards> currentHand,
   required List<Cards> originalDeck,
   required int cardsToDraw,
-  bool notifyOverflow = false,
+  bool? notifyOverflow,
 }) {
   final newHand = List<Cards>.from(currentHand);
   final deckCopy = List<Cards>.from(originalDeck);
   final random = math.Random();
-
+  notifyOverflow ??= false;
   const maxHandSize = 12;
   String? statusMessage;
 
@@ -259,6 +260,7 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
             enemyHp: newEnemyHp,
           ),
           gameResult: gameResult,
+          statusMessage: result.message, // <- AQUI
         ),
       );
     } else {
@@ -284,6 +286,7 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
             enemyHp: newEnemyHp,
           ),
           gameResult: gameResult,
+          statusMessage: result.message,
         ),
       );
     }
@@ -463,6 +466,7 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
           isPlayerTurn: true,
           playerTurnCount: newPlayerTurnCount,
           maoAvatar: result.hand,
+          statusMessage: result.message,
         ),
       );
       print(
@@ -472,5 +476,12 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
       );
     }
   }
+
+Future<void> _onClearStatusMessage(
+  ClearStatusMessage event,
+  Emitter<CombatState> emit,
+) async {
+  emit(state.copyWith(statusMessage: null));
+}
 
 }

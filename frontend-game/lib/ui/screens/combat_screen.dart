@@ -86,6 +86,24 @@ class _CombatScreenState extends State<CombatScreen> {
             return const Center(child: Text('Combate não inicializado'));
           }
 
+          if (state.statusMessage != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.statusMessage!),
+                  duration: const Duration(seconds: 3),
+                  backgroundColor: Colors.orange[700],
+                ),
+              );
+              
+              Future.delayed(const Duration(seconds: 3), () {
+                if (mounted) {
+                  _viewModel.clearStatusMessage();
+                }
+              });
+            });
+          }
+
           final screenHeight = MediaQuery.of(context).size.height;
 
           return Stack(
