@@ -2,24 +2,22 @@
 /// do sistema de combate em um jogo de cartas.
 ///
 /// Através dessa classe, o BLoC pode manter e modificar o estado do combate, incluindo:
-///
 /// - O carregamento de dados (`isLoading`)
 /// - Mensagens de erro (`error`)
 /// - Informações de combate como HPs e status (`combat`)
 /// - Cartas na mão e nos decks do jogador e do inimigo
 /// - Controle de turno e contagem de turnos
 /// - Indicação de fim de jogo com resultado (`gameResult`)
+/// - Gerenciamento de waves e dungeons (`isDungeon`, `dungeonId`, `currentWave`, `totalWaves`, `currentEnemy`)
 ///
 /// Também possui:
 /// - Um construtor `initial()` para gerar o estado inicial do combate.
 /// - Um método `copyWith()` para gerar cópias modificadas do estado.
 /// - Um `toString()` customizado para facilitar o debug.
-///
-/// Esta classe é essencial para a lógica reativa do combate, permitindo que mudanças sejam
-/// observadas pela interface e pela lógica de jogo com clareza e precisão.
 
 import 'package:midnight_never_end/models/card.dart';
 import 'package:midnight_never_end/models/combat.dart';
+import 'package:midnight_never_end/models/inimigo.dart'; // Adicionei a classe Inimigo, ajuste conforme necessário
 
 class CombatState {
   final bool isLoading;
@@ -44,6 +42,12 @@ class CombatState {
   final int venenoAvatarValor;
   final int venenoInimigoValor;
 
+  final bool isDungeon;
+  final int? dungeonId;
+  final int currentWave;
+  final int totalWaves;
+  final Inimigo? currentEnemy; // Novo campo para o inimigo da wave atual
+
   CombatState({
     required this.isLoading,
     this.error,
@@ -62,6 +66,11 @@ class CombatState {
     this.venenoInimigoTurnos = 0,
     this.venenoAvatarValor = 0,
     this.venenoInimigoValor = 0,
+    this.isDungeon = false,
+    this.dungeonId,
+    this.currentWave = 1,
+    this.totalWaves = 1,
+    this.currentEnemy, // Novo campo opcional
   });
 
   factory CombatState.initial() {
@@ -77,6 +86,11 @@ class CombatState {
       gameResult: null,
       playerTurnCount: 0,
       enemyTurnCount: 0,
+      isDungeon: false,
+      dungeonId: null,
+      currentWave: 1,
+      totalWaves: 1,
+      currentEnemy: null,
     );
   }
 
@@ -98,6 +112,11 @@ class CombatState {
     int? venenoInimigoTurnos,
     int? venenoAvatarValor,
     int? venenoInimigoValor,
+    bool? isDungeon,
+    int? dungeonId,
+    int? currentWave,
+    int? totalWaves,
+    Inimigo? currentEnemy, // Novo campo no copyWith
   }) {
     return CombatState(
       isLoading: isLoading ?? this.isLoading,
@@ -117,6 +136,11 @@ class CombatState {
       venenoInimigoTurnos: venenoInimigoTurnos ?? this.venenoInimigoTurnos,
       venenoAvatarValor: venenoAvatarValor ?? this.venenoAvatarValor,
       venenoInimigoValor: venenoInimigoValor ?? this.venenoInimigoValor,
+      isDungeon: isDungeon ?? this.isDungeon,
+      dungeonId: dungeonId ?? this.dungeonId,
+      currentWave: currentWave ?? this.currentWave,
+      totalWaves: totalWaves ?? this.totalWaves,
+      currentEnemy: currentEnemy ?? this.currentEnemy,
     );
   }
 
@@ -129,6 +153,8 @@ class CombatState {
         'enemyTurnCount: $enemyTurnCount, gameResult: $gameResult, '
         'escudoAvatar: $escudoAvatar, escudoInimigo: $escudoInimigo, '
         'venenoAvatarTurnos: $venenoAvatarTurnos, venenoInimigoTurnos: $venenoInimigoTurnos, '
-        'venenoAvatarValor: $venenoAvatarValor, venenoInimigoValor: $venenoInimigoValor)';
+        'venenoAvatarValor: $venenoAvatarValor, venenoInimigoValor: $venenoInimigoValor, '
+        'isDungeon: $isDungeon, dungeonId: $dungeonId, currentWave: $currentWave, '
+        'totalWaves: $totalWaves, currentEnemy: $currentEnemy)';
   }
 }

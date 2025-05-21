@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
     return RepositoryProvider(
       create: (context) => ApiService(),
       child: MaterialApp(
-        title: 'Midnight Never End',
+        title: 'Rewalker Midnight',
         theme: ThemeData(primarySwatch: Colors.blue),
         home: const HomeScreen(),
         debugShowCheckedModeBanner: false,
@@ -30,7 +30,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Midnight Never End')),
+      appBar: AppBar(title: const Text('Rewalker Midnight')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -40,7 +40,8 @@ class HomeScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const UserLoadingScreen(),
+                    builder:
+                        (context) => const UserLoadingScreen(dungeonId: 1,),
                   ),
                 );
               },

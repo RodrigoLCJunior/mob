@@ -67,3 +67,26 @@ class ClearStatusMessage extends CombatEvent {
   @override
   String toString() => 'ClearStatusMessage() (combat_event.dart)';
 }
+
+class StartDungeonCombat extends CombatEvent {
+  final String playerId;
+  final int dungeonId;
+  StartDungeonCombat(this.playerId, this.dungeonId);
+  @override
+  String toString() =>
+      'StartDungeonCombat(playerId: $playerId, dungeonId: $dungeonId) (combat_event.dart)';
+}
+
+class NextWave extends CombatEvent {
+  NextWave();
+  @override
+  String toString() => 'NextWave() (combat_event.dart)';
+}
+
+class EndDungeon extends CombatEvent {
+  final bool victory;
+  EndDungeon(this.victory);
+  @override
+  String toString() => 'EndDungeon(victory: $victory) (combat_event.dart)';
+}
+

@@ -3,6 +3,7 @@ import 'package:midnight_never_end/bloc/combat/combat_bloc.dart';
 import 'package:midnight_never_end/bloc/combat/combat_view_model.dart';
 import 'package:midnight_never_end/models/combat_initial_data.dart';
 import 'package:midnight_never_end/models/usuario.dart';
+import 'package:midnight_never_end/services/api_service.dart';
 import 'package:midnight_never_end/ui/game/combat_game.dart';
 import 'package:midnight_never_end/ui/screens/combat_screen.dart';
 
@@ -29,7 +30,7 @@ class _CombatLoadingScreenState extends State<CombatLoadingScreen> {
   void initState() {
     super.initState();
     // Inicializar o CombatBloc e CombatViewModel
-    _combatBloc = CombatBloc();
+    _combatBloc = CombatBloc(apiService: ApiService());
     _viewModel = CombatViewModel(_combatBloc);
     _viewModel.initialize(widget.combatData);
     print('CombatLoadingScreen - Initialized CombatViewModel with combatData');

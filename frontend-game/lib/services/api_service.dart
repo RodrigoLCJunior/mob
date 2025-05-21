@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:midnight_never_end/models/combat_initial_data.dart';
 import 'package:midnight_never_end/models/inimigo.dart';
 import 'package:midnight_never_end/models/usuario.dart';
+import 'package:midnight_never_end/models/dungeon.dart';
 
 class ApiService {
   static const String baseUrl = 'http://localhost:9090/api';
@@ -160,4 +161,85 @@ class ApiService {
       throw Exception('Failed to start combat: $e');
     }
   }
+
+  Future<List<Dungeon>> fetchDungeons() async {
+    try {
+      print('Buscando lista de dungeons...');
+      final response = await http.get(
+        Uri.parse('$baseUrl/dungeons'),
+        headers: {'Content-Type': 'application/json'},
+      );
+      print('FetchDungeons - Status Code: ${response.statusCode}');
+      print('FetchDungeons - Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['success'] == true) {
+          List<dynamic> dungeonsJson = responseData['dungeons'];
+          return dungeonsJson.map((json) => Dungeon.fromJson(json)).toList();
+        } else {
+          throw Exception('Erro ao buscar dungeons: ${responseData['message'] ?? 'Erro desconhecido'}');
+        }
+      } else {
+        throw Exception('Erro HTTP ao buscar dungeons: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      print('Exception during fetchDungeons: $e');
+      throw Exception('Erro ao buscar dungeons: $e');
+    }
+  }
+
+  Future<List<Inimigo>> fetchAllEnemies() async {
+    try {
+      print('Buscando lista de inimigos...');
+      final response = await http.get(
+        Uri.parse('$baseUrl/inimigos'),
+        headers: {'Content-Type': 'application/json'},
+      );
+      print('FetchAllEnemies - Status Code: ${response.statusCode}');
+      print('FetchAllEnemies - Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['success'] == true) {
+          List<dynamic> enemiesJson = responseData['inimigos'];
+          return enemiesJson.map((json) => Inimigo.fromJson(json)).toList();
+        } else {
+          throw Exception('Erro ao buscar inimigos: ${responseData['message'] ?? 'Erro desconhecido'}');
+        }
+      } else {
+        throw Exception('Erro HTTP ao buscar inimigos: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      print('Exception during fetchAllEnemies: $e');
+      throw Exception('Erro ao buscar inimigos: $e');
+    }
+  }
+
+  Future<CombatInitialData> iniciarDungeon(String playerId, int dungeonId) async {
+    try {
+      print('Iniciando dungeon $dungeonId para jogador $playerId...');
+      final response = await http.post(
+        Uri.parse('$baseUrl/combat/start-dungeon?playerId=$playerId&dungeonId=$dungeonId'),
+        headers: {'Content-Type': 'application/json'},
+      );
+      print('IniciarDungeon - Status Code: ${response.statusCode}');
+      print('IniciarDungeon - Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['success'] == true) {
+          return CombatInitialData.fromJson(responseData['combatState']);
+        } else {
+          throw Exception('Erro ao iniciar dungeon: ${responseData['message'] ?? 'Erro desconhecido'}');
+        }
+      } else {
+        throw Exception('Erro HTTP ao iniciar dungeon: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      print('Exception during iniciarDungeon: $e');
+      throw Exception('Erro ao iniciar dungeon: $e');
+    }
+  }
+
 }
