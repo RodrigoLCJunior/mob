@@ -32,6 +32,7 @@ import 'package:midnight_never_end/ui/game/animation/draw_card_animation.dart';
 import 'package:midnight_never_end/ui/game/positioning/player_card_positioning.dart';
 import 'package:midnight_never_end/ui/game/combat_game.dart';
 
+
 Future<void> loadPlayerCards(CombatGame game) async {
   game.cartasJogador.clear();
 
@@ -71,6 +72,8 @@ void handleCardDrop(
       enemyContainer == null ||
       !game.viewModel.state.isPlayerTurn) {
     card.position = card.originalPosition.clone();
+    print('CombatGame - Card drop rejected: componentsLoaded=${game.isComponentsLoaded}, '
+          'enemyContainer=$enemyContainer, isPlayerTurn=${game.viewModel.state.isPlayerTurn}');
     return;
   }
 
@@ -82,10 +85,18 @@ void handleCardDrop(
   );
 
   if (enemyHitbox.contains(card.position.toOffset())) {
-    final cardIndex = game.cartasJogador.indexOf(card);
+    // Encontrar o índice em maoAvatar pelo ID da carta
+    final cardIndex = game.viewModel.state.maoAvatar.indexWhere((c) => c.id == card.card.id);
     if (cardIndex != -1) {
-      game.remove(card);
-      game.cartasJogador.removeAt(cardIndex);
+      print('CombatGame - Card ${card.card.id} dropped on enemy, maoAvatar index=$cardIndex');
+      // Verificar se a carta está em cartasJogador
+      final gameCardIndex = game.cartasJogador.indexWhere((c) => c.card.id == card.card.id);
+      if (gameCardIndex != -1) {
+        game.remove(card);
+        game.cartasJogador.removeAt(gameCardIndex);
+      } else {
+        print('CombatGame - Warning: Card ${card.card.id} not found in cartasJogador');
+      }
 
       if (card.card.tipoEfeito == TipoEfeito.CURA) {
         final healAnimation = AnimatedHealCard(
@@ -106,60 +117,89 @@ void handleCardDrop(
         );
         game.add(animatedCard);
       }
+    } else {
+      print('CombatGame - Card ${card.card.id} not found in maoAvatar: '
+            '${game.viewModel.state.maoAvatar.map((c) => c.id).toList()}');
+      card.position = card.originalPosition.clone();
     }
   } else {
+    print('CombatGame - Card ${card.card.id} dropped outside enemy hitbox');
     card.position = card.originalPosition.clone();
   }
 }
 
 Future<void> updatePlayerCards(CombatGame game) async {
   final novasCartasData = game.viewModel.state.maoAvatar;
-  final cartasAnteriores = game.cartasJogador.map((c) => c.card).toList();
+  final cartasAnteriores = game.cartasJogador.map((c) => c.card.id).toList();
 
-  for (var carta in game.cartasJogador) {
+  // Identificar cartas que permaneceram, foram removidas ou são novas
+  final cartasParaManter = game.cartasJogador
+      .where((c) => novasCartasData.any((n) => n.id == c.card.id))
+      .toList();
+  final cartasParaRemover = game.cartasJogador
+      .where((c) => !novasCartasData.any((n) => n.id == c.card.id))
+      .toList();
+  final novasCartasIds = novasCartasData
+      .where((n) => !cartasAnteriores.contains(n.id))
+      .map((n) => n.id)
+      .toList();
+
+  // Remover cartas que não estão mais na mão
+  for (var carta in cartasParaRemover) {
     if (carta.isMounted) {
       game.remove(carta);
     }
   }
-  game.cartasJogador.clear();
+  game.cartasJogador.removeWhere((c) => cartasParaRemover.contains(c));
 
+  // Criar novas cartas apenas para IDs novos
   final novasCartas = <CardComponent>[];
-
   for (final card in novasCartasData) {
-    final carta = CardComponent(
-      card,
-      isDraggable: game.viewModel.state.isPlayerTurn,
-      onDragEndCallback: (CardComponent cardComp) {
-        handleCardDrop(game, cardComp, game.enemyContainer);
-      },
-    );
-    novasCartas.add(carta);
+    if (novasCartasIds.contains(card.id)) {
+      final carta = CardComponent(
+        card,
+        isDraggable: game.viewModel.state.isPlayerTurn,
+        onDragEndCallback: (CardComponent cardComp) {
+          handleCardDrop(game, cardComp, game.enemyContainer);
+        },
+      );
+      novasCartas.add(carta);
+    }
   }
 
+  // Adicionar novas cartas a game.cartasJogador
   game.cartasJogador.addAll(novasCartas);
+
+  // Reposicionar todas as cartas (mantidas e novas)
   posicionarCartasJogador(game);
 
-  final cartasNovas = novasCartas.where((c) => !cartasAnteriores.any((prev) => prev.id == c.card.id)).toList();
+  // Animar apenas as novas cartas
+  for (final carta in novasCartas) {
+    final startPos = Vector2(game.size.x / 2, game.size.y / 2);
+    final targetPos = carta.position.clone();
 
-  for (final carta in cartasNovas) {
+    carta.position = startPos;
+
     final animation = DrawCardAnimation(
       card: carta.card,
-      startPosition: Vector2(game.size.x / 2, game.size.y / 2),
-      targetPosition: carta.position.clone(),
+      startPosition: startPos,
+      targetPosition: targetPos,
       onAnimationComplete: () {
         game.add(carta);
+        carta.isDraggable = game.viewModel.state.isPlayerTurn;
+        print('CombatGame - Card ${carta.card.id} added, isDraggable=${carta.isDraggable}, '
+              'isPlayerTurn=${game.viewModel.state.isPlayerTurn}');
       },
     );
     game.add(animation);
   }
 
-  for (final carta in novasCartas) {
-    if (!cartasNovas.contains(carta)) {
+  // Adicionar cartas mantidas diretamente ao jogo
+  for (final carta in cartasParaManter) {
+    if (!carta.isMounted) {
       game.add(carta);
     }
-  }
-
-  for (var carta in game.cartasJogador) {
     carta.isDraggable = game.viewModel.state.isPlayerTurn;
+    print('CombatGame - Card ${carta.card.id} kept, isDraggable=${carta.isDraggable}');
   }
 }

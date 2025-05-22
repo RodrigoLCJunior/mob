@@ -42,6 +42,7 @@ import 'package:midnight_never_end/ui/components/avatar/card_component.dart';
 import 'package:midnight_never_end/ui/components/enemy/enemy_card_component.dart';
 import 'package:midnight_never_end/ui/components/enemy/enemy_container_component.dart';
 import 'package:midnight_never_end/ui/components/enemy/enemy_front_card_component.dart';
+import 'package:midnight_never_end/ui/components/info_text_component.dart';
 import 'package:midnight_never_end/ui/game/management/enemy_card_management.dart';
 import 'package:midnight_never_end/ui/game/management/player_card_management.dart';
 import 'package:midnight_never_end/ui/game/positioning/background_positioning.dart';
@@ -67,6 +68,8 @@ class CombatGame extends FlameGame {
   bool _isComponentsLoaded = false;
   late EnemyAction _enemyAction;
   late BackgroundPositioning _backgroundPositioning;
+  String? _lastStatusMessage;
+  bool _hasHandledCurrentMessage = false;
 
   // Variáveis para controle do turno do inimigo
   bool _isEnemyPlaying = false;
@@ -242,6 +245,29 @@ class CombatGame extends FlameGame {
 
     if (!_hasNavigated) {
       _checkGameResult();
+    }
+
+    if (isComponentsLoaded) {
+      final message = viewModel.state.statusMessage;
+
+      if (message != null && !_hasHandledCurrentMessage) {
+        final position = Vector2(size.x / 2, size.y * 0.5);
+        final infoText = InfoTextComponent(message, position);
+        add(infoText);
+
+        _lastStatusMessage = message;
+        _hasHandledCurrentMessage = true;
+
+        viewModel.clearStatusMessage(); // dispara evento
+      }
+
+      // Aqui zeramos o controle local quando a mensagem é apagada no BLoC
+      if (message == null && _hasHandledCurrentMessage) {
+        _hasHandledCurrentMessage = false;
+
+        // Importante: permitimos que a mesma mensagem apareça de novo no futuro
+        _lastStatusMessage = null;
+      }
     }
   }
 

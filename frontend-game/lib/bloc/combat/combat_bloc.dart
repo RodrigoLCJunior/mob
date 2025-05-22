@@ -295,76 +295,83 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
 
   /// Processa o jogador jogando uma carta contra o inimigo.
   Future<void> _onPlayCard(PlayCard event, Emitter<CombatState> emit) async {
-    print(
-      'CombatBloc - Playing card: ${event.card.nome} (id: ${event.card.id}), valor: ${event.card.valor}, efeito: ${event.card.tipoEfeito}',
-    );
+  print(
+    'CombatBloc - Playing card: ${event.card.nome} (id: ${event.card.id}), '
+    'valor: ${event.card.valor}, efeito: ${event.card.tipoEfeito}, index: ${event.cardIndex}',
+  );
 
-    if (!state.isPlayerTurn || state.combat == null) {
-      print('CombatBloc - Cannot play card: Not player turn or combat not initialized');
-      return;
-    }
-
-    int updatedEnemyHp = state.combat!.enemyHp;
-    int updatedAvatarHp = state.combat!.avatarHp;
-
-    CombatState newState = state;
-
-    switch (event.card.tipoEfeito) {
-      case TipoEfeito.DANO:
-        updatedEnemyHp = _updateHp(updatedEnemyHp, event.card.valor);
-        break;
-      case TipoEfeito.CURA:
-        updatedAvatarHp += event.card.valor;
-        final maxHp = state.combat!.avatar.hp;
-        updatedAvatarHp = updatedAvatarHp.clamp(0, maxHp);
-        break;
-      case TipoEfeito.ESCUDO:
-        print('CombatBloc - ESCUDO não implementado ainda.');
-        break;
-      case TipoEfeito.VENENO:
-
-        if(state.venenoInimigoTurnos > 0){
-          newState = state.copyWith(
-            venenoInimigoTurnos: state.venenoInimigoTurnos + event.card.qtdTurnos,
-            venenoInimigoValor: event.card.valor,
-          );
-        }else{
-          newState = state.copyWith(
-            venenoInimigoTurnos: event.card.qtdTurnos,
-            venenoInimigoValor: event.card.valor,
-          );
-        }
-        
-        break;
-      case TipoEfeito.BUFF:
-      case TipoEfeito.DEBUFF:
-        print('CombatBloc - BUFF/DEBUFF não implementado ainda.');
-        break;
-    }
-
-    final updatedCombat = state.combat!.copyWith(
-      enemyHp: updatedEnemyHp,
-      avatarHp: updatedAvatarHp,
-    );
-
-    final updatedMaoAvatar = List<Cards>.from(state.maoAvatar)..removeAt(event.cardIndex);
-    final updatedDeckAvatar = List<Cards>.from(state.deckAvatar)..add(event.card);
-
-    emit(newState.copyWith(
-      combat: updatedCombat,
-      maoAvatar: updatedMaoAvatar,
-      deckAvatar: updatedDeckAvatar,
-    ));
-
-    print(
-      'CombatBloc - Card played. New enemy HP: $updatedEnemyHp, new avatar HP: $updatedAvatarHp, hand size: ${updatedMaoAvatar.length}',
-    );
-
-    if (updatedEnemyHp <= 0) {
-      print('CombatBloc - Enemy defeated!');
-      emit(newState.copyWith(gameResult: 'victory'));
-    }
+  if (!state.isPlayerTurn || state.combat == null) {
+    print('CombatBloc - Cannot play card: isPlayerTurn=${state.isPlayerTurn}, '
+          'combat=${state.combat != null}');
+    return;
   }
+
+  // Verificar se o índice e ID correspondem à mão
+  if (event.cardIndex < 0 || 
+      event.cardIndex >= state.maoAvatar.length || 
+      state.maoAvatar[event.cardIndex].id != event.card.id) {
+    print('CombatBloc - Invalid card index or ID mismatch: '
+          'index=${event.cardIndex}, cardId=${event.card.id}, '
+          'maoAvatar=${state.maoAvatar.map((c) => c.id).toList()}');
+    return;
+  }
+
+  int updatedEnemyHp = state.combat!.enemyHp;
+  int updatedAvatarHp = state.combat!.avatarHp;
+  CombatState newState = state;
+
+  switch (event.card.tipoEfeito) {
+    case TipoEfeito.DANO:
+      updatedEnemyHp = _updateHp(updatedEnemyHp, event.card.valor);
+      break;
+    case TipoEfeito.CURA:
+      updatedAvatarHp += event.card.valor;
+      final maxHp = state.combat!.avatar.hp;
+      updatedAvatarHp = updatedAvatarHp.clamp(0, maxHp);
+      break;
+    case TipoEfeito.ESCUDO:
+      print('CombatBloc - ESCUDO não implementado ainda.');
+      break;
+    case TipoEfeito.VENENO:
+      if (state.venenoInimigoTurnos > 0) {
+        newState = state.copyWith(
+          venenoInimigoTurnos: state.venenoInimigoTurnos + event.card.qtdTurnos,
+          venenoInimigoValor: event.card.valor,
+        );
+      } else {
+        newState = state.copyWith(
+          venenoInimigoTurnos: event.card.qtdTurnos,
+          venenoInimigoValor: event.card.valor,
+        );
+      }
+      break;
+    case TipoEfeito.BUFF:
+    case TipoEfeito.DEBUFF:
+      print('CombatBloc - BUFF/DEBUFF não implementado ainda.');
+      break;
+  }
+
+  final updatedCombat = state.combat!.copyWith(
+    enemyHp: updatedEnemyHp,
+    avatarHp: updatedAvatarHp,
+  );
+
+  final updatedMaoAvatar = List<Cards>.from(state.maoAvatar)..removeAt(event.cardIndex);
+  final updatedDeckAvatar = List<Cards>.from(state.deckAvatar)..add(event.card);
+
+  print('CombatBloc - Card ${event.card.id} played, new maoAvatar size: ${updatedMaoAvatar.length}');
+
+  emit(newState.copyWith(
+    combat: updatedCombat,
+    maoAvatar: updatedMaoAvatar,
+    deckAvatar: updatedDeckAvatar,
+  ));
+
+  if (updatedEnemyHp <= 0) {
+    print('CombatBloc - Enemy defeated!');
+    emit(newState.copyWith(gameResult: 'victory'));
+  }
+}
 
 
   /// Processa o inimigo jogando uma carta contra o jogador.
