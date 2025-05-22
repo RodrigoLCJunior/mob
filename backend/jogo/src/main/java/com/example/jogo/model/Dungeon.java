@@ -11,7 +11,7 @@ package com.example.jogo.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "dungeons")
+@Table(name = "dungeon")
 public class Dungeon {
 
     @Id
