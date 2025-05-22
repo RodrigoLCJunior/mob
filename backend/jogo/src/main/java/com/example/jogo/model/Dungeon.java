@@ -24,7 +24,7 @@ public class Dungeon {
     @Column(nullable = false)
     private int QtdWaves;
 
-    @Column
+    @Column(nullable = false)
     private String imagemDungeon; // Pode conter o caminho ou URL
 
     public Dungeon() {

@@ -189,7 +189,10 @@ public class CombatService {
         if (newEnemyHp <= 0) {
             combatState.setCombatActive(false);
             combatState.setPlayerWon(true);
+
+            waveService.registrarDerrota(combatState.getWave(), combatState.getEnemy().getId());
         }
+
 
         combatState.setPlayerHandRestored(false); // Reseta a flag
 

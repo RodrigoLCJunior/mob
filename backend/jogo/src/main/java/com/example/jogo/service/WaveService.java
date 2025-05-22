@@ -45,12 +45,7 @@ public class WaveService {
     }
 
     public void registrarDerrota(Wave wave, Long inimigoId) {
-        if (!wave.getInimigosDerrotados().contains(inimigoId)) {
-            boolean added = wave.getInimigosDerrotados().add(inimigoId);
-            if (!added) {
-                throw new RuntimeException("Erro ao registrar inimigo derrotado: " + inimigoId);
-            }
-        }
+        wave.getInimigosDerrotados().add(inimigoId);
     }
 
     public boolean foiDerrotado(Wave wave, Long inimigoId) {
