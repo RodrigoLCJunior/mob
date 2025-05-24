@@ -403,10 +403,17 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
         print('CombatBloc - ESCUDO não implementado ainda.');
         break;
       case TipoEfeito.VENENO:
+      if (state.venenoAvatarTurnos > 0) {
+        newState = state.copyWith(
+          venenoAvatarTurnos: state.venenoAvatarTurnos + event.card.qtdTurnos,
+          venenoAvatarValor: event.card.valor,
+        );
+      } else {
         newState = state.copyWith(
           venenoAvatarTurnos: event.card.qtdTurnos,
           venenoAvatarValor: event.card.valor,
         );
+      }
         break;
       case TipoEfeito.BUFF:
       case TipoEfeito.DEBUFF:
@@ -453,7 +460,25 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
     );
 
     if (!state.isPlayerTurn) {
-      // Passar para o turno do jogador
+      int newAvatarHp = state.combat?.avatarHp ?? 0;
+      int newEnemyHp = state.combat?.enemyHp ?? 0;
+      int venenoAvatarTurnos = state.venenoAvatarTurnos;
+      int venenoAvatarValor = state.venenoAvatarValor;
+
+      // Aplicar dano por veneno
+      if (venenoAvatarTurnos > 0) {
+        newAvatarHp = _updateHp(newAvatarHp, venenoAvatarValor);
+        venenoAvatarTurnos--;
+        if (venenoAvatarTurnos == 0) venenoAvatarValor = 0;
+      }
+      
+      String? gameResult;
+      if (newEnemyHp <= 0) {
+        gameResult = 'victory';
+      }
+      if (newAvatarHp <= 0) {
+        gameResult = 'defeat';
+      }
       final newPlayerTurnCount = state.playerTurnCount + 1;
       final result = _drawCards(
         currentHand: state.maoAvatar,
@@ -461,7 +486,6 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
         cardsToDraw: 3,
         notifyOverflow: true,
       );
-
 
       print(
         'CombatBloc - Player drew ${result.hand.length - state.maoAvatar.length} cards, '
@@ -474,8 +498,13 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
           playerTurnCount: newPlayerTurnCount,
           maoAvatar: result.hand,
           statusMessage: result.message,
+          gameResult: gameResult,
+          combat: state.combat?.copyWith(avatarHp: newAvatarHp),
+          venenoAvatarTurnos: venenoAvatarTurnos,
+          venenoAvatarValor: venenoAvatarValor,
         ),
       );
+
       print(
         'CombatBloc - Turn passed to player, new state: isPlayerTurn=${state.isPlayerTurn}, '
         'playerTurnCount=${state.playerTurnCount}, '

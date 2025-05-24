@@ -26,7 +26,7 @@ import 'package:midnight_never_end/ui/game/management/enemy_card_management.dart
 import 'package:midnight_never_end/ui/game/management/player_card_management.dart';
 
 void onStateChanged(CombatGame game) {
-  if (!game.isComponentsLoaded) return;
+  if (!game.isComponentsLoaded || game.viewModel.state.gameResult != null) return;
 
   // Atualizar o HP do inimigo e do avatar diretamente nos componentes
   game.enemyContainer!.updateInimigo(
@@ -47,6 +47,11 @@ void onStateChanged(CombatGame game) {
     final heal = newHp - oldHp;
     game.avatarComponent!.heal(heal);
   }
+
+  game.avatarComponent!.updatePoisonIcon(
+    poisonTurns: game.viewModel.state.venenoAvatarTurnos,
+  );
+
 }
 
 

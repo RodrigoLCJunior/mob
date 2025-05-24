@@ -13,6 +13,8 @@ class AvatarComponent extends PositionComponent {
   final SpriteComponent avatarRect; // Alterado para SpriteComponent
   late TextComponent nameText;
   late HealthBarComponent healthBar;
+  late SpriteComponent poisonIcon;
+  late TextComponent poisonTurnText;
 
   int currentHp;
 
@@ -57,6 +59,37 @@ class AvatarComponent extends PositionComponent {
       position: Vector2(10, 50),
     );
     await add(healthBar);
+
+    poisonIcon = SpriteComponent()
+      ..sprite = await Sprite.load('../icons/poisonIcon.png')
+      ..size = Vector2(35, 35)
+      ..position = Vector2(
+        healthBar.position.x + healthBar.size.x + 5, // ajuste lateral
+        healthBar.position.y + (healthBar.size.y - 35) / 2,
+      )
+      ..opacity = 0.0;
+    await add(poisonIcon);
+
+    poisonTurnText = TextComponent(
+      text: '0',
+      position: Vector2(
+        poisonIcon.position.x + poisonIcon.size.x + 2,
+        poisonIcon.position.y + 5,
+      ),
+      anchor: Anchor.topLeft,
+      textRenderer: TextPaint(
+        style: const TextStyle(
+          color: Color.fromARGB(0, 255, 255, 255),
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          shadows: [
+            Shadow(color: Colors.black, offset: Offset(1, 1), blurRadius: 2),
+          ],
+        ),
+      ),
+    );
+    await add(poisonTurnText);
+
   }
 
   void takeDamage(int damage) {
@@ -81,4 +114,23 @@ class AvatarComponent extends PositionComponent {
     );
     add(healText);
   } 
+
+  void updatePoisonIcon({required int poisonTurns}) {
+    poisonIcon.opacity = poisonTurns > 0 ? 1.0 : 0.0;
+    poisonTurnText.text = poisonTurns.toString();
+
+    final double opacity = poisonTurns > 0 ? 1.0 : 0.0;
+    final Color visibleColor = Colors.white.withOpacity(opacity);
+
+    poisonTurnText.textRenderer = TextPaint(
+      style: TextStyle(
+        color: visibleColor,
+        fontSize: 14,
+        fontWeight: FontWeight.bold,
+        shadows: const [
+          Shadow(color: Colors.black, offset: Offset(1, 1), blurRadius: 2),
+        ],
+      ),
+    );
+  }
 }
