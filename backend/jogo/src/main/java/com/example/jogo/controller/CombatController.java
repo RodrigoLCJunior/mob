@@ -8,13 +8,12 @@
 
 package com.example.jogo.controller;
 
-import com.example.jogo.model.Avatar;
-import com.example.jogo.model.CombatState;
-import com.example.jogo.model.Inimigo;
-import com.example.jogo.model.Usuarios;
+import com.example.jogo.model.*;
+import com.example.jogo.repository.DungeonRepository;
 import com.example.jogo.repository.InimigoRepository;
 import com.example.jogo.repository.UsuarioRepository;
 import com.example.jogo.service.CombatService;
+import com.example.jogo.service.WaveService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +34,12 @@ public class CombatController {
 
     @Autowired
     private InimigoRepository inimigoRepository;
+
+    @Autowired
+    private DungeonRepository dungeonRepository;
+
+    @Autowired
+    private WaveService waveService;
 
     private final Random random = new Random();
 
@@ -103,6 +108,54 @@ public class CombatController {
             return ResponseEntity.status(500).body(response);
         }
     }
+
+    @GetMapping("/start")
+    public ResponseEntity<Map<String, Object>> getCombatStart() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // Buscar o primeiro jogador disponível
+            Usuarios usuario = usuarioRepository.findAll()
+                    .stream()
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Nenhum jogador encontrado."));
+
+            Avatar avatar = usuario.getAvatar();
+            if (avatar == null) {
+                throw new IllegalStateException("Jogador não possui um avatar válido.");
+            }
+
+            // Buscar a primeira dungeon disponível
+            Dungeon dungeon = dungeonRepository.findAll()
+                    .stream()
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Nenhuma dungeon disponível."));
+
+            // Criar a wave inicial usando o serviço
+            Wave wave = waveService.iniciarWave(dungeon.getQtdWaves());
+
+            // Escolher inimigo para essa wave
+            Inimigo enemy = waveService.escolherInimigoNaoRepetido(wave);
+
+            // Montar os dados para o frontend
+            Map<String, Object> combatData = new HashMap<>();
+            combatData.put("avatar", avatar);
+            combatData.put("enemy", enemy);
+            combatData.put("wave", wave);
+            combatData.put("dungeon", dungeon);
+
+            response.put("success", true);
+            response.put("combatData", combatData);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Erro ao buscar dados de combate: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+
 
     @PostMapping("/play-card")
     public ResponseEntity<Map<String, Object>> playCard(@RequestParam UUID playerId, @RequestParam Long cardId) {
