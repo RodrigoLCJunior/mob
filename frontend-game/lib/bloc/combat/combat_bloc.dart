@@ -33,8 +33,9 @@ import 'dart:math' as math;
   class DrawResult {
     final List<Cards> hand;
     final String? message;
+    final int? messageId;
 
-    DrawResult(this.hand, this.message);
+    DrawResult(this.hand, this.message, [this.messageId]);
   }
 
 class CombatBloc extends Bloc<CombatEvent, CombatState> {
@@ -101,9 +102,11 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
     if (notifyOverflow) {
       statusMessage = "Você atingiu o limite de 12 cartas. 3 cartas foram substituídas aleatoriamente.";
       print("CombatBloc - $statusMessage");
+      return DrawResult(newHand, statusMessage, DateTime.now().millisecondsSinceEpoch);
     }
 
-    return DrawResult(newHand, statusMessage);
+
+    return DrawResult(newHand, null);
   }
 
   for (int i = 0; i < cardsToDraw && newHand.length < maxHandSize; i++) {
@@ -260,7 +263,8 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
             enemyHp: newEnemyHp,
           ),
           gameResult: gameResult,
-          statusMessage: result.message, // <- AQUI
+          statusMessage: result.message,
+          statusMessageId: result.messageId ?? state.statusMessageId, 
         ),
       );
     } else {
@@ -287,6 +291,7 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
           ),
           gameResult: gameResult,
           statusMessage: result.message,
+          statusMessageId: result.messageId ?? state.statusMessageId,
         ),
       );
     }
@@ -498,6 +503,7 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
           playerTurnCount: newPlayerTurnCount,
           maoAvatar: result.hand,
           statusMessage: result.message,
+          statusMessageId: result.messageId ?? state.statusMessageId,
           gameResult: gameResult,
           combat: state.combat?.copyWith(avatarHp: newAvatarHp),
           venenoAvatarTurnos: venenoAvatarTurnos,
