@@ -43,8 +43,11 @@ Future<void> updateEnemyCards(CombatGame game) async {
   final cartasAnteriores = game.cartasInimigo.map((c) => c.card).toList();
 
   for (var carta in game.cartasInimigo) {
+  if (carta.isMounted) {
     game.remove(carta);
   }
+}
+
   game.cartasInimigo.clear();
 
   final novasCartas = <EnemyCardComponent>[];

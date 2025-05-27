@@ -32,7 +32,7 @@ class CombatViewModel extends ChangeNotifier {
 
   CombatViewModel(this._combatBloc) {
     _stateSubscription = _combatBloc.stream.listen((state) {
-      notifyListeners(); // Notifica a UI quando o estado muda
+      notifyListeners();
     });
   }
 

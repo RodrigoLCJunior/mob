@@ -5,7 +5,6 @@ import 'package:midnight_never_end/bloc/combat/combat_state.dart';
 import 'package:midnight_never_end/bloc/combat/combat_view_model.dart';
 import 'package:midnight_never_end/models/combat_initial_data.dart';
 import 'package:midnight_never_end/models/usuario.dart';
-import 'package:midnight_never_end/services/api_service.dart';
 import 'package:midnight_never_end/ui/game/combat_game.dart';
 
 class CombatScreen extends StatefulWidget {
@@ -31,7 +30,7 @@ class _CombatScreenState extends State<CombatScreen> {
   @override
   void initState() {
     super.initState();
-    _combatBloc = CombatBloc(apiService: ApiService());
+    _combatBloc = CombatBloc();
     _viewModel = CombatViewModel(_combatBloc);
     _viewModel.initialize(widget.combatData);
     print('CombatScreen - Initialized CombatViewModel with combatData');
@@ -86,6 +85,7 @@ class _CombatScreenState extends State<CombatScreen> {
           if (state.combat == null) {
             return const Center(child: Text('Combate não inicializado'));
           }
+
 
           final screenHeight = MediaQuery.of(context).size.height;
 

@@ -8,6 +8,7 @@ import 'package:midnight_never_end/ui/components/enemy/enemy_image_component.dar
 import 'package:midnight_never_end/ui/components/enemy/enemy_background_component.dart';
 import 'package:midnight_never_end/ui/components/enemy/enemy_name_component.dart';
 import 'package:midnight_never_end/ui/components/enemy/enemy_heathbar_component.dart';
+import 'package:midnight_never_end/ui/components/heal_text_component.dart';
 
 class EnemyContainerComponent extends PositionComponent with HasGameRef {
   final Inimigo inimigo;
@@ -112,8 +113,20 @@ class EnemyContainerComponent extends PositionComponent with HasGameRef {
       // Centralizar os outros elementos em relação à largura total
       enemyBackground.position = Vector2((gameSize.x - 120) / 2, 90);
       enemyName.position = Vector2(gameSize.x / 2, 115);
-      healthBar.position = Vector2((gameSize.x - 100) / 2, 140);
       healthBar.size = Vector2(100, 14);
+      healthBar.position = Vector2((gameSize.x - healthBar.size.x) / 2, 140);
+
+      // Reposicionar poisonIcon ao lado direito da barra de vida
+      poisonIcon.position = Vector2(
+        healthBar.position.x + healthBar.size.x + 5,
+        healthBar.position.y + (healthBar.size.y - poisonIcon.size.y) / 2,
+      );
+
+      // Reposicionar o texto do número de turnos
+      poisonTurnText.position = Vector2(
+        poisonIcon.position.x + poisonIcon.size.x + 2,
+        poisonIcon.position.y + 5,
+      );
     }
   }
 
@@ -147,10 +160,25 @@ class EnemyContainerComponent extends PositionComponent with HasGameRef {
     add(damageText);
   }
 
+  void heal(int amount) {
+    currentHp = (currentHp + amount).clamp(0, inimigo.hp);
+    healthBar.updateHp(currentHp);
+
+    final healText = HealText(
+      '+$amount',
+      getDamageTextPosition(), // mesmo local onde aparece o dano
+    );
+    add(healText);
+  }
+
+
   void updateInimigo(Inimigo newInimigo, {required int enemyHp, required int poisonTurns}) {
     if (enemyHp < currentHp) {
       final damage = currentHp - enemyHp;
       takeDamage(damage);
+    } else if (enemyHp > currentHp) {
+      final healAmount = enemyHp - currentHp;
+      heal(healAmount);
     } else {
       currentHp = enemyHp;
       healthBar.updateHp(currentHp);
@@ -158,6 +186,7 @@ class EnemyContainerComponent extends PositionComponent with HasGameRef {
 
     updatePoisonIcon(poisonTurns: poisonTurns);
   }
+
 
   void updatePoisonIcon({required int poisonTurns}) {
     poisonIcon.opacity = poisonTurns > 0 ? 1.0 : 0.0;
