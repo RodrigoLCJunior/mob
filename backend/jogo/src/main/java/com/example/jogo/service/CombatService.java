@@ -300,4 +300,39 @@ public class CombatService {
         return combatState;
     }
 
+    public CombatState proximaWave(UUID playerId) {
+        CombatState combatState = validateCombatState(playerId);
+        Wave wave = combatState.getWave();
+
+        // Verifica se já chegou na última wave
+        if (wave.getWaveAtual() >= wave.getWaveFinal()) {
+            throw new IllegalStateException("Dungeon já concluída.");
+        }
+
+        // Avança wave
+        wave.setWaveAtual(wave.getWaveAtual() + 1);
+
+        // Escolhe novo inimigo
+        Inimigo proximoInimigo = waveService.escolherInimigoNaoRepetido(wave);
+        if (proximoInimigo == null) {
+            throw new RuntimeException("Não há inimigos disponíveis para esta wave.");
+        }
+
+        // Atualiza o estado do combate
+        combatState.setEnemy(proximoInimigo);
+        combatState.setEnemyHp(proximoInimigo.getHp());
+        combatState.setPlayerWon(false);
+        combatState.setCombatActive(true);
+        combatState.setCurrentTurn(Turn.PLAYER);
+
+        // Nova mão
+        List<Cards> playerHand = drawCards(combatState.getAvatar().getDeck(), 5);
+        List<Cards> enemyHand = drawCards(proximoInimigo.getDeck(), 5);
+        combatState.setPlayerHand(playerHand);
+        combatState.setEnemyHand(enemyHand);
+
+        return combatState;
+    }
+
+
 }

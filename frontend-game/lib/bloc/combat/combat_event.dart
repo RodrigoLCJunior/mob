@@ -67,3 +67,11 @@ class ClearStatusMessage extends CombatEvent {
   @override
   String toString() => 'ClearStatusMessage() (combat_event.dart)';
 }
+
+class NextWaveEvent extends CombatEvent {
+  NextWaveEvent();
+
+  @override
+  String toString() => 'NextWaveEvent() (combat_event.dart)';
+}
+

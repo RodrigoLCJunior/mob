@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:midnight_never_end/models/combat_initial_data.dart';
 import 'package:midnight_never_end/models/inimigo.dart';
 import 'package:midnight_never_end/models/usuario.dart';
+import 'package:midnight_never_end/models/dungeon.dart';
 
 class ApiService {
   static const String baseUrl = 'http://localhost:9090/api';
@@ -160,4 +161,70 @@ class ApiService {
       throw Exception('Failed to start combat: $e');
     }
   }
+
+  Future<CombatInitialData> startDungeon(String playerId, int dungeonId) async {
+  try {
+    print('Starting dungeon for playerId: $playerId and dungeonId: $dungeonId');
+    final response = await http.post(
+      Uri.parse('$baseUrl/combat/start-dungeon?playerId=$playerId&dungeonId=$dungeonId'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    print('StartDungeon - Status Code: ${response.statusCode}');
+    print('StartDungeon - Response Body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      if (responseData['success'] == true) {
+        return CombatInitialData.fromJson(responseData);
+      } else {
+        throw Exception('Start dungeon failed: ${responseData['message'] ?? 'Unknown error'}');
+      }
+    } else {
+      throw Exception(
+        'Failed to start dungeon: HTTP ${response.statusCode} - ${response.body}',
+      );
+    }
+  } catch (e) {
+    print('Exception during startDungeon: $e');
+    throw Exception('Failed to start dungeon: $e');
+  }
+}
+
+Future<Dungeon> fetchDungeonById(int id) async {
+  final response = await http.get(Uri.parse('$baseUrl/dungeon/$id'));
+  if (response.statusCode == 200) {
+    final json = jsonDecode(response.body);
+    return Dungeon.fromJson(json);
+  } else {
+    throw Exception('Erro ao buscar dungeon: ${response.body}');
+  }
+}
+
+Future<CombatInitialData> nextWave(String playerId) async {
+  try {
+    print('Requesting next wave for playerId: $playerId');
+    final response = await http.post(
+      Uri.parse('$baseUrl/combat/next-wave?playerId=$playerId'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    print('NextWave - Status Code: ${response.statusCode}');
+    print('NextWave - Response Body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      // Aqui você precisa garantir que CombatState tenha um fromJson
+      return CombatInitialData.fromJson(responseData);
+    } else {
+      throw Exception('Failed to load next wave: HTTP ${response.statusCode} - ${response.body}');
+    }
+  } catch (e) {
+    print('Exception during nextWave: $e');
+    throw Exception('Failed to load next wave: $e');
+  }
+}
+
+
+
 }

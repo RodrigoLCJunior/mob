@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart'; // Adicionado para RepositoryProvider
 import 'package:midnight_never_end/services/api_service.dart';
 import 'package:midnight_never_end/ui/screens/user_loading_screen.dart';
+import 'package:midnight_never_end/models/dungeon.dart';
 
 void main() {
   runApp(const MyApp());
@@ -36,11 +37,16 @@ class HomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
+                final apiService = RepositoryProvider.of<ApiService>(context);
+                final dungeon = await apiService.fetchDungeonById(
+                  1,
+                ); // ou outro ID
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const UserLoadingScreen(),
+                    builder: (context) => UserLoadingScreen(dungeon: dungeon),
                   ),
                 );
               },

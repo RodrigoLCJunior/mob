@@ -86,7 +86,6 @@ class _CombatScreenState extends State<CombatScreen> {
             return const Center(child: Text('Combate não inicializado'));
           }
 
-
           final screenHeight = MediaQuery.of(context).size.height;
 
           return Stack(
@@ -201,6 +200,64 @@ class _CombatScreenState extends State<CombatScreen> {
                         fontSize: screenHeight * 0.011, // Metade de 0.022
                         fontWeight: FontWeight.bold,
                       ),
+                    ),
+                  ),
+                ),
+              ),
+              // Botão "Próxima Wave" aparece ao vencer a wave atual
+              if (state.playerWon &&
+                  state.combat!.wave.waveAtual < state.combat!.wave.waveFinal)
+                Positioned(
+                  bottom: screenHeight * 0.05,
+                  left: screenHeight * 0.02,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _combatBloc.add(NextWaveEvent());
+                      print('CombatScreen - Próxima Wave pressionada');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF402A57),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenHeight * 0.02,
+                        vertical: screenHeight * 0.01,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                    child: Text(
+                      'Próxima Wave',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: screenHeight * 0.015,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              // Indicador de wave no topo direito
+              Positioned(
+                top: MediaQuery.of(context).size.height * 0.05,
+                right: MediaQuery.of(context).size.height * 0.02,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.3),
+                      width: 2,
+                    ),
+                  ),
+                  child: Text(
+                    'Wave: ${state.combat!.wave.waveAtual} / ${state.combat!.wave.waveFinal}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),

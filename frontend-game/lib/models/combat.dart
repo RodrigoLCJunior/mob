@@ -1,6 +1,8 @@
 import 'package:midnight_never_end/models/avatar.dart';
 import 'package:midnight_never_end/models/inimigo.dart';
 import 'package:midnight_never_end/models/combat_initial_data.dart';
+import 'package:midnight_never_end/models/dungeon.dart';
+import 'package:midnight_never_end/models/wave.dart';
 
 class Combat {
   final Avatar avatar;
@@ -11,6 +13,10 @@ class Combat {
   final bool isCombatActive;
   final bool playerWon;
   final bool playerLost;
+
+  // Dungeon e Wave
+  final Dungeon dungeon;
+  final Wave wave;
 
   // Efeitos temporários
   // Adicionando escudo e veneno para o avatar e inimigo, ainda nao utilizados
@@ -28,6 +34,8 @@ class Combat {
     required this.isCombatActive,
     required this.playerWon,
     required this.playerLost,
+    required this.dungeon,
+    required this.wave,
     this.escudoAvatar = 0,
     this.escudoInimigo = 0,
     this.venenoAvatarTurnos = 0,
@@ -44,6 +52,8 @@ class Combat {
       isCombatActive: true,
       playerWon: false,
       playerLost: false,
+      dungeon: data.dungeon,
+      wave: data.wave,
     );
   }
 
@@ -56,6 +66,8 @@ class Combat {
     bool? isCombatActive,
     bool? playerWon,
     bool? playerLost,
+    Dungeon? dungeon,
+    Wave? wave,
     int? escudoAvatar,
     int? escudoInimigo,
     int? venenoAvatarTurnos,
@@ -70,6 +82,8 @@ class Combat {
       isCombatActive: isCombatActive ?? this.isCombatActive,
       playerWon: playerWon ?? this.playerWon,
       playerLost: playerLost ?? this.playerLost,
+      dungeon: dungeon ?? this.dungeon,
+      wave: wave ?? this.wave,
       escudoAvatar: escudoAvatar ?? this.escudoAvatar,
       escudoInimigo: escudoInimigo ?? this.escudoInimigo,
       venenoAvatarTurnos: venenoAvatarTurnos ?? this.venenoAvatarTurnos,

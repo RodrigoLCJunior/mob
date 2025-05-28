@@ -109,6 +109,13 @@ public class CombatController {
         }
     }
 
+    @PostMapping("/combat/next-wave")
+    public ResponseEntity<CombatState> proximaWave(@RequestParam UUID playerId) {
+        CombatState state = combatService.proximaWave(playerId);
+        return ResponseEntity.ok(state);
+    }
+
+
     @GetMapping("/start")
     public ResponseEntity<Map<String, Object>> getCombatStart() {
         Map<String, Object> response = new HashMap<>();
