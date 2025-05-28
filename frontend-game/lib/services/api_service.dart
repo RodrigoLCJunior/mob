@@ -214,16 +214,24 @@ Future<CombatInitialData> nextWave(String playerId) async {
 
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
-      // Aqui você precisa garantir que CombatState tenha um fromJson
-      return CombatInitialData.fromJson(responseData);
+      if (responseData['success'] == true) {
+        return CombatInitialData.fromJson(responseData);
+      } else {
+        throw Exception(
+          'Next wave failed: ${responseData['message'] ?? 'Unknown error'}',
+        );
+      }
     } else {
-      throw Exception('Failed to load next wave: HTTP ${response.statusCode} - ${response.body}');
+      throw Exception(
+        'Failed to load next wave: HTTP ${response.statusCode} - ${response.body}',
+      );
     }
   } catch (e) {
     print('Exception during nextWave: $e');
     throw Exception('Failed to load next wave: $e');
   }
 }
+
 
 
 

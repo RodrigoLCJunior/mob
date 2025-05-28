@@ -29,8 +29,6 @@ import 'package:midnight_never_end/models/card.dart';
 import 'combat_event.dart';
 import 'combat_state.dart';
 import 'combat_view_model.dart';
-import 'package:midnight_never_end/services/api_service.dart';
-
 import 'dart:math' as math;
 
   class DrawResult {
@@ -54,7 +52,6 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
     on<PlayEnemyCard>(_onPlayEnemyCard);
     on<EndEnemyTurn>(_onEndEnemyTurn);
     on<ClearStatusMessage>(_onClearStatusMessage);
-    on<NextWaveEvent>(_onNextWaveEvent);
     on<NextWaveEvent>(_onNextWaveEvent);
   }
 
@@ -537,8 +534,6 @@ Future<void> _onNextWaveEvent(NextWaveEvent event, Emitter<CombatState> emit) as
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
-  }
-
-
+}
 
 }
