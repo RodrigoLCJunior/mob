@@ -19,7 +19,7 @@ class Inimigo {
 
   factory Inimigo.fromJson(Map<String, dynamic> json) {
     return Inimigo(
-      id: (json['id'] as num).toInt(),
+      id: (json['id'] as int).toInt(),
       nome: json['nome'] as String,
       hp: json['hp'] as int,
       recompensa: json['recompensa'] as int,

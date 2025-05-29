@@ -4,11 +4,9 @@ import 'package:midnight_never_end/models/usuario.dart';
 import 'package:midnight_never_end/models/combat_initial_data.dart';
 import 'package:midnight_never_end/services/api_service.dart';
 import 'package:midnight_never_end/ui/screens/combat_screen.dart';
-import 'package:midnight_never_end/models/dungeon.dart';
 
 class UserLoadingScreen extends StatefulWidget {
-  final Dungeon dungeon;
-  const UserLoadingScreen({super.key,  required this.dungeon});
+  const UserLoadingScreen({super.key});
 
   @override
   State<UserLoadingScreen> createState() => _UserLoadingScreenState();
@@ -29,7 +27,7 @@ class _UserLoadingScreenState extends State<UserLoadingScreen> {
       final apiService = context.read<ApiService>();
       final usuario = await apiService.login('filipe@gmail.com', 'lipe12345');
       print('UserLoadingScreen - Login successful, usuario ID: ${usuario.id}');
-      final combatData = await apiService.startDungeon(usuario.id, widget.dungeon.id);
+      final combatData = await apiService.startCombat(usuario.id);
       print(
         'UserLoadingScreen - Combat data fetched: avatarHp=${combatData.avatar.hp}, enemyHp=${combatData.enemy.hp}, enemyName=${combatData.enemy.nome}',
       );

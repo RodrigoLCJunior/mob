@@ -141,7 +141,7 @@ class ApiService {
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         if (responseData['success'] == true) {
-          return CombatInitialData.fromJson(responseData);
+          return CombatInitialData.fromJson(responseData['combatState'] ?? {});
         } else {
           throw Exception(
             'Start combat failed: ${responseData['message'] ?? 'Unknown error'}',
@@ -167,7 +167,8 @@ class ApiService {
     print('Starting dungeon for playerId: $playerId and dungeonId: $dungeonId');
     final response = await http.post(
       Uri.parse('$baseUrl/combat/start-dungeon?playerId=$playerId&dungeonId=$dungeonId'),
-      headers: {'Content-Type': 'application/json'},
+      // Remova o header:
+      // headers: {'Content-Type': 'application/json'}, ❌
     );
 
     print('StartDungeon - Status Code: ${response.statusCode}');
@@ -176,7 +177,7 @@ class ApiService {
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
       if (responseData['success'] == true) {
-        return CombatInitialData.fromJson(responseData);
+        return CombatInitialData.fromJson(responseData['combatState'] ?? {}); // 👈 aqui
       } else {
         throw Exception('Start dungeon failed: ${responseData['message'] ?? 'Unknown error'}');
       }
@@ -215,7 +216,7 @@ Future<CombatInitialData> nextWave(String playerId) async {
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
       if (responseData['success'] == true) {
-        return CombatInitialData.fromJson(responseData);
+        return CombatInitialData.fromJson(responseData['combatState'] ?? {});
       } else {
         throw Exception(
           'Next wave failed: ${responseData['message'] ?? 'Unknown error'}',

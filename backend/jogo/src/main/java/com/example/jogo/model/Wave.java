@@ -21,7 +21,7 @@ public class Wave {
         this.waveAtual = waveAtual;
         this.waveFinal = waveFinal;
         this.inimigosDerrotados = new ArrayList<>();
-        this.ultimoInimigoId = null;
+        this.ultimoInimigoId = 0L;
     }
 
     public int getWaveAtual() {

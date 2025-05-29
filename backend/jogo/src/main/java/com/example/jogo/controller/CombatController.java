@@ -88,14 +88,23 @@ public class CombatController {
             }
             Inimigo enemy = allEnemies.get(random.nextInt(allEnemies.size()));
 
+            Wave waveNova = waveService.iniciarWave(3);
+            if(waveNova == null) {
+                throw new RuntimeException("Erro ao iniciar wave");
+            }
+
+
+
             // Logs detalhados do avatar e do inimigo selecionado
             System.out.println("Avatar selecionado: " + avatar.getId());
             System.out.println("Inimigo selecionado: " + enemy.getNome());
+            System.out.println("Wave criada " + waveNova.getWaveFinal());
 
             // Preparar os dados para o frontend
             Map<String, Object> combatData = new HashMap<>();
             combatData.put("avatar", avatar);
             combatData.put("enemy", enemy);
+            combatData.put("wave", waveNova);
 
             response.put("success", true);
             response.put("combatData", combatData);

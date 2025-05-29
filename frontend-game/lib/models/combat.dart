@@ -15,7 +15,6 @@ class Combat {
   final bool playerLost;
 
   // Dungeon e Wave
-  final Dungeon dungeon;
   final Wave wave;
 
   // Efeitos temporários
@@ -34,7 +33,6 @@ class Combat {
     required this.isCombatActive,
     required this.playerWon,
     required this.playerLost,
-    required this.dungeon,
     required this.wave,
     this.escudoAvatar = 0,
     this.escudoInimigo = 0,
@@ -52,7 +50,6 @@ class Combat {
       isCombatActive: true,
       playerWon: false,
       playerLost: false,
-      dungeon: data.dungeon,
       wave: data.wave,
     );
   }
@@ -82,7 +79,6 @@ class Combat {
       isCombatActive: isCombatActive ?? this.isCombatActive,
       playerWon: playerWon ?? this.playerWon,
       playerLost: playerLost ?? this.playerLost,
-      dungeon: dungeon ?? this.dungeon,
       wave: wave ?? this.wave,
       escudoAvatar: escudoAvatar ?? this.escudoAvatar,
       escudoInimigo: escudoInimigo ?? this.escudoInimigo,

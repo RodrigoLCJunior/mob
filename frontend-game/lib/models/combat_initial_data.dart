@@ -1,28 +1,24 @@
 import 'package:midnight_never_end/models/avatar.dart';
 import 'package:midnight_never_end/models/inimigo.dart';
-import 'package:midnight_never_end/models/dungeon.dart';
 import 'package:midnight_never_end/models/wave.dart';
 
 class CombatInitialData {
   final Avatar avatar;
   final Inimigo enemy;
-  final Dungeon dungeon;
   final Wave wave;
 
   CombatInitialData({
     required this.avatar,
     required this.enemy,
-    required this.dungeon,
     required this.wave,
   });
 
   factory CombatInitialData.fromJson(Map<String, dynamic> json) {
-    final combatData = json['combatData'] as Map<String, dynamic>? ?? {};
+    print('CombatInitialData.fromJson - JSON: $json');
 
     return CombatInitialData(
-      avatar: Avatar.fromJson(combatData['avatar'] ?? {}),
-      enemy: Inimigo.fromJson(combatData['enemy'] ?? {}),
-      dungeon: Dungeon.fromJson(json['dungeon'] ?? {}),
+      avatar: Avatar.fromJson(json['avatar'] ?? {}),
+      enemy: Inimigo.fromJson(json['enemy'] ?? {}),
       wave: Wave.fromJson(json['wave'] ?? {}),
     );
   }
@@ -33,7 +29,6 @@ class CombatInitialData {
         'avatar': avatar.toJson(),
         'enemy': enemy.toJson(),
       },
-      'dungeon': dungeon.toJson(),
       'wave': wave.toJson(),
     };
   }

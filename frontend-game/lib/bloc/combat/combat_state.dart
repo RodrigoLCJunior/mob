@@ -126,6 +126,9 @@ class CombatState {
     );
   }
 
+  bool get playerWon => gameResult == 'victory';
+  bool get playerLost => gameResult == 'defeat';
+
   @override
   String toString() {
     return 'CombatState(isLoading: $isLoading, error: $error, '

@@ -24,16 +24,12 @@ public class Dungeon {
     @Column(nullable = false)
     private int QtdWaves;
 
-    @Column
-    private String imagemDungeon; // Pode conter o caminho ou URL
-
     public Dungeon() {
     }
 
-    public Dungeon(String nome, int QtdWaves, String imagemDungeon) {
+    public Dungeon(String nome, int QtdWaves) {
         this.nome = nome;
         this.QtdWaves = QtdWaves;
-        this.imagemDungeon = imagemDungeon;
     }
 
     public Long getId() {
@@ -54,13 +50,5 @@ public class Dungeon {
 
     public void setQtdWaves(int qtdWaves) {
         QtdWaves = qtdWaves;
-    }
-
-    public String getImagemDungeon() {
-        return imagemDungeon;
-    }
-
-    public void setImagemDungeon(String imagemDungeon) {
-        this.imagemDungeon = imagemDungeon;
     }
 }

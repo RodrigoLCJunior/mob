@@ -28,8 +28,8 @@ import 'package:midnight_never_end/models/combat.dart';
 import 'package:midnight_never_end/models/card.dart';
 import 'combat_event.dart';
 import 'combat_state.dart';
-import 'combat_view_model.dart';
 import 'dart:math' as math;
+import 'package:midnight_never_end/services/api_service.dart';
 
   class DrawResult {
     final List<Cards> hand;
@@ -41,9 +41,10 @@ import 'dart:math' as math;
 class CombatBloc extends Bloc<CombatEvent, CombatState> {
   // Contador global para turnos
   int _turnGlobalCounter = 1;
-
+  static final ApiService _apiService = ApiService();
   // Contador global para gerar `id`s únicos para cartas copiadas
   int _cardIdCounter = 0;
+  String? playerId;
 
   CombatBloc() : super(CombatState.initial()) {
     on<InitializeCombat>(_onInitializeCombat);
@@ -139,7 +140,6 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
 
     // Resetar o contador global de turnos
     _turnGlobalCounter = 1;
-
     // Resetar o contador global de IDs de cartas
     _cardIdCounter = 0;
 
@@ -148,9 +148,12 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
     try {
       // Criar o objeto de combate
       final combat = Combat.fromInitialData(event.initialData);
+      playerId = event.initialData.avatar.id;
       print(
         'CombatBloc - Combat initialized: avatarHp=${combat.avatarHp}, enemyHp=${combat.enemyHp}',
       );
+
+      
 
       // Inicializar o deck e a mão do avatar
       final List<Cards> deckAvatar = List.from(event.initialData.avatar.deck);
@@ -523,17 +526,24 @@ Future<void> _onClearStatusMessage(
 }
 
 Future<void> _onNextWaveEvent(NextWaveEvent event, Emitter<CombatState> emit) async {
-    try {
-      emit(state.copyWith(isLoading: true));
-      final novoState = await apiService.nextWave(playerId);
-      emit(state.copyWith(
-        combat: novoState.combat, // ou ajuste conforme sua estrutura de CombatState
-        isLoading: false,
-        error: null,
-      ));
-    } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
-    }
+  try {
+    emit(state.copyWith(isLoading: true));
+
+    final novoData = await _apiService.nextWave(playerId!);
+    final novoCombat = Combat.fromInitialData(novoData);
+
+    emit(state.copyWith(
+      combat: novoCombat,
+      isLoading: false,
+      error: null,
+    ));
+  } catch (e, stack) {
+    print('Erro no nextWave: $e');
+    print('Stacktrace: $stack');
+
+    emit(state.copyWith(isLoading: false, error: e.toString()));
+  }
 }
+
 
 }

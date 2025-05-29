@@ -38,15 +38,11 @@ class HomeScreen extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () async {
-                final apiService = RepositoryProvider.of<ApiService>(context);
-                final dungeon = await apiService.fetchDungeonById(
-                  1,
-                ); // ou outro ID
 
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => UserLoadingScreen(dungeon: dungeon),
+                    builder: (context) => const UserLoadingScreen(),
                   ),
                 );
               },

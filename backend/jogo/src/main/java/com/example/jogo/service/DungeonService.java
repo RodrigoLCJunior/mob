@@ -40,7 +40,6 @@ public class DungeonService {
 
         existente.setNome(atualizada.getNome());
         existente.setQtdWaves(atualizada.getQtdWaves());
-        existente.setImagemDungeon(atualizada.getImagemDungeon());
 
         Dungeon salva = dungeonRepository.save(existente);
         if (salva == null) {

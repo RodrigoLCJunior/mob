@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:midnight_never_end/bloc/combat/combat_bloc.dart';
+import 'package:midnight_never_end/bloc/combat/combat_event.dart';
 import 'package:midnight_never_end/bloc/combat/combat_state.dart';
 import 'package:midnight_never_end/bloc/combat/combat_view_model.dart';
 import 'package:midnight_never_end/models/combat_initial_data.dart';
