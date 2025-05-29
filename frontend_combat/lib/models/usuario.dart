@@ -61,4 +61,23 @@ class Usuario {
       'moedaPermanente': moedaPermanente?.toJson(),
     };
   }
+
+  // Método para atualizar os dados do usuário sem modificar a instância original
+  Usuario copyWith({
+    String? id,
+    String? nome,
+    String? email,
+    String? senha,
+    Avatar? avatar,
+    MoedaPermanente? moedaPermanente,
+  }) {
+    return Usuario(
+      id: id ?? this.id,
+      nome: nome ?? this.nome,
+      email: email ?? this.email,
+      senha: senha ?? this.senha,
+      avatar: avatar ?? this.avatar,
+      moedaPermanente: moedaPermanente ?? this.moedaPermanente,
+    );
+  }
 }

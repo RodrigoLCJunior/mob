@@ -15,6 +15,8 @@ import com.example.jogo.model.Usuarios;
 import com.example.jogo.repository.InimigoRepository;
 import com.example.jogo.repository.UsuarioRepository;
 import com.example.jogo.service.CombatService;
+import com.example.jogo.service.InimigoService;
+import com.example.jogo.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,10 +33,10 @@ public class CombatController {
     private CombatService combatService;
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UsuarioService usuarioService;
 
     @Autowired
-    private InimigoRepository inimigoRepository;
+    private InimigoService inimigoService;
 
     private final Random random = new Random();
 
@@ -51,31 +53,25 @@ public class CombatController {
             System.out.println("Iniciando combate para o jogador com ID: " + playerId);
 
             // Validar se o jogador existe e possui avatar
-            Usuarios usuario = usuarioRepository.findById(playerId)
-                    .orElseThrow(() -> new IllegalArgumentException("Jogador não encontrado pelo ID: " + playerId));
+            Usuarios usuario = usuarioService.buscarUsuarioPorId(playerId);
+            if(usuario == null){
+                throw new IllegalArgumentException("Jogador não encontrado pelo ID: " + playerId);
+            }
 
             Avatar avatar = usuario.getAvatar();
             if (avatar == null) {
-                System.out.println("Erro: Jogador não possui um avatar válido.");
                 throw new IllegalStateException("Jogador não possui um avatar válido.");
             }
 
-            // Buscar todos os inimigos e selecionar um aleatório
-            List<Inimigo> allEnemies = new ArrayList<>(inimigoRepository.findAll());
-            if (allEnemies.isEmpty()) {
-                System.out.println("Erro: Nenhum inimigo encontrado.");
-                throw new RuntimeException("Nenhum inimigo encontrado");
+            Inimigo inimigoAleatorio = inimigoService.geraInimigoAleatorio();
+            if (inimigoAleatorio == null){
+                throw new IllegalStateException("Nenhum Inimigo encontrado.");
             }
-            Inimigo enemy = allEnemies.get(random.nextInt(allEnemies.size()));
-
-            // Logs detalhados do avatar e do inimigo selecionado
-            System.out.println("Avatar selecionado: " + avatar.getId());
-            System.out.println("Inimigo selecionado: " + enemy.getNome());
 
             // Preparar os dados para o frontend
             Map<String, Object> combatData = new HashMap<>();
             combatData.put("avatar", avatar);
-            combatData.put("enemy", enemy);
+            combatData.put("enemy", inimigoAleatorio);
 
             response.put("success", true);
             response.put("combatData", combatData);

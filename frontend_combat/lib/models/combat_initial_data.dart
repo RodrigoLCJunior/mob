@@ -22,4 +22,12 @@ class CombatInitialData {
       'combatData': {'avatar': avatar.toJson(), 'enemy': enemy.toJson()},
     };
   }
+
+  // Método para atualizar os dados do usuário sem modificar a instância original
+  CombatInitialData copyWith({Avatar? avatar, Inimigo? enemy}) {
+    return CombatInitialData(
+      avatar: avatar ?? this.avatar,
+      enemy: enemy ?? this.enemy,
+    );
+  }
 }

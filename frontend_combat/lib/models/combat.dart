@@ -36,6 +36,33 @@ class Combat {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'avatar': avatar.toJson(),
+      'enemy': enemy.toJson(),
+      'avatarHp': avatarHp,
+      'enemyHp': enemyHp,
+      'currentTurn': currentTurn,
+      'isCombatActive': isCombatActive,
+      'playerWon': playerWon,
+      'playerLost': playerLost,
+    };
+  }
+
+  factory Combat.fromJson(Map<String, dynamic> json) {
+    return Combat(
+      avatar: Avatar.fromJson(json['avatar']),
+      enemy: Inimigo.fromJson(json['enemy']),
+      avatarHp: json['avatarHp'] as int? ?? 0,
+      enemyHp: json['enemyHp'] as int? ?? 0,
+      currentTurn: json['currentTurn'] as String? ?? 'PLAYER',
+      isCombatActive: json['isCombatActive'] as bool? ?? true,
+      playerWon: json['playerWon'] as bool? ?? false,
+      playerLost: json['playerLost'] as bool? ?? false,
+    );
+  }
+
+  // Método para atualizar os dados do combate sem modificar a instância original
   Combat copyWith({
     Avatar? avatar,
     Inimigo? enemy,

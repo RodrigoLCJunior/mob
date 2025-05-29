@@ -32,4 +32,21 @@ class Cards {
       'imageCard': imageCard,
     };
   }
+
+  // Método para atualizar os dados do usuário sem modificar a instância original
+  Cards copyWith({
+    int? id,
+    String? nome,
+    String? descricao,
+    int? damage,
+    String? imageCard,
+  }) {
+    return Cards(
+      id: id ?? this.id,
+      nome: nome ?? this.nome,
+      descricao: descricao ?? this.descricao,
+      damage: damage ?? this.damage,
+      imageCard: imageCard ?? this.imageCard,
+    );
+  }
 }

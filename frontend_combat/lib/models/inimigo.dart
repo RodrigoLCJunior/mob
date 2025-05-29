@@ -45,4 +45,23 @@ class Inimigo {
       'deck': deck.map((card) => card.toJson()).toList(),
     };
   }
+
+  // Método para atualizar os dados do usuário sem modificar a instância original
+  Inimigo copyWith({
+    int? id,
+    String? nome,
+    int? hp,
+    int? recompensa,
+    String? imageInimigo,
+    List<Cards>? deck,
+  }) {
+    return Inimigo(
+      id: id ?? this.id,
+      nome: nome ?? this.nome,
+      hp: hp ?? this.hp,
+      recompensa: recompensa ?? this.recompensa,
+      imageInimigo: imageInimigo ?? this.imageInimigo,
+      deck: deck ?? this.deck,
+    );
+  }
 }

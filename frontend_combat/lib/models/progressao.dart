@@ -35,4 +35,23 @@ class Progressao {
       'avatar': avatarId,
     };
   }
+
+  // Método para atualizar os dados do usuário sem modificar a instância original
+  Progressao copyWith({
+    String? id,
+    int? totalMoedasTemporarias,
+    int? totalCliques,
+    int? totalInimigosDerrotados,
+    String? avatarId,
+  }) {
+    return Progressao(
+      id: id ?? this.id,
+      totalMoedasTemporarias:
+          totalMoedasTemporarias ?? this.totalMoedasTemporarias,
+      totalCliques: totalCliques ?? this.totalCliques,
+      totalInimigosDerrotados:
+          totalInimigosDerrotados ?? this.totalInimigosDerrotados,
+      avatarId: avatarId ?? this.avatarId,
+    );
+  }
 }

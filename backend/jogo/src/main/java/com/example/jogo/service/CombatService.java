@@ -23,18 +23,20 @@ import java.util.Collections;
 public class CombatService {
 
     @Autowired
-    private InimigoRepository inimigoRepository;
+    private InimigoService inimigoService;
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UsuarioService usuarioService;
 
     private final Map<UUID, CombatState> combatStates = new HashMap<>();
     private final Random random = new Random();
 
     public CombatState startCombat(UUID playerId) {
         // Validar se o jogador existe e possui avatar
-        Usuarios usuario = usuarioRepository.findById(playerId)
-                .orElseThrow(() -> new IllegalArgumentException("Jogador não encontrado pelo ID: " + playerId));
+        Usuarios usuario = usuarioService.buscarUsuarioPorId(playerId);
+        if(usuario == null) {
+            throw new IllegalArgumentException("Jogador não encontrado pelo ID: " + playerId);
+        }
 
         Avatar avatar = usuario.getAvatar();
         if (avatar == null) {
@@ -42,7 +44,7 @@ public class CombatService {
         }
 
         // Buscar todos os inimigos e selecionar um aleatório
-        List<Inimigo> allEnemies = new ArrayList<>(inimigoRepository.findAll());
+        List<Inimigo> allEnemies = new ArrayList<>(inimigoService.findAll());
         if (allEnemies.isEmpty()) {
             throw new RuntimeException("Nenhum inimigo encontrado");
         }
@@ -190,7 +192,9 @@ public class CombatService {
     }
 
     private CombatState validateCombatState(UUID playerId) {
-        if (!usuarioRepository.existsById(playerId)) {
+        Usuarios usuario = usuarioService.buscarUsuarioPorId(playerId);
+
+        if (usuario == null) {
             throw new IllegalArgumentException("Jogador não encontrado pelo ID: " + playerId);
         }
 

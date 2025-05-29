@@ -33,7 +33,7 @@ public class UsuarioService {
     private MoedaPermanenteService moedaPermanenteService;
 
     @Autowired
-    private CardsRepository cardsRepository;
+    private CardsService cardsService;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
@@ -135,7 +135,7 @@ public class UsuarioService {
         }
 
         // Buscar a carta pelo número (assumindo que numeroCarta é o ID da carta)
-        Cards carta = cardsRepository.findById(numeroCarta).orElse(null);
+        Cards carta = cardsService.acharCardPorId(numeroCarta);
         if (carta == null) {
             throw new IllegalArgumentException("Carta com número " + numeroCarta + " não encontrada");
         }

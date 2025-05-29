@@ -44,7 +44,7 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
 
   // --- Funções Auxiliares ---
 
-  /// Cria uma cópia de uma carta com um novo `id` único.
+  /// Cria uma cópia de uma carta com um novo id único.
   Cards _copyCardWithNewId(Cards card) {
     _cardIdCounter++;
     return Cards(

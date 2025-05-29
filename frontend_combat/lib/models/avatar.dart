@@ -60,4 +60,19 @@ class Avatar {
       'deck': deck.map((e) => e.toJson()).toList(),
     };
   }
+
+  // Método para atualizar os dados do usuário sem modificar a instância original
+  Avatar copyWith({
+    String? id,
+    int? hp,
+    Progressao? progressao,
+    List<Cards>? deck,
+  }) {
+    return Avatar(
+      id: id ?? this.id,
+      hp: hp ?? this.hp,
+      progressao: progressao ?? this.progressao,
+      deck: deck ?? this.deck,
+    );
+  }
 }

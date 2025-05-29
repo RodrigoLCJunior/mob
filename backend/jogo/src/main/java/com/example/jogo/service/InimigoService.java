@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class InimigoService {
@@ -19,7 +20,9 @@ public class InimigoService {
     private InimigoRepository inimigoRepository;
 
     @Autowired
-    private CardsRepository cardsRepository;
+    private CardsService cardsService;
+
+    private final Random random = new Random();
 
     public List<Inimigo> findAll() {
         return inimigoRepository.findAll();
@@ -39,7 +42,6 @@ public class InimigoService {
         return inimigoRepository.save(inimigo);
     }
 
-    @Transactional
     public Inimigo modificarInimigo(Long id, Inimigo inimigoNovo) {
         Optional<Inimigo> inimigoOpt = inimigoRepository.findById(id);
         if (inimigoOpt.isEmpty()) {
@@ -54,13 +56,12 @@ public class InimigoService {
         return inimigoRepository.save(inimigoExistente);
     }
 
-    @Transactional
     public Inimigo adicionarCartaAoDeckPorNumero(Long inimigoId, Long numeroCarta) {
         Inimigo inimigo = inimigoRepository.findById(inimigoId).orElse(null);
         if (inimigo == null) {
             throw new IllegalArgumentException("Inimigo não encontrado");
         }
-        Cards carta = cardsRepository.findById(numeroCarta).orElse(null);
+        Cards carta = cardsService.acharCardPorId(numeroCarta);
         if (carta == null) {
             throw new IllegalArgumentException("Carta com número " + numeroCarta + " não encontrada");
         }
@@ -72,6 +73,19 @@ public class InimigoService {
         }
         return inimigoRepository.save(inimigo);
     }
+
+    public Inimigo geraInimigoAleatorio(){
+        List<Inimigo> todosInimigos = findAll();
+        if (todosInimigos.isEmpty()){
+            return null;
+        }
+
+        Inimigo inimigoAleatorio = todosInimigos.get(random.nextInt(todosInimigos.size()));
+        if (inimigoAleatorio == null){
+            return null;
+        }
+        return inimigoAleatorio;
+    };
 
     @Transactional
     public void deletarInimigoPorId(Long id) {
