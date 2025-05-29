@@ -28,8 +28,8 @@ class CombatInitialData {
       'combatData': {
         'avatar': avatar.toJson(),
         'enemy': enemy.toJson(),
+        'wave': wave.toJson(),
       },
-      'wave': wave.toJson(),
     };
   }
 }
