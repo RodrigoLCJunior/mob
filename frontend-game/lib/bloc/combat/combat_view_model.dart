@@ -25,12 +25,15 @@ import 'package:midnight_never_end/models/card.dart';
 import 'package:midnight_never_end/bloc/combat/combat_bloc.dart';
 import 'package:midnight_never_end/bloc/combat/combat_event.dart';
 import 'package:midnight_never_end/bloc/combat/combat_state.dart';
+import 'package:midnight_never_end/services/api_service.dart';
 
 class CombatViewModel extends ChangeNotifier {
   final CombatBloc _combatBloc;
+  final ApiService apiService;
+
   StreamSubscription<CombatState>? _stateSubscription;
 
-  CombatViewModel(this._combatBloc) {
+  CombatViewModel(this._combatBloc, this.apiService) {
     _stateSubscription = _combatBloc.stream.listen((state) {
       notifyListeners();
     });
@@ -70,4 +73,16 @@ class CombatViewModel extends ChangeNotifier {
     _combatBloc.close();
     super.dispose();
   }
+
+void nextWave() async {
+  try {
+    final nextWaveData = await apiService.nextWave(); // Chama a API
+    _combatBloc.add(NextWaveEvent(nextWaveData)); // Dispara o evento com os dados
+  } catch (e) {
+    // Aqui você pode tratar erros, exibir mensagens ou logar
+    print('Erro ao carregar próxima wave: $e');
+  }
+}
+
+
 }

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:midnight_never_end/bloc/combat/combat_bloc.dart';
-import 'package:midnight_never_end/bloc/combat/combat_event.dart';
 import 'package:midnight_never_end/bloc/combat/combat_state.dart';
 import 'package:midnight_never_end/bloc/combat/combat_view_model.dart';
 import 'package:midnight_never_end/models/combat_initial_data.dart';
 import 'package:midnight_never_end/models/usuario.dart';
 import 'package:midnight_never_end/ui/game/combat_game.dart';
+import 'package:midnight_never_end/services/api_service.dart';
 
 class CombatScreen extends StatefulWidget {
   final Usuario usuario;
@@ -32,7 +32,7 @@ class _CombatScreenState extends State<CombatScreen> {
   void initState() {
     super.initState();
     _combatBloc = CombatBloc();
-    _viewModel = CombatViewModel(_combatBloc);
+    _viewModel = CombatViewModel(_combatBloc, ApiService());
     _viewModel.initialize(widget.combatData);
     print('CombatScreen - Initialized CombatViewModel with combatData');
 
@@ -99,6 +99,47 @@ class _CombatScreenState extends State<CombatScreen> {
                     child: GameWidget(game: _game),
                   );
                 },
+              ),
+              // Indicador de wave no canto superior direito
+              Positioned(
+                top: screenHeight * 0.015,
+                right: screenHeight * 0.02,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenHeight * 0.02,
+                    vertical: screenHeight * 0.01,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2A1A3D),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.3),
+                      width: 3,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black54,
+                        offset: const Offset(2, 2),
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    'Wave ${state.combat!.wave.waveAtual} / ${state.combat!.wave.waveFinal}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: screenHeight * 0.022,
+                      fontWeight: FontWeight.bold,
+                      shadows: const [
+                        Shadow(
+                          color: Colors.black38,
+                          offset: Offset(1, 1),
+                          blurRadius: 2,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
               // Indicador de turno no topo, afastado para baixo
               Positioned(
@@ -201,64 +242,6 @@ class _CombatScreenState extends State<CombatScreen> {
                         fontSize: screenHeight * 0.011, // Metade de 0.022
                         fontWeight: FontWeight.bold,
                       ),
-                    ),
-                  ),
-                ),
-              ),
-              // Botão "Próxima Wave" aparece ao vencer a wave atual
-              if (state.playerWon &&
-                  state.combat!.wave.waveAtual < state.combat!.wave.waveFinal)
-                Positioned(
-                  bottom: screenHeight * 0.05,
-                  left: screenHeight * 0.02,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _combatBloc.add(NextWaveEvent());
-                      print('CombatScreen - Próxima Wave pressionada');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF402A57),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenHeight * 0.02,
-                        vertical: screenHeight * 0.01,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ),
-                    child: Text(
-                      'Próxima Wave',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: screenHeight * 0.015,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              // Indicador de wave no topo direito
-              Positioned(
-                top: MediaQuery.of(context).size.height * 0.05,
-                right: MediaQuery.of(context).size.height * 0.02,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.6),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
-                      width: 2,
-                    ),
-                  ),
-                  child: Text(
-                    'Wave: ${state.combat!.wave.waveAtual} / ${state.combat!.wave.waveFinal}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),

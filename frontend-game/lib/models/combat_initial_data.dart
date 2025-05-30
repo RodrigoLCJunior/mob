@@ -14,14 +14,16 @@ class CombatInitialData {
   });
 
   factory CombatInitialData.fromJson(Map<String, dynamic> json) {
-    print('CombatInitialData.fromJson - JSON: $json');
+  final data = json['combatData'] ?? json; // usa o mais profundo, se existir
+  print('CombatInitialData.fromJson - JSON: $data');
 
-    return CombatInitialData(
-      avatar: Avatar.fromJson(json['avatar'] ?? {}),
-      enemy: Inimigo.fromJson(json['enemy'] ?? {}),
-      wave: Wave.fromJson(json['wave'] ?? {}),
-    );
-  }
+  return CombatInitialData(
+    avatar: Avatar.fromJson(data['avatar'] ?? {}),
+    enemy: Inimigo.fromJson(data['enemy'] ?? {}),
+    wave: Wave.fromJson(data['wave'] ?? {}),
+  );
+}
+
 
   Map<String, dynamic> toJson() {
     return {

@@ -12,13 +12,20 @@ class Wave {
   });
 
   factory Wave.fromJson(Map<String, dynamic> json) {
-    return Wave(
-      waveAtual: json['waveAtual'] as int? ?? 1,
-      waveFinal: json['waveFinal'] as int? ?? 1,
-      inimigosDerrotados: List<int>.from(json['inimigosDerrotados'] ?? []),
-      ultimoInimigoId: json['ultimoInimigoId'] as int? ?? 0,
-    );
-  }
+  print('Wave.fromJson - json: $json');
+
+  return Wave(
+    waveAtual: json['waveAtual'] as int? ?? 1,
+    waveFinal: json['waveFinal'] as int? ?? 1,
+    inimigosDerrotados: (json['inimigosDerrotados'] as List?)
+            ?.where((e) => e != null)
+            .map((e) => e as int)
+            .toList() ??
+        [],
+    ultimoInimigoId: json['ultimoInimigoId'] as int? ?? 0,
+  );
+}
+
 
   Map<String, dynamic> toJson() {
     return {

@@ -5,6 +5,7 @@ import 'package:midnight_never_end/models/combat_initial_data.dart';
 import 'package:midnight_never_end/models/usuario.dart';
 import 'package:midnight_never_end/ui/game/combat_game.dart';
 import 'package:midnight_never_end/ui/screens/combat_screen.dart';
+import 'package:midnight_never_end/services/api_service.dart';
 
 class CombatLoadingScreen extends StatefulWidget {
   final CombatInitialData combatData;
@@ -30,7 +31,7 @@ class _CombatLoadingScreenState extends State<CombatLoadingScreen> {
     super.initState();
     // Inicializar o CombatBloc e CombatViewModel
     _combatBloc = CombatBloc();
-    _viewModel = CombatViewModel(_combatBloc);
+    _viewModel = CombatViewModel(_combatBloc, ApiService());
     _viewModel.initialize(widget.combatData);
     print('CombatLoadingScreen - Initialized CombatViewModel with combatData');
 

@@ -68,8 +68,7 @@ class CombatGame extends FlameGame {
   bool _isComponentsLoaded = false;
   late EnemyAction _enemyAction;
   late BackgroundPositioning _backgroundPositioning;
-  String? _lastStatusMessage;
-  bool _hasHandledCurrentMessage = false;
+  int _lastHandledMessageId = -1;
 
   // Variáveis para controle do turno do inimigo
   bool _isEnemyPlaying = false;
@@ -249,24 +248,15 @@ class CombatGame extends FlameGame {
 
     if (isComponentsLoaded) {
       final message = viewModel.state.statusMessage;
+      final messageId = viewModel.state.statusMessageId;
 
-      if (message != null && !_hasHandledCurrentMessage) {
+      if (message != null && messageId != _lastHandledMessageId) {
         final position = Vector2(size.x / 2, size.y * 0.5);
         final infoText = InfoTextComponent(message, position);
         add(infoText);
 
-        _lastStatusMessage = message;
-        _hasHandledCurrentMessage = true;
-
+        _lastHandledMessageId = messageId;
         viewModel.clearStatusMessage(); // dispara evento
-      }
-
-      // Aqui zeramos o controle local quando a mensagem é apagada no BLoC
-      if (message == null && _hasHandledCurrentMessage) {
-        _hasHandledCurrentMessage = false;
-
-        // Importante: permitimos que a mesma mensagem apareça de novo no futuro
-        _lastStatusMessage = null;
       }
     }
   }

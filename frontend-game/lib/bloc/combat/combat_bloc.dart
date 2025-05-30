@@ -29,22 +29,21 @@ import 'package:midnight_never_end/models/card.dart';
 import 'combat_event.dart';
 import 'combat_state.dart';
 import 'dart:math' as math;
-import 'package:midnight_never_end/services/api_service.dart';
 
   class DrawResult {
     final List<Cards> hand;
     final String? message;
+    final int? messageId;
 
-    DrawResult(this.hand, this.message);
+    DrawResult(this.hand, this.message, [this.messageId]);
   }
 
 class CombatBloc extends Bloc<CombatEvent, CombatState> {
   // Contador global para turnos
   int _turnGlobalCounter = 1;
-  static final ApiService _apiService = ApiService();
+
   // Contador global para gerar `id`s únicos para cartas copiadas
   int _cardIdCounter = 0;
-  String? playerId;
 
   CombatBloc() : super(CombatState.initial()) {
     on<InitializeCombat>(_onInitializeCombat);
@@ -53,7 +52,7 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
     on<PlayEnemyCard>(_onPlayEnemyCard);
     on<EndEnemyTurn>(_onEndEnemyTurn);
     on<ClearStatusMessage>(_onClearStatusMessage);
-    on<NextWaveEvent>(_onNextWaveEvent);
+    //on<NextWaveEvent>(_onNextWaveEvent);
   }
 
   // --- Funções Auxiliares ---
@@ -104,9 +103,11 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
     if (notifyOverflow) {
       statusMessage = "Você atingiu o limite de 12 cartas. 3 cartas foram substituídas aleatoriamente.";
       print("CombatBloc - $statusMessage");
+      return DrawResult(newHand, statusMessage, DateTime.now().millisecondsSinceEpoch);
     }
 
-    return DrawResult(newHand, statusMessage);
+
+    return DrawResult(newHand, null);
   }
 
   for (int i = 0; i < cardsToDraw && newHand.length < maxHandSize; i++) {
@@ -140,6 +141,7 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
 
     // Resetar o contador global de turnos
     _turnGlobalCounter = 1;
+
     // Resetar o contador global de IDs de cartas
     _cardIdCounter = 0;
 
@@ -148,12 +150,9 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
     try {
       // Criar o objeto de combate
       final combat = Combat.fromInitialData(event.initialData);
-      playerId = event.initialData.avatar.id;
       print(
         'CombatBloc - Combat initialized: avatarHp=${combat.avatarHp}, enemyHp=${combat.enemyHp}',
       );
-
-      
 
       // Inicializar o deck e a mão do avatar
       final List<Cards> deckAvatar = List.from(event.initialData.avatar.deck);
@@ -265,7 +264,8 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
             enemyHp: newEnemyHp,
           ),
           gameResult: gameResult,
-          statusMessage: result.message, // <- AQUI
+          statusMessage: result.message,
+          statusMessageId: result.messageId ?? state.statusMessageId, 
         ),
       );
     } else {
@@ -292,6 +292,7 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
           ),
           gameResult: gameResult,
           statusMessage: result.message,
+          statusMessageId: result.messageId ?? state.statusMessageId,
         ),
       );
     }
@@ -503,6 +504,7 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
           playerTurnCount: newPlayerTurnCount,
           maoAvatar: result.hand,
           statusMessage: result.message,
+          statusMessageId: result.messageId ?? state.statusMessageId,
           gameResult: gameResult,
           combat: state.combat?.copyWith(avatarHp: newAvatarHp),
           venenoAvatarTurnos: venenoAvatarTurnos,
@@ -525,25 +527,27 @@ Future<void> _onClearStatusMessage(
   emit(state.copyWith(statusMessage: null));
 }
 
-Future<void> _onNextWaveEvent(NextWaveEvent event, Emitter<CombatState> emit) async {
+/*Future<void> _onNextWaveEvent(
+  NextWaveEvent event,
+  Emitter<CombatState> emit,
+) async {
   try {
     emit(state.copyWith(isLoading: true));
 
-    final novoData = await _apiService.nextWave(playerId!);
-    final novoCombat = Combat.fromInitialData(novoData);
-
+    // Usando os dados já carregados no evento (não acessa ViewModel aqui)
     emit(state.copyWith(
-      combat: novoCombat,
+      combat: event.nextWaveData.combat,
       isLoading: false,
-      error: null,
+      statusMessage: 'Próxima wave iniciada!',
     ));
-  } catch (e, stack) {
-    print('Erro no nextWave: $e');
-    print('Stacktrace: $stack');
-
-    emit(state.copyWith(isLoading: false, error: e.toString()));
+  } catch (e) {
+    emit(state.copyWith(
+      isLoading: false,
+      error: 'Erro ao carregar próxima wave: $e',
+    ));
   }
-}
+}*/
+
 
 
 }

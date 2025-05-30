@@ -69,9 +69,12 @@ class ClearStatusMessage extends CombatEvent {
 }
 
 class NextWaveEvent extends CombatEvent {
-  NextWaveEvent();
+  final CombatInitialData nextWaveData;
+
+  NextWaveEvent(this.nextWaveData);
 
   @override
-  String toString() => 'NextWaveEvent() (combat_event.dart)';
+  String toString() => 'NextWaveEvent(nextWaveData: $nextWaveData)';
 }
+
 
