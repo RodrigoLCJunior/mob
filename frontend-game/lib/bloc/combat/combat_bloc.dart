@@ -26,6 +26,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:midnight_never_end/models/combat.dart';
 import 'package:midnight_never_end/models/card.dart';
+import 'package:midnight_never_end/models/wave.dart';
 import 'combat_event.dart';
 import 'combat_state.dart';
 import 'dart:math' as math;
@@ -52,7 +53,7 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
     on<PlayEnemyCard>(_onPlayEnemyCard);
     on<EndEnemyTurn>(_onEndEnemyTurn);
     on<ClearStatusMessage>(_onClearStatusMessage);
-    //on<NextWaveEvent>(_onNextWaveEvent);
+    on<NextWaveEvent>(_onNextWaveEvent);
   }
 
   // --- Funções Auxiliares ---
@@ -180,6 +181,8 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
           deckAvatar: deckAvatar,
           deckInimigo: deckInimigo,
           error: null,
+          combatInitialData: event.initialData,
+          wave: event.initialData.wave,
         ),
       );
       print(
@@ -375,7 +378,33 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
 
   if (updatedEnemyHp <= 0) {
     print('CombatBloc - Enemy defeated!');
-    emit(newState.copyWith(gameResult: 'victory'));
+    final currentWave = state.wave;
+    final defeatedList = List<int>.from(currentWave?.inimigosDerrotados ?? []);
+    final enemyId = state.combat!.enemy.id;
+
+    if (!defeatedList.contains(enemyId)) {
+      defeatedList.add(enemyId);
+    }
+
+    final isLastWave = currentWave != null &&
+        currentWave.waveAtual >= currentWave.waveFinal;
+
+    if (isLastWave) {
+      emit(newState.copyWith(
+        wave: currentWave?.copyWith(inimigosDerrotados: defeatedList),
+        gameResult: 'victory',
+      ));
+    } else {
+      emit(newState.copyWith(
+        wave: currentWave?.copyWith(inimigosDerrotados: defeatedList),
+        gameResult: null,
+        statusMessage: 'Inimigo derrotado! Próxima wave em instantes.',
+        statusMessageId: DateTime.now().millisecondsSinceEpoch,
+      ));
+
+      await Future.delayed(const Duration(seconds: 1));
+      Future(() => add(NextWaveEvent(state.combatInitialData!)));
+    }
   }
 }
 
@@ -527,18 +556,40 @@ Future<void> _onClearStatusMessage(
   emit(state.copyWith(statusMessage: null));
 }
 
-/*Future<void> _onNextWaveEvent(
+Future<void> _onNextWaveEvent(
   NextWaveEvent event,
   Emitter<CombatState> emit,
 ) async {
   try {
     emit(state.copyWith(isLoading: true));
 
-    // Usando os dados já carregados no evento (não acessa ViewModel aqui)
+    final nextWaveNumber = (state.wave?.waveAtual ?? 1) + 1;
+
+    final newWave = Wave(
+      waveAtual: nextWaveNumber,
+      waveFinal: state.wave?.waveFinal ?? 1,
+      inimigosDerrotados: state.wave?.inimigosDerrotados ?? [],
+      ultimoInimigoId: event.nextWaveData.enemy.id,
+    );
+
+    final newCombat = Combat.fromInitialData(event.nextWaveData);
+
+    final drawResult = _drawCards(
+      currentHand: [],
+      originalDeck: List.from(event.nextWaveData.avatar.deck),
+      cardsToDraw: 5,
+    );
+
     emit(state.copyWith(
-      combat: event.nextWaveData.combat,
       isLoading: false,
-      statusMessage: 'Próxima wave iniciada!',
+      combat: newCombat,
+      deckAvatar: List.from(event.nextWaveData.avatar.deck),
+      deckInimigo: List.from(event.nextWaveData.enemy.deck),
+      maoAvatar: drawResult.hand,
+      maoInimigo: [],
+      wave: newWave,
+      statusMessage: 'Wave $nextWaveNumber iniciada!',
+      statusMessageId: DateTime.now().millisecondsSinceEpoch,
     ));
   } catch (e) {
     emit(state.copyWith(
@@ -546,8 +597,6 @@ Future<void> _onClearStatusMessage(
       error: 'Erro ao carregar próxima wave: $e',
     ));
   }
-}*/
-
-
+}
 
 }

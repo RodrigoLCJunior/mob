@@ -35,4 +35,18 @@ class Wave {
       'ultimoInimigoId': ultimoInimigoId,
     };
   }
+
+  Wave copyWith({
+    int? waveAtual,
+    int? waveFinal,
+    List<int>? inimigosDerrotados,
+    int? ultimoInimigoId,
+  }) {
+    return Wave(
+      waveAtual: waveAtual ?? this.waveAtual,
+      waveFinal: waveFinal ?? this.waveFinal,
+      inimigosDerrotados: inimigosDerrotados ?? this.inimigosDerrotados,
+      ultimoInimigoId: ultimoInimigoId ?? this.ultimoInimigoId,
+    );
+  }
 }

@@ -19,6 +19,8 @@
 /// observadas pela interface e pela lógica de jogo com clareza e precisão.
 
 import 'package:midnight_never_end/models/card.dart';
+import 'package:midnight_never_end/models/combat_initial_data.dart';
+import 'package:midnight_never_end/models/wave.dart';
 import 'package:midnight_never_end/models/combat.dart';
 
 class CombatState {
@@ -47,6 +49,9 @@ class CombatState {
   final String? statusMessage;
   final int statusMessageId;
 
+  final Wave? wave;
+  final CombatInitialData? combatInitialData;
+
   CombatState({
     required this.isLoading,
     this.error,
@@ -67,6 +72,8 @@ class CombatState {
     this.venenoInimigoValor = 0,
     this.statusMessage,
     this.statusMessageId = 0,
+    this.wave,
+    this.combatInitialData,
   });
 
   factory CombatState.initial() {
@@ -84,6 +91,8 @@ class CombatState {
       enemyTurnCount: 0,
       statusMessage: null,
       statusMessageId: 0,
+      wave: null,
+      combatInitialData: null,
     );
   }
 
@@ -107,6 +116,8 @@ class CombatState {
     int? venenoInimigoValor,
     String? statusMessage,
     int? statusMessageId,
+    Wave? wave,
+    CombatInitialData? combatInitialData,
   }) {
     return CombatState(
       isLoading: isLoading ?? this.isLoading,
@@ -128,6 +139,8 @@ class CombatState {
       venenoInimigoValor: venenoInimigoValor ?? this.venenoInimigoValor,
       statusMessage: statusMessage ?? this.statusMessage,
       statusMessageId: statusMessageId ?? this.statusMessageId,
+      wave: wave ?? this.wave,
+      combatInitialData: combatInitialData ?? this.combatInitialData,
     );
   }
 
@@ -141,6 +154,5 @@ class CombatState {
         'escudoAvatar: $escudoAvatar, escudoInimigo: $escudoInimigo, '
         'venenoAvatarTurnos: $venenoAvatarTurnos, venenoInimigoTurnos: $venenoInimigoTurnos, '
         'venenoAvatarValor: $venenoAvatarValor, venenoInimigoValor: $venenoInimigoValor), ';
-        'statusMessage: $statusMessage, statusMessageId: $statusMessageId';
   }
 }

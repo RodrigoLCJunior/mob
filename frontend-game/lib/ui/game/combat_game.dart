@@ -140,7 +140,7 @@ class CombatGame extends FlameGame {
     add(avatarComponent!);
   }
 
-  void _navigateToResultScreen(String gameResult) {
+  void _navigateToResultScreen(String? gameResult) {
     if (_hasNavigated) return;
 
     _hasNavigated = true;
@@ -179,7 +179,13 @@ class CombatGame extends FlameGame {
 
   void _checkGameResult() {
     final gameResult = viewModel.state.gameResult;
-    if (gameResult != null) {
+    if (gameResult == null) return;
+
+    if (gameResult == 'victory') {
+      if (!_hasMoreWaves()) {
+        _navigateToResultScreen(gameResult);
+      }
+    } else if (gameResult == 'defeat') {
       _navigateToResultScreen(gameResult);
     }
   }
@@ -284,4 +290,10 @@ class CombatGame extends FlameGame {
   void moveBackgroundHorizontally(double deltaX) {
     _backgroundPositioning.moveHorizontally(deltaX);
   }
+
+  bool _hasMoreWaves() {
+    final wave = viewModel.state.wave;
+    return wave != null && wave.waveAtual < wave.waveFinal;
+  }
+
 }
