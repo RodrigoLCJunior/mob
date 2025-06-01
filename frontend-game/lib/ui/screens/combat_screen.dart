@@ -125,7 +125,7 @@ class _CombatScreenState extends State<CombatScreen> {
                     ],
                   ),
                   child: Text(
-                    'Wave ${state.combat!.wave.waveAtual} / ${state.combat!.wave.waveFinal}',
+                    'Wave ${state.wave?.waveAtual ?? 1} / ${state.wave?.waveFinal ?? 1}',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: screenHeight * 0.022,

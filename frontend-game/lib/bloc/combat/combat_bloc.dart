@@ -402,7 +402,8 @@ class CombatBloc extends Bloc<CombatEvent, CombatState> {
         statusMessageId: DateTime.now().millisecondsSinceEpoch,
       ));
 
-      await Future.delayed(const Duration(seconds: 1));
+      // Aguarde um momento para mostrar a mensagem antes de ir para a próxima wave
+      await Future.delayed(const Duration(seconds: 2));
       Future(() => add(NextWaveEvent(state.combatInitialData!)));
     }
   }
