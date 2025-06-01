@@ -88,7 +88,7 @@ public class CombatController {
             }
             Inimigo enemy = allEnemies.get(random.nextInt(allEnemies.size()));
 
-            Wave waveNova = waveService.iniciarWave(3);
+            Wave waveNova = waveService.iniciarWave(5);
             if(waveNova == null) {
                 throw new RuntimeException("Erro ao iniciar wave");
             }
