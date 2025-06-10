@@ -1,0 +1,2 @@
+C:/Projetos/rewalker/android/app/.cxx/RelWithDebInfo/2u5g1j3s/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Projetos/rewalker/android/app/.cxx/RelWithDebInfo/2u5g1j3s/armeabi-v7a/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="02d50df9-dbe6-4fa7-ba99-6d24b0cfa5bb" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/controller/CardsController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/controller/CombatController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/model/Cards.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/model/CombatState.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/model/Turn.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/repository/CardsRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/service/CardsService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/service/CombatService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/Procfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/runtime.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/JogoApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/JogoApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/config/CorsConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/config/CorsConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/controller/AvatarController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/controller/AvatarController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/controller/CombateController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/controller/DungeonController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/controller/InimigoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/controller/InimigoController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/controller/ProgressaoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/controller/ProgressaoController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/controller/UsuarioController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/controller/UsuarioController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/model/Avatar.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/model/Avatar.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/model/Combate.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/model/Dungeon.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/model/Inimigo.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/model/Inimigo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/model/MoedaPermanente.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/model/MoedaPermanente.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/model/Progressao.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/model/Progressao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/model/Usuarios.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/model/Usuarios.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/model/Wave.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/repository/AvatarRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/repository/AvatarRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/repository/DungeonRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/repository/InimigoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/repository/InimigoRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/repository/MoedaPermanenteRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/repository/MoedaPermanenteRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/repository/ProgressaoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/repository/ProgressaoRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/repository/UsuarioRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/repository/UsuarioRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/service/AvatarService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/service/AvatarService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/service/CombateService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/service/DungeonService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/service/InimigoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/service/InimigoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/service/MoedaPermanenteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/service/MoedaPermanenteService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/service/ProgressaoService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/service/ProgressaoService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/service/UsuarioService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/service/UsuarioService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/java/com/example/jogo/service/WaveService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/jogo/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/jogo/src/main/resources/application.properties" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Enum" />
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/backend/jogo" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 8
+}]]></component>
+  <component name="ProjectId" id="2wb2pwsbnHfBlX7psnaDmmEk7kJ" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.JogoApplication.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/rodri/OneDrive/Documentos/swagger/demo",
+    "settings.editor.selected.configurable": "File.Encoding"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="02d50df9-dbe6-4fa7-ba99-6d24b0cfa5bb" name="Changes" comment="" />
+      <created>1746296138345</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1746296138345</updated>
+    </task>
+    <servers />
+  </component>
+</project>
