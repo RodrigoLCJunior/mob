@@ -1,2 +1,0 @@
-C:/Users/rodri/OneDrive/Desktop/teste/frontend - Copia - Copia/android/app/.cxx/RelWithDebInfo/v3r44362/arm64-v8a/CMakeFiles/edit_cache.dir
-C:/Users/rodri/OneDrive/Desktop/teste/frontend - Copia - Copia/android/app/.cxx/RelWithDebInfo/v3r44362/arm64-v8a/CMakeFiles/rebuild_cache.dir

@@ -1,1 +1,0 @@
- C:\\Projetos\\rewalker\\.dart_tool\\flutter_build\\fc9af1c202e9f274018df9806cdd05a2\\native_assets.json: 

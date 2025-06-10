@@ -1,2 +1,0 @@
-C:/Projetos/rewalker/android/app/.cxx/RelWithDebInfo/2u5g1j3s/x86/CMakeFiles/edit_cache.dir
-C:/Projetos/rewalker/android/app/.cxx/RelWithDebInfo/2u5g1j3s/x86/CMakeFiles/rebuild_cache.dir
