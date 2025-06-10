@@ -1,0 +1,22 @@
+{
+  "id": "100",
+  "nome": "teste",
+  "email": "teste",
+  "senha": "1234",
+  "avatar": {
+      "id": "100",
+      "hp": 5,
+      "danoBase": 1,
+      "progressao": {
+          "id": "teste",
+          "totalMoedasTemporarias": 0,
+          "totalCliques": 0,
+          "totalInimigosDerrotados": 0,
+          "avatarId": "teste"
+      }
+  },
+  "moedaPermanente": {
+      "id": "teste",
+      "quantidade": 0
+  }
+}
