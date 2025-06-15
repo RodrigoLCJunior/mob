@@ -1,0 +1,23 @@
+{
+  "id": "Teste",
+  "hp": 40,
+  "progressao": {
+      "id": "Teste",
+      "totalMoedasTemporarias": 0,
+      "totalCliques": 0,
+      "totalInimigosDerrotados": 0,
+      "avatarId": "Teste"
+  },
+  "deck": 
+    [
+      {
+        "id": 1,
+        "nome": "Right Punch",
+        "descricao": "Aplica 2 pontos de dano físico.",
+        "valor": 2,
+        "qtdTurnos": 0,
+        "imageCard": "right_punch.png",
+        "tipoEfeito": "DANO"
+      }
+    ]
+}

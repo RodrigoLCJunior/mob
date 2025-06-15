@@ -1,0 +1,18 @@
+{
+    "id": 3,
+    "nome": "AHAB",
+    "hp": 30,
+    "recompensa": 30,
+    "imageInimigo": "ahab.png",
+    "deck": [
+        {
+            "id": 8,
+            "nome": "Ataque Venenoso",
+            "descricao": "Aplica 2 de dano por rodada durante 2 turnos.",
+            "valor": 2,
+            "qtdTurnos": 2,
+            "imageCard": "veneno.png",
+            "tipoEfeito": "VENENO"
+        }
+    ]
+}
