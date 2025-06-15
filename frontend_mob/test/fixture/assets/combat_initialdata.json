@@ -1,0 +1,45 @@
+{
+    "combatData": {
+        "enemy": {
+            "id": 4,
+            "nome": "KARS",
+            "hp": 40,
+            "recompensa": 50,
+            "imageInimigo": "Kars.png",
+            "deck": [
+                {
+                    "id": 1,
+                    "nome": "Right Punch",
+                    "descricao": "Aplica 2 pontos de dano físico.",
+                    "valor": 2,
+                    "qtdTurnos": 0,
+                    "imageCard": "right_punch.png",
+                    "tipoEfeito": "DANO"
+                }
+            ]
+        },
+        "avatar": {
+            "id": "teste",
+            "hp": 40,
+            "progressao": {
+                "id": "teste",
+                "totalMoedasTemporarias": 0,
+                "totalCliques": 0,
+                "totalInimigosDerrotados": 0,
+                "avatarId": "teste"
+            },
+            "deck": [
+                {
+                    "id": 1,
+                    "nome": "Right Punch",
+                    "descricao": "Aplica 2 pontos de dano físico.",
+                    "valor": 2,
+                    "qtdTurnos": 0,
+                    "imageCard": "right_punch.png",
+                    "tipoEfeito": "DANO"
+                }
+            ]
+        }
+    },
+    "success": true
+}
