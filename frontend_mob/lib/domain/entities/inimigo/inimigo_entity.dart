@@ -21,13 +21,13 @@ class Inimigo {
 
   factory Inimigo.fromJson(Map<String, dynamic> json) {
     return Inimigo(
-      id: (json['id'] as num).toInt(),
-      nome: json['nome'] as String,
-      hp: json['hp'] as int,
-      recompensa: json['recompensa'] as int,
+      id: (json['id'] ?? 0) as int,
+      nome: (json['nome'] ?? 'Desconhecido') as String,
+      hp: (json['hp'] ?? 0) as int,
+      recompensa: (json['recompensa'] ?? 0) as int,
       imageInimigo: json['imageInimigo'] as String?,
       deck:
-          (json['deck'] as List<dynamic>)
+          (json['deck'] as List<dynamic>? ?? [])
               .map(
                 (cardJson) => Cards.fromJson(cardJson as Map<String, dynamic>),
               )
