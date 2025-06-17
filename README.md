@@ -1,5 +1,7 @@
 # 🎮 Funcionamento do Jogo
 🏠 Tela Inicial
+- Exibe a logo do jogo com visual imersivo.
+  
 - Você pode segurar e arrastar a tela para visualizar todo o background.
 
 - Ao clicar rapidamente na tela, um raio aparece brevemente, e o background muda, permitindo explorar essa nova cena. Ao clicar novamente, surge um trovão.
@@ -21,9 +23,20 @@
 
  - Na mesma tela, você pode escolher uma missão clicando no ícone do livro 📖 (primeiro botão).
 
+ - Logo, o jogo inicia a fase de combate correspondente.
+
 # 📜 Missões e Combate
 
 🎯 Como funciona o combate:
+Interface com:
+
+ - Barra de vida do inimigo e do jogador.
+
+ - Feedback visual ao jogar cartas.
+
+ - No canto superior esquerdo vamos ter o botão para caso o jogador queira voltar 
+ a Tela de Menu.
+
 Início do combate:
 
  - Tanto você quanto o inimigo recebem 5 cartas aleatórias.
