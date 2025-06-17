@@ -21,7 +21,8 @@
 
  - Na mesma tela, você pode escolher uma missão clicando no ícone do livro 📖 (primeiro botão).
 
-📜 Missões e Combate
+#📜 Missões e Combate
+
 🎯 Como funciona o combate:
 Início do combate:
 
