@@ -21,8 +21,8 @@
 
  - Na mesma tela, você pode escolher uma missão clicando no ícone do livro 📖 (primeiro botão).
 
-##📜 Missões e Combate
-##🎯 Como funciona o combate:
+📜 Missões e Combate
+🎯 Como funciona o combate:
 Início do combate:
 
  - Tanto você quanto o inimigo recebem 5 cartas aleatórias.
