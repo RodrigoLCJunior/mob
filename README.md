@@ -28,6 +28,7 @@
 # 📜 Missões e Combate
 
 🎯 Como funciona o combate:
+
 Interface com:
 
  - Barra de vida do inimigo e do jogador.
