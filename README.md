@@ -1,3 +1,58 @@
+ # 🏗️ Arquitetura do Projeto
+ - O projeto foi desenvolvido utilizando uma abordagem sólida e escalável, combinando diferentes padrões arquiteturais que se complementam:
+
+🔥 MVVM (Model-View-ViewModel)
+ - O projeto segue o padrão de arquitetura MVVM, que organiza o código em três camadas principais:
+
+ - Model: Responsável pela regra de negócio e estrutura de dados.
+
+ - View: A interface do usuário e seus componentes visuais.
+
+ - ViewModel: Faz a ponte entre a View e o Model, controlando os estados e a lógica de apresentação.
+
+- 🧠 Toda a gestão de estado é feita de forma clara e bem definida, diferenciando:
+
+    - Estados Efêmeros: Estados temporários, como carregamentos e animações.
+
+    - Estados Compartilhados: Dados persistentes durante a navegação, como informações de usuário e progresso no jogo.
+
+    - Para essa gestão, utilizamos o pacote BLoC (Business Logic Component), garantindo que:
+
+    - A lógica de negócio permaneça desacoplada da interface.
+
+    - Os estados sejam bem controlados, previsíveis e reativos.
+
+ # 🎯 Mini Arquitetura Paralela: ECS (Entity Component System)
+    - Dentro da própria arquitetura MVVM, o projeto incorpora uma mini arquitetura ECS (Entity Component System) aplicada especificamente no módulo de gameplay e combate.
+
+    - O padrão ECS oferece uma abordagem altamente modular, performática e escalável, especialmente eficiente para desenvolvimento de jogos.
+
+  - 🔧 Funcionamento do ECS no projeto:
+
+    - Entities: São os objetos do jogo, como o jogador, o inimigo, efeitos, etc.
+
+    - Components: Dados ou atributos que são adicionados às entidades (ex.: vida, ataque, defesa, status).
+
+    - Systems: Contêm a lógica que processa as entidades que possuem determinados componentes (ex.: sistema de combate, sistema de turno, sistema de efeitos).
+
+  - ✅ O ECS também respeita e utiliza a gestão de estado baseada em BLoC, mantendo:
+
+    - Separação de responsabilidades.
+
+    - Clareza nos estados efêmeros e compartilhados.
+
+    - Alto desempenho durante os combates e interações dinâmicas do jogo.
+
+ # 🔥 Benefícios dessa Arquitetura
+ - 🔄 Código altamente reutilizável e organizado.
+
+ - 🛠️ Facilidade de manutenção e expansão do projeto.
+
+ - ⚙️ Permite uma separação clara entre UI, lógica de negócio e lógica do jogo.
+
+ - 🚀 Desempenho otimizado no módulo de gameplay graças ao ECS.
+
+
 # 🎮 Funcionamento do Jogo
 🏠 Tela Inicial
 - Exibe a logo do jogo com visual imersivo.
